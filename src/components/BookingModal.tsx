@@ -49,12 +49,6 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
     },
   });
 
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
-  };
 
   const handleFormSubmit = async (data: BookingFormData) => {
     setIsSubmitting(true);
