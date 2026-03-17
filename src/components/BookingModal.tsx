@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { Colors } from '../theme/colors';
 import { Calendar, Users, X, CheckCircle } from 'lucide-react-native';
 import { supabase } from '../lib/supabase';
+import { useRoomTypes } from '../hooks/useRoomTypes';
 
 const bookingSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -44,31 +45,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
   const [date, setDate] = useState(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
-  const [fetchingRooms, setFetchingRooms] = useState(false);
-
-  React.useEffect(() => {
-    if (visible && service.category?.toLowerCase() === 'hotel') {
-      fetchRoomTypes();
-    }
-  }, [visible, service.id]);
-
-  const fetchRoomTypes = async () => {
-    try {
-      setFetchingRooms(true);
-      const { data, error } = await supabase
-        .from('room_types')
-        .select('*')
-        .eq('service_id', service.id);
-
-      if (error) throw error;
-      setRoomTypes(data || []);
-    } catch (err) {
-      console.error('Error fetching room types:', err);
-    } finally {
-      setFetchingRooms(false);
-    }
-  };
+  const { roomTypes, loading: fetchingRooms } = useRoomTypes(service.id);
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),

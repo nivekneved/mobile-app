@@ -4,7 +4,8 @@ import { Text, ActivityIndicator, Button, Surface } from 'react-native-paper';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
 import { useServiceDetails } from '../../src/hooks/useServiceDetails';
-import { MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, Calendar as CalendarIcon } from 'lucide-react-native';
+import { useRoomTypes } from '../../src/hooks/useRoomTypes';
+import { MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, Calendar as CalendarIcon, Tag, Moon } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
 import { BookingModal } from '../../src/components/BookingModal';
@@ -17,6 +18,7 @@ export default function ServiceDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { service, loading, error } = useServiceDetails(id);
+  const { roomTypes, loading: roomsLoading } = useRoomTypes(id as string);
 
   const [bookingVisible, setBookingVisible] = React.useState(false);
 
@@ -157,6 +159,56 @@ export default function ServiceDetailScreen() {
               {service.description || "Discover the beauty and luxury of this carefully curated experience by Travel Lounge. We ensure every detail is handled with professional care for your comfort and enjoyment."}
             </Text>
           </View>
+
+          {/* Accommodation & Pricing Section for Hotels */}
+          {service.category?.toLowerCase() === 'hotel' && roomTypes.length > 0 && (
+            <View style={styles.accommodationSection}>
+              <Text variant="titleLarge" style={styles.sectionTitle}>Accommodation & Pricing</Text>
+              <View style={styles.roomList}>
+                {roomTypes.map((room) => (
+                  <Surface key={room.id} style={styles.roomCard} elevation={2}>
+                    <Image 
+                      source={{ uri: room.image_url || 'https://via.placeholder.com/400x300?text=Premium+Room' }} 
+                      style={styles.roomImage} 
+                    />
+                    <View style={styles.roomInfo}>
+                      <Text style={styles.roomName}>{room.name}</Text>
+                      
+                      <View style={styles.priceContainer}>
+                        <View style={styles.priceColumn}>
+                          <View style={styles.priceHeader}>
+                            <Clock size={12} color={Colors.textSecondary} />
+                            <Text style={styles.priceLabel}>Weekday</Text>
+                          </View>
+                          <Text style={styles.priceValue}>Rs {room.weekday_price.toLocaleString()}</Text>
+                        </View>
+                        
+                        <View style={styles.priceDivider} />
+                        
+                        <View style={styles.priceColumn}>
+                          <View style={styles.priceHeader}>
+                            <Moon size={12} color={Colors.primary} />
+                            <Text style={[styles.priceLabel, { color: Colors.primary }]}>Weekend</Text>
+                          </View>
+                          <Text style={[styles.priceValue, { color: Colors.primary }]}>Rs {room.weekend_price.toLocaleString()}</Text>
+                        </View>
+                      </View>
+
+                      {room.amenities && room.amenities.length > 0 && (
+                        <View style={styles.roomAmenities}>
+                          {room.amenities.slice(0, 3).map((amt, idx) => (
+                            <View key={idx} style={styles.roomAmenityBadge}>
+                              <Text style={styles.roomAmenityText}>{amt}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  </Surface>
+                ))}
+              </View>
+            </View>
+          )}
 
           {/* Amenities Section */}
           {service.amenities && service.amenities.length > 0 && (
@@ -393,6 +445,85 @@ const styles = StyleSheet.create({
   description: {
     color: Colors.textSecondary,
     lineHeight: 28,
+  },
+  accommodationSection: {
+    marginBottom: 32,
+  },
+  roomList: {
+    gap: 20,
+    marginTop: 8,
+  },
+  roomCard: {
+    borderRadius: 24,
+    backgroundColor: Colors.white,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  roomImage: {
+    width: '100%',
+    height: 180,
+  },
+  roomInfo: {
+    padding: 20,
+  },
+  roomName: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: Colors.charcoal,
+    marginBottom: 16,
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.02)',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  priceColumn: {
+    flex: 1,
+  },
+  priceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  priceLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: Colors.textSecondary,
+  },
+  priceValue: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: Colors.charcoal,
+  },
+  priceDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: Colors.border,
+    marginHorizontal: 16,
+  },
+  roomAmenities: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  roomAmenityBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+  },
+  roomAmenityText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
   },
   amenitiesSection: {
     marginBottom: 32,
