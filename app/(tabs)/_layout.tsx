@@ -7,6 +7,7 @@ import { useAuth } from '../../src/context/AuthContext';
 export default function TabLayout() {
   const { signOut } = useAuth();
 
+  /*
   const handleLogout = () => {
     Alert.alert(
       "Sign Out",
@@ -17,6 +18,7 @@ export default function TabLayout() {
       ]
     );
   };
+  */
 
   return (
     <Tabs

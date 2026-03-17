@@ -76,6 +76,7 @@ export default function HomeScreen() {
     { name: 'Dubai', image: require('../../assets/dubai_card.png'), query: 'Dubai' },
   ];
 
+  /*
   const handleLogout = () => {
     Alert.alert(
       "Sign Out",
@@ -86,6 +87,7 @@ export default function HomeScreen() {
       ]
     );
   };
+  */
 
   if (loading) {
     return (
@@ -119,9 +121,11 @@ export default function HomeScreen() {
             <Bell size={22} color={Colors.charcoal} />
             <View style={styles.dot} />
           </TouchableOpacity>
+          {/* 
           <TouchableOpacity onPress={handleLogout} style={[styles.actionBtn, styles.logoutBtn]}>
             <LogOut size={22} color={Colors.primary} />
           </TouchableOpacity>
+          */}
         </View>
       </View>
 

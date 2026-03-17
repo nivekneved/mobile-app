@@ -25,6 +25,7 @@ function RootLayoutNav() {
     },
   };
 
+  /* 
   useEffect(() => {
     if (isLoading) return;
 
@@ -34,6 +35,7 @@ function RootLayoutNav() {
       router.replace('/(tabs)');
     }
   }, [session, isLoading, segments]);
+  */
 
   return (
     <PaperProvider theme={theme}>
@@ -50,7 +52,7 @@ function RootLayoutNav() {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
+        {/* <Stack.Screen name="(auth)" options={{ animation: 'fade' }} /> */}
         <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
         <Stack.Screen name="faq" options={{ title: 'FAQ', headerShown: true }} />
         <Stack.Screen name="news" options={{ title: 'News', headerShown: true }} />
