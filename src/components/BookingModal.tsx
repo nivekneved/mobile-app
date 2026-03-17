@@ -4,7 +4,6 @@ import { Modal, Portal, Text, TextInput, Button, IconButton, Surface } from 'rea
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Colors } from '../theme/colors';
 import { Calendar, Users, X, CheckCircle } from 'lucide-react-native';
 
@@ -34,7 +33,6 @@ interface BookingModalProps {
 
 export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingModalProps) => {
   const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -186,26 +184,16 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
             <Text style={styles.sectionTitle}>Booking Details</Text>
           </View>
 
-          <TouchableOpacity 
-            style={styles.dateSelector} 
-            onPress={() => setShowDatePicker(true)}
-          >
-            <Calendar size={20} color={Colors.primary} />
-            <View>
-              <Text style={styles.dateLabel}>Preferred Date</Text>
-              <Text style={styles.dateValue}>{date.toLocaleDateString()}</Text>
-            </View>
-          </TouchableOpacity>
-
-          {showDatePicker && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="default"
-              onChange={onDateChange}
-              minimumDate={new Date()}
-            />
-          )}
+          <TextInput
+            label="Preferred Date (DD/MM/YYYY)"
+            value={date.toLocaleDateString()}
+            mode="outlined"
+            activeOutlineColor={Colors.primary}
+            style={styles.input}
+            left={<TextInput.Icon icon={() => <Calendar size={20} color={Colors.primary} />} />}
+            editable={false}
+            onPressIn={() => Alert.alert('Pick Date', 'Please type the date for now or use the standard format.')}
+          />
 
           <View style={styles.row}>
             <View style={styles.col}>

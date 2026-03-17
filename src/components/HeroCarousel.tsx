@@ -4,7 +4,8 @@ import { Text } from 'react-native-paper';
 import Animated, { 
   useAnimatedStyle, 
   interpolate, 
-  Extrapolate 
+  Extrapolate,
+  SharedValue
 } from 'react-native-reanimated';
 import { Colors } from '../theme/colors';
 import { HeroSlide } from '../hooks/useHomeData';
@@ -12,6 +13,55 @@ import { PremiumCarousel } from './PremiumCarousel';
 
 const { width } = Dimensions.get('window');
 const ITEM_HEIGHT = 480;
+
+type HeroSlideItemProps = {
+  item: HeroSlide;
+  index: number;
+  scrollX: SharedValue<number>;
+};
+
+const HeroSlideItem = ({ item, index, scrollX }: HeroSlideItemProps) => {
+  const animatedImageStyle = useAnimatedStyle(() => {
+    const input = [(index - 1) * width, index * width, (index + 1) * width];
+    const scale = interpolate(scrollX.value, input, [1.2, 1, 1.2], Extrapolate.CLAMP);
+    const translateX = interpolate(scrollX.value, input, [-width * 0.2, 0, width * 0.2], Extrapolate.CLAMP);
+    return {
+      transform: [{ scale }, { translateX }],
+    };
+  });
+
+  const animatedContentStyle = useAnimatedStyle(() => {
+    const input = [(index - 1) * width, index * width, (index + 1) * width];
+    const opacity = interpolate(scrollX.value, input, [0, 1, 0], Extrapolate.CLAMP);
+    const translateY = interpolate(scrollX.value, input, [20, 0, 20], Extrapolate.CLAMP);
+    return {
+      opacity,
+      transform: [{ translateY }],
+    };
+  });
+
+  return (
+    <View style={styles.slide}>
+      <View style={styles.imageContainer}>
+        <Animated.Image 
+          source={{ uri: item.image_url }} 
+          style={[styles.image, animatedImageStyle]} 
+        />
+      </View>
+      <View style={styles.overlay} />
+      <Animated.View style={[styles.content, animatedContentStyle]}>
+        <Text variant="labelMedium" style={styles.tag}>Exclusive Collection</Text>
+        <Text variant="displaySmall" style={styles.title}>{item.title}</Text>
+        <Text variant="bodyLarge" style={styles.subtitle}>{item.subtitle}</Text>
+        {item.cta_text && (
+          <TouchableOpacity style={styles.cta} activeOpacity={0.8}>
+            <Text variant="labelLarge" style={styles.ctaText}>{item.cta_text}</Text>
+          </TouchableOpacity>
+        )}
+      </Animated.View>
+    </View>
+  );
+};
 
 type HeroCarouselProps = {
   data: HeroSlide[];
@@ -28,48 +78,9 @@ export const HeroCarousel = ({ data }: HeroCarouselProps) => {
         gap={0}
         showIndicators={true}
         indicatorColor={Colors.primary}
-        renderItem={({ item, index, scrollX }) => {
-          const animatedImageStyle = useAnimatedStyle(() => {
-            const input = [(index - 1) * width, index * width, (index + 1) * width];
-            const scale = interpolate(scrollX.value, input, [1.2, 1, 1.2], Extrapolate.CLAMP);
-            const translateX = interpolate(scrollX.value, input, [-width * 0.2, 0, width * 0.2], Extrapolate.CLAMP);
-            return {
-              transform: [{ scale }, { translateX }],
-            };
-          });
-
-          const animatedContentStyle = useAnimatedStyle(() => {
-            const input = [(index - 1) * width, index * width, (index + 1) * width];
-            const opacity = interpolate(scrollX.value, input, [0, 1, 0], Extrapolate.CLAMP);
-            const translateY = interpolate(scrollX.value, input, [20, 0, 20], Extrapolate.CLAMP);
-            return {
-              opacity,
-              transform: [{ translateY }],
-            };
-          });
-
-          return (
-            <View style={styles.slide}>
-              <View style={styles.imageContainer}>
-                <Animated.Image 
-                  source={{ uri: item.image_url }} 
-                  style={[styles.image, animatedImageStyle]} 
-                />
-              </View>
-              <View style={styles.overlay} />
-              <Animated.View style={[styles.content, animatedContentStyle]}>
-                <Text variant="labelMedium" style={styles.tag}>Exclusive Collection</Text>
-                <Text variant="displaySmall" style={styles.title}>{item.title}</Text>
-                <Text variant="bodyLarge" style={styles.subtitle}>{item.subtitle}</Text>
-                {item.cta_text && (
-                  <TouchableOpacity style={styles.cta} activeOpacity={0.8}>
-                    <Text variant="labelLarge" style={styles.ctaText}>{item.cta_text}</Text>
-                  </TouchableOpacity>
-                )}
-              </Animated.View>
-            </View>
-          );
-        }}
+        renderItem={({ item, index, scrollX }) => (
+          <HeroSlideItem item={item} index={index} scrollX={scrollX} />
+        )}
       />
     </View>
   );

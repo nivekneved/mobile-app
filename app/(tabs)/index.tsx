@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { Alert, Dimensions, Image, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
 import { Text, ActivityIndicator, Searchbar, Avatar } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
 import { useHomeData } from '../../src/hooks/useHomeData';
@@ -10,13 +10,59 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Search, MapPin, Bell, Filter, LogOut } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
-import { Alert, Dimensions } from 'react-native';
 import { PremiumCarousel } from '../../src/components/PremiumCarousel';
-import Animated, { useAnimatedStyle, interpolate, Extrapolate } from 'react-native-reanimated';
+import Animated, { 
+  useAnimatedStyle, 
+  interpolate, 
+  Extrapolate, 
+  SharedValue 
+} from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 const DEST_CARD_WIDTH = width * 0.75;
 const DEST_GAP = 16;
+
+type Destination = {
+  name: string;
+  image: any;
+  query: string;
+};
+
+const DestinationCard = ({ item, index, scrollX, onPress }: { 
+  item: Destination; 
+  index: number; 
+  scrollX: SharedValue<number>;
+  onPress: () => void;
+}) => {
+  const animatedCardStyle = useAnimatedStyle(() => {
+    const input = [
+      (index - 1) * (DEST_CARD_WIDTH + DEST_GAP), 
+      index * (DEST_CARD_WIDTH + DEST_GAP), 
+      (index + 1) * (DEST_CARD_WIDTH + DEST_GAP)
+    ];
+    const scale = interpolate(scrollX.value, input, [0.9, 1, 0.9], Extrapolate.CLAMP);
+    const opacity = interpolate(scrollX.value, input, [0.6, 1, 0.6], Extrapolate.CLAMP);
+    return {
+      transform: [{ scale }],
+      opacity,
+    };
+  });
+
+  return (
+    <Animated.View style={[styles.destCardWrapper, animatedCardStyle]}>
+      <TouchableOpacity 
+        style={styles.destCard} 
+        onPress={onPress}
+        activeOpacity={0.9}
+      >
+        <Image source={item.image} style={styles.destImage} />
+        <View style={styles.destOverlay}>
+          <Text style={styles.destName}>{item.name}</Text>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 
 export default function HomeScreen() {
   const { heroSlides, categories, featuredServices, loading, error } = useHomeData();
@@ -98,32 +144,14 @@ export default function HomeScreen() {
             gap={DEST_GAP}
             showIndicators={true}
             indicatorColor={Colors.primary}
-            renderItem={({ item, index, scrollX }) => {
-              const animatedCardStyle = useAnimatedStyle(() => {
-                const input = [(index - 1) * (DEST_CARD_WIDTH + DEST_GAP), index * (DEST_CARD_WIDTH + DEST_GAP), (index + 1) * (DEST_CARD_WIDTH + DEST_GAP)];
-                const scale = interpolate(scrollX.value, input, [0.9, 1, 0.9], Extrapolate.CLAMP);
-                const opacity = interpolate(scrollX.value, input, [0.6, 1, 0.6], Extrapolate.CLAMP);
-                return {
-                  transform: [{ scale }],
-                  opacity,
-                };
-              });
-
-              return (
-                <Animated.View style={[styles.destCardWrapper, animatedCardStyle]}>
-                  <TouchableOpacity 
-                    style={styles.destCard} 
-                    onPress={() => router.push(`/explore?query=${item.query}`)}
-                    activeOpacity={0.9}
-                  >
-                    <Image source={item.image} style={styles.destImage} />
-                    <View style={styles.destOverlay}>
-                      <Text style={styles.destName}>{item.name}</Text>
-                    </View>
-                  </TouchableOpacity>
-                </Animated.View>
-              );
-            }}
+            renderItem={({ item, index, scrollX }) => (
+              <DestinationCard 
+                item={item} 
+                index={index} 
+                scrollX={scrollX} 
+                onPress={() => router.push(`/explore?query=${item.query}`)}
+              />
+            )}
           />
         </View>
 

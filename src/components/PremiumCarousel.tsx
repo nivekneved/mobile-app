@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { View, StyleSheet, Dimensions, FlatList, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Dimensions, FlatList } from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedScrollHandler, 
@@ -10,6 +10,32 @@ import Animated, {
 import { Colors } from '../theme/colors';
 
 const { width } = Dimensions.get('window');
+
+interface IndicatorProps {
+  index: number;
+  itemWidth: number;
+  scrollX: Animated.SharedValue<number>;
+  indicatorColor: string;
+}
+
+const RenderIndicator = ({ index, itemWidth, scrollX, indicatorColor }: IndicatorProps) => {
+  const indicatorStyle = useAnimatedStyle(() => {
+    const input = [(index - 1) * itemWidth, index * itemWidth, (index + 1) * itemWidth];
+    const dotWidth = interpolate(scrollX.value, input, [8, 24, 8], Extrapolate.CLAMP);
+    const opacity = interpolate(scrollX.value, input, [0.3, 1, 0.3], Extrapolate.CLAMP);
+    return { width: dotWidth, opacity };
+  });
+
+  return (
+    <Animated.View 
+      style={[
+        styles.dot, 
+        { backgroundColor: indicatorColor }, 
+        indicatorStyle
+      ]} 
+    />
+  );
+};
 
 interface PremiumCarouselProps<T> {
   data: T[];
@@ -55,25 +81,15 @@ export function PremiumCarousel<T>({
       
       {showIndicators && (
         <View style={styles.indicatorContainer}>
-          {data.map((_, index) => {
-            const indicatorStyle = useAnimatedStyle(() => {
-              const input = [(index - 1) * itemWidth, index * itemWidth, (index + 1) * itemWidth];
-              const dotWidth = interpolate(scrollX.value, input, [8, 24, 8], Extrapolate.CLAMP);
-              const opacity = interpolate(scrollX.value, input, [0.3, 1, 0.3], Extrapolate.CLAMP);
-              return { width: dotWidth, opacity };
-            });
-
-            return (
-              <Animated.View 
-                key={index} 
-                style={[
-                  styles.dot, 
-                  { backgroundColor: indicatorColor }, 
-                  indicatorStyle
-                ]} 
-              />
-            );
-          })}
+          {data.map((_, index) => (
+            <RenderIndicator 
+              key={index} 
+              index={index} 
+              itemWidth={itemWidth} 
+              scrollX={scrollX} 
+              indicatorColor={indicatorColor} 
+            />
+          ))}
         </View>
       )}
     </View>
