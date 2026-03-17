@@ -2,11 +2,12 @@ import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { useColorScheme } from 'react-native';
+import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { WishlistProvider } from '../src/context/WishlistContext';
 import '../src/lib/i18n';
 
 function RootLayoutNav() {
-  const { session, loading } = useAuth();
+  const { session, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   const colorScheme = useColorScheme();
@@ -25,16 +26,14 @@ function RootLayoutNav() {
   };
 
   useEffect(() => {
-    if (loading) return;
+    if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
 
-    if (!session && !inAuthGroup) {
-      router.replace('/(auth)');
-    } else if (session && inAuthGroup) {
+    if (session && inAuthGroup) {
       router.replace('/(tabs)');
     }
-  }, [session, loading, segments]);
+  }, [session, isLoading, segments]);
 
   return (
     <PaperProvider theme={theme}>
@@ -48,15 +47,13 @@ function RootLayoutNav() {
             fontWeight: '900',
           },
           headerShadowVisible: false,
+          headerShown: false,
         }}
       >
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="service-details/[id]" options={{ presentation: 'card' }} />
-        <Stack.Screen name="faq" options={{ title: 'FAQ', headerBackTitle: 'Back' }} />
-        <Stack.Screen name="news" options={{ title: 'News', headerBackTitle: 'Back' }} />
-        <Stack.Screen name="package-builder" options={{ title: 'Custom Plan', headerBackTitle: 'Back' }} />
+        <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
+        <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+        <Stack.Screen name="faq" options={{ title: 'FAQ', headerShown: true }} />
+        <Stack.Screen name="news" options={{ title: 'News', headerShown: true }} />
       </Stack>
     </PaperProvider>
   );
