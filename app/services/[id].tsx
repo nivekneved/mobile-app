@@ -7,6 +7,8 @@ import { useServiceDetails } from '../../src/hooks/useServiceDetails';
 import { MapPin, ArrowLeft, Share2, Mail, Clock, Info } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
+import { BookingModal } from '../../src/components/BookingModal';
+import { supabase } from '../../src/lib/supabase';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 400;
@@ -16,13 +18,39 @@ export default function ServiceDetailScreen() {
   const router = useRouter();
   const { service, loading, error } = useServiceDetails(id);
 
-  const handleInquiry = () => {
+  const [bookingVisible, setBookingVisible] = React.useState(false);
+
+  const handleBooking = async (data: any) => {
     if (!service) return;
     
-    const subject = `Inquiry: ${service.name}`;
-    const body = `Hello Travel Lounge team,\n\nI am interested in the following service:\n\nService Name: ${service.name}\nService ID: ${service.id}\nLocation: ${service.location || 'N/A'}\n\nPlease provide more information regarding availability and booking details.\n\nThank you!`;
-    
-    Linking.openURL(`mailto:info@travellounge.mu?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    // Save to bookings table
+    const { error: bookingError } = await supabase
+      .from('bookings')
+      .select('id')
+      .limit(1);
+
+    // Prepare booking data
+    const bookingData = {
+      activity_name: service.name,
+      activity_type: service.category || 'Experience',
+      description: `Customer: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone}\nRequirements: ${data.specialRequirements || 'None'}`,
+      start_date: data.date.toISOString().split('T')[0],
+      amount: service.price,
+      total_amount: service.price,
+      currency: 'MUR',
+      status: 'pending',
+      pax_adults: data.paxAdults,
+      pax_children: data.paxChildren,
+    };
+
+    const { error } = await supabase
+      .from('bookings')
+      .insert([bookingData]);
+
+    if (error) {
+      console.error('Error saving booking:', error);
+      throw error;
+    }
   };
 
   const handleShare = async () => {
@@ -144,15 +172,29 @@ export default function ServiceDetailScreen() {
           </View>
           <Button 
             mode="contained" 
-            onPress={handleInquiry}
+            onPress={() => setBookingVisible(true)}
             style={styles.bookButton}
             contentStyle={styles.bookButtonContent}
-            icon={({ size, color }) => <Mail size={size} color={color} />}
+            icon={({ size, color }) => <Clock size={size} color={color} />}
           >
-            Inquire Now
+            Book Now
           </Button>
         </View>
       </Surface>
+
+      {service && (
+        <BookingModal
+          visible={bookingVisible}
+          onDismiss={() => setBookingVisible(false)}
+          service={{
+            id: service.id,
+            name: service.name,
+            price: service.price,
+            category: service.category
+          }}
+          onSubmit={handleBooking}
+        />
+      )}
     </View>
   );
 }
