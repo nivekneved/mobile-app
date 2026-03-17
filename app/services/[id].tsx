@@ -316,7 +316,8 @@ export default function ServiceDetailScreen() {
             id: service.id,
             name: service.name,
             price: service.price,
-            category: service.category
+            category: service.category,
+            room_types: service.room_types
           }}
           onSubmit={handleBooking}
         />
