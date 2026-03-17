@@ -45,7 +45,22 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
   const [date, setDate] = useState(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const { roomTypes, loading: fetchingRooms } = useRoomTypes(service.id);
+  const { roomTypes: hookRoomTypes, loading: fetchingRooms } = useRoomTypes(service.id);
+
+  // Prioritize JSON room types if passed via service prop
+  const roomTypes = React.useMemo(() => {
+    if ((service as any).room_types && Array.isArray((service as any).room_types) && (service as any).room_types.length > 0) {
+      return (service as any).room_types.map((room: any, index: number) => ({
+        id: `json-${index}`,
+        name: room.type || 'Standard Room',
+        weekday_price: parseInt(room.prices?.mon) || 0,
+        weekend_price: parseInt(room.prices?.sat) || 0,
+        image_url: room.image_url,
+        amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
+      }));
+    }
+    return hookRoomTypes;
+  }, [(service as any).room_types, hookRoomTypes]);
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -251,7 +266,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
                   name="roomType"
                   render={({ field: { onChange, value } }) => (
                     <View style={styles.roomTypeList}>
-                      {roomTypes.map((type) => (
+                      {roomTypes.map((type: RoomType) => (
                         <TouchableOpacity
                           key={type.id}
                           onPress={() => onChange(type.name)}

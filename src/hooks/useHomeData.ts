@@ -31,6 +31,7 @@ export type Service = {
   location?: string;
   amenities?: string[];
   itinerary?: { time: string; title: string; description: string }[];
+  room_types?: any[]; // JSON column
 };
 
 export const useHomeData = () => {

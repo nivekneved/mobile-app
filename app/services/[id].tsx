@@ -18,7 +18,22 @@ export default function ServiceDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { service, loading, error } = useServiceDetails(id);
-  const { roomTypes, loading: roomsLoading } = useRoomTypes(id as string);
+  const { roomTypes: hookRoomTypes, loading: roomsLoading } = useRoomTypes(id as string);
+
+  // Prioritize JSON room types from the service record if they exist
+  const roomTypes = React.useMemo(() => {
+    if (service?.room_types && Array.isArray(service.room_types) && service.room_types.length > 0) {
+      return service.room_types.map((room: any, index: number) => ({
+        id: `json-${index}`,
+        name: room.type || 'Standard Room',
+        weekday_price: parseInt(room.prices?.mon) || 0,
+        weekend_price: parseInt(room.prices?.sat) || 0,
+        image_url: room.image_url,
+        amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
+      }));
+    }
+    return hookRoomTypes;
+  }, [service?.room_types, hookRoomTypes]);
 
   const isWeekend = (date: Date) => {
     const day = date.getDay();
@@ -212,7 +227,7 @@ export default function ServiceDetailScreen() {
 
                       {room.amenities && room.amenities.length > 0 && (
                         <View style={styles.roomAmenities}>
-                          {room.amenities.slice(0, 3).map((amt, idx) => (
+                          {room.amenities.slice(0, 3).map((amt: string, idx: number) => (
                             <View key={idx} style={styles.roomAmenityBadge}>
                               <Text style={styles.roomAmenityText}>{amt}</Text>
                             </View>
