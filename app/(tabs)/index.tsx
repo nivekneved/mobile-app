@@ -10,13 +10,25 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Search, MapPin, Bell, Filter, LogOut } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
-import { Alert } from 'react-native';
+import { Alert, Dimensions } from 'react-native';
+import { PremiumCarousel } from '../../src/components/PremiumCarousel';
+import Animated, { useAnimatedStyle, interpolate, Extrapolate } from 'react-native-reanimated';
+
+const { width } = Dimensions.get('window');
+const DEST_CARD_WIDTH = width * 0.75;
+const DEST_GAP = 16;
 
 export default function HomeScreen() {
   const { heroSlides, categories, featuredServices, loading, error } = useHomeData();
   const { user, signOut } = useAuth();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState('');
+
+  const destinations = [
+    { name: 'Paris', image: require('../../assets/paris_card.png'), query: 'Paris' },
+    { name: 'London', image: require('../../assets/london_card.png'), query: 'London' },
+    { name: 'Dubai', image: require('../../assets/dubai_card.png'), query: 'Dubai' },
+  ];
 
   const handleLogout = () => {
     Alert.alert(
@@ -79,30 +91,40 @@ export default function HomeScreen() {
               <Text style={styles.sectionSubtitle}>Explore the must-visit spots</Text>
             </View>
           </View>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.discoveryList}
-          >
-            <TouchableOpacity style={styles.destCard} onPress={() => router.push('/explore?query=Paris')}>
-              <Image source={require('../../assets/paris_card.png')} style={styles.destImage} />
-              <View style={styles.destOverlay}>
-                <Text style={styles.destName}>Paris</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.destCard} onPress={() => router.push('/explore?query=London')}>
-              <Image source={require('../../assets/london_card.png')} style={styles.destImage} />
-              <View style={styles.destOverlay}>
-                <Text style={styles.destName}>London</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.destCard} onPress={() => router.push('/explore?query=Dubai')}>
-              <Image source={require('../../assets/dubai_card.png')} style={styles.destImage} />
-              <View style={styles.destOverlay}>
-                <Text style={styles.destName}>Dubai</Text>
-              </View>
-            </TouchableOpacity>
-          </ScrollView>
+          
+          <PremiumCarousel
+            data={destinations}
+            itemWidth={DEST_CARD_WIDTH}
+            gap={DEST_GAP}
+            showIndicators={true}
+            indicatorColor={Colors.primary}
+            renderItem={({ item, index, scrollX }) => {
+              const animatedCardStyle = useAnimatedStyle(() => {
+                const input = [(index - 1) * (DEST_CARD_WIDTH + DEST_GAP), index * (DEST_CARD_WIDTH + DEST_GAP), (index + 1) * (DEST_CARD_WIDTH + DEST_GAP)];
+                const scale = interpolate(scrollX.value, input, [0.9, 1, 0.9], Extrapolate.CLAMP);
+                const opacity = interpolate(scrollX.value, input, [0.6, 1, 0.6], Extrapolate.CLAMP);
+                return {
+                  transform: [{ scale }],
+                  opacity,
+                };
+              });
+
+              return (
+                <Animated.View style={[styles.destCardWrapper, animatedCardStyle]}>
+                  <TouchableOpacity 
+                    style={styles.destCard} 
+                    onPress={() => router.push(`/explore?query=${item.query}`)}
+                    activeOpacity={0.9}
+                  >
+                    <Image source={item.image} style={styles.destImage} />
+                    <View style={styles.destOverlay}>
+                      <Text style={styles.destName}>{item.name}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </Animated.View>
+              );
+            }}
+          />
         </View>
 
         {error && (
@@ -259,19 +281,28 @@ const styles = StyleSheet.create({
     borderColor: Colors.white,
   },
   discoverySection: {
-    paddingVertical: 10,
+    paddingVertical: 20,
+    backgroundColor: Colors.white,
+    marginTop: 10,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
-  discoveryList: {
-    paddingLeft: 24,
-    paddingRight: 12,
+  destCardWrapper: {
+    width: DEST_CARD_WIDTH,
+    height: 240,
+    marginRight: DEST_GAP,
   },
   destCard: {
-    width: 160,
-    height: 220,
+    width: '100%',
+    height: '100%',
     borderRadius: 24,
     overflow: 'hidden',
-    marginRight: 16,
     backgroundColor: '#F1F5F9',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
   },
   destImage: {
     width: '100%',
