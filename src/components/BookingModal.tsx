@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Colors } from '../theme/colors';
-import { Calendar, Users, X, CheckCircle } from 'lucide-react-native';
+import { Calendar, Users, X, CheckCircle, Moon, Clock } from 'lucide-react-native';
 import { supabase } from '../lib/supabase';
 import { useRoomTypes } from '../hooks/useRoomTypes';
 
@@ -265,10 +265,22 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
                               styles.roomTypeName,
                               value === type.name && styles.roomTypeTextSelected
                             ]}>{type.name}</Text>
-                            <Text style={[
-                              styles.roomTypePrice,
-                              value === type.name && styles.roomTypeTextSelected
-                            ]}>Rs {type.weekday_price.toLocaleString()}</Text>
+                            <View style={styles.roomTypePriceRow}>
+                              <View style={styles.miniPriceBadge}>
+                                <Clock size={10} color={value === type.name ? Colors.white : Colors.textSecondary} />
+                                <Text style={[
+                                  styles.roomTypePrice,
+                                  value === type.name && styles.roomTypeTextSelected
+                                ]}> Rs {type.weekday_price.toLocaleString()}</Text>
+                              </View>
+                              <View style={[styles.miniPriceBadge, styles.miniPriceBadgeWeekend]}>
+                                <Moon size={10} color={value === type.name ? Colors.white : Colors.primary} />
+                                <Text style={[
+                                  styles.roomTypePrice,
+                                  { color: value === type.name ? Colors.white : Colors.primary }
+                                ]}> Rs {type.weekend_price.toLocaleString()}</Text>
+                              </View>
+                            </View>
                           </View>
                           {value === type.name && (
                             <CheckCircle size={20} color={Colors.white} />
@@ -391,7 +403,19 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 14,
     color: Colors.charcoal,
-    marginBottom: 2,
+    marginBottom: 4,
+  },
+  roomTypePriceRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  miniPriceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  miniPriceBadgeWeekend: {
+    // Spacer or specific style for weekend badge if needed
   },
   roomTypePrice: {
     fontSize: 12,

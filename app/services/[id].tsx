@@ -20,6 +20,11 @@ export default function ServiceDetailScreen() {
   const { service, loading, error } = useServiceDetails(id);
   const { roomTypes, loading: roomsLoading } = useRoomTypes(id as string);
 
+  const isWeekend = (date: Date) => {
+    const day = date.getDay();
+    return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+  };
+
   const [bookingVisible, setBookingVisible] = React.useState(false);
 
   const handleBooking = async (data: any) => {
@@ -31,14 +36,25 @@ export default function ServiceDetailScreen() {
       .select('id')
       .limit(1);
 
+    // Calculate amount based on room type and date
+    let selectedAmount = service.price;
+    if (service.category?.toLowerCase() === 'hotel' && data.roomType) {
+      const selectedRoom = roomTypes.find(r => r.name === data.roomType);
+      if (selectedRoom) {
+        selectedAmount = isWeekend(data.date) 
+          ? selectedRoom.weekend_price 
+          : selectedRoom.weekday_price;
+      }
+    }
+
     // Prepare booking data
     const bookingData = {
       activity_name: service.name,
       activity_type: service.category || 'Experience',
       description: `Customer: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone}${data.roomType ? `\nRoom Type: ${data.roomType}` : ''}\nRequirements: ${data.specialRequirements || 'None'}`,
       start_date: data.date.toISOString().split('T')[0],
-      amount: service.price,
-      total_amount: service.price,
+      amount: selectedAmount,
+      total_amount: selectedAmount,
       currency: 'MUR',
       status: 'pending',
       pax_adults: data.paxAdults,
@@ -178,7 +194,7 @@ export default function ServiceDetailScreen() {
                         <View style={styles.priceColumn}>
                           <View style={styles.priceHeader}>
                             <Clock size={12} color={Colors.textSecondary} />
-                            <Text style={styles.priceLabel}>Weekday</Text>
+                            <Text style={styles.roomPriceLabel}>Weekday</Text>
                           </View>
                           <Text style={styles.priceValue}>Rs {room.weekday_price.toLocaleString()}</Text>
                         </View>
@@ -188,7 +204,7 @@ export default function ServiceDetailScreen() {
                         <View style={styles.priceColumn}>
                           <View style={styles.priceHeader}>
                             <Moon size={12} color={Colors.primary} />
-                            <Text style={[styles.priceLabel, { color: Colors.primary }]}>Weekend</Text>
+                            <Text style={[styles.roomPriceLabel, { color: Colors.primary }]}>Weekend</Text>
                           </View>
                           <Text style={[styles.priceValue, { color: Colors.primary }]}>Rs {room.weekend_price.toLocaleString()}</Text>
                         </View>
@@ -490,7 +506,7 @@ const styles = StyleSheet.create({
     gap: 6,
     marginBottom: 4,
   },
-  priceLabel: {
+  roomPriceLabel: {
     fontSize: 10,
     fontWeight: '800',
     textTransform: 'uppercase',
