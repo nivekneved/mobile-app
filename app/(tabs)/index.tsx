@@ -70,7 +70,6 @@ export default function HomeScreen() {
       <ScrollView 
         style={styles.container}
         showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[1]}
       >
         {/* Destination Discovery Section */}
         <View style={styles.discoverySection}>
@@ -112,18 +111,6 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Search Bar - Sticky */}
-        <View style={styles.searchSection}>
-          <Searchbar
-            placeholder="Search experiences..."
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style={styles.searchBar}
-            inputStyle={styles.searchInput}
-            iconColor={Colors.primary}
-            elevation={2}
-          />
-        </View>
 
         {/* Hero Section */}
         {heroSlides && heroSlides.length > 0 && (
@@ -301,20 +288,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
     letterSpacing: -0.5,
-  },
-  searchSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: Colors.surface,
-  },
-  searchBar: {
-    borderRadius: 16,
-    backgroundColor: Colors.white,
-    height: 56,
-  },
-  searchInput: {
-    fontSize: 16,
-    minHeight: 0,
   },
   carouselContainer: {
     marginTop: 20,
