@@ -84,22 +84,22 @@ export default function HomeScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.discoveryList}
           >
-            <TouchableOpacity style={styles.destCard} onPress={() => router.push('/explore?query=Grand+Baie')}>
-              <Image source={require('../../assets/grand_baie_card.png')} style={styles.destImage} />
+            <TouchableOpacity style={styles.destCard} onPress={() => router.push('/explore?query=Paris')}>
+              <Image source={require('../../assets/paris_card.png')} style={styles.destImage} />
               <View style={styles.destOverlay}>
-                <Text style={styles.destName}>Grand Baie</Text>
+                <Text style={styles.destName}>Paris</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.destCard} onPress={() => router.push('/explore?query=Flic+en+Flac')}>
-              <Image source={require('../../assets/flic_en_flac_card.png')} style={styles.destImage} />
+            <TouchableOpacity style={styles.destCard} onPress={() => router.push('/explore?query=London')}>
+              <Image source={require('../../assets/london_card.png')} style={styles.destImage} />
               <View style={styles.destOverlay}>
-                <Text style={styles.destName}>Flic en Flac</Text>
+                <Text style={styles.destName}>London</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.destCard} onPress={() => router.push('/explore?query=Rodrigues')}>
-              <Image source={require('../../assets/rodrigues_card.png')} style={styles.destImage} />
+            <TouchableOpacity style={styles.destCard} onPress={() => router.push('/explore?query=Dubai')}>
+              <Image source={require('../../assets/dubai_card.png')} style={styles.destImage} />
               <View style={styles.destOverlay}>
-                <Text style={styles.destName}>Rodrigues</Text>
+                <Text style={styles.destName}>Dubai</Text>
               </View>
             </TouchableOpacity>
           </ScrollView>
