@@ -20,7 +20,14 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
           .single();
 
         if (serviceError) throw serviceError;
-        setService(data);
+        
+        if (data) {
+          setService({
+            ...data,
+            price: data.base_price || 0,
+            category: data.service_type || 'Experience'
+          });
+        }
       } catch (err: any) {
         console.error('Error fetching service details:', err);
         setError(err.message);

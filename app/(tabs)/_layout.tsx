@@ -43,13 +43,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          headerShown: false,
           title: 'Home',
           tabBarIcon: ({ color }) => <Home size={24} color={color} />,
-          headerRight: () => (
-            <TouchableOpacity onPress={handleLogout} style={{ marginRight: 16 }}>
-              <LogOut size={22} color={Colors.primary} />
-            </TouchableOpacity>
-          ),
         }}
       />
       <Tabs.Screen

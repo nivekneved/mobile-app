@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Service } from './useHomeData';
 
-export const useSearchServices = (query: string, categoryId: string | null) => {
+export const useSearchServices = (query: string, categorySlug: string | null) => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,21 +15,33 @@ export const useSearchServices = (query: string, categoryId: string | null) => {
       try {
         let supabaseQuery = supabase
           .from('services')
-          .select('*')
-          .eq('is_active', true);
+          .select('*');
 
         if (query) {
           supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
         }
 
-        if (categoryId && categoryId !== 'all') {
-          supabaseQuery = supabaseQuery.eq('category_id', categoryId);
+        if (categorySlug && categorySlug !== 'all') {
+          // Mapping "hotels" -> "hotel", "activities" -> "activity"
+          let type = categorySlug;
+          if (type === 'hotels') type = 'hotel';
+          if (type === 'activities') type = 'activity';
+          if (type === 'cruises') type = 'cruise';
+          
+          supabaseQuery = supabaseQuery.eq('service_type', type);
         }
 
         const { data, error: searchError } = await supabaseQuery.order('name');
 
         if (searchError) throw searchError;
-        setServices(data || []);
+        
+        const mappedData = (data || []).map(s => ({
+          ...s,
+          price: s.base_price || 0,
+          category: s.service_type || 'Experience'
+        }));
+        
+        setServices(mappedData);
       } catch (err: any) {
         console.error('Error searching services:', err);
         setError(err.message);
@@ -43,7 +55,7 @@ export const useSearchServices = (query: string, categoryId: string | null) => {
     }, 300); // Debounce search
 
     return () => clearTimeout(timer);
-  }, [query, categoryId]);
+  }, [query, categorySlug]);
 
   return { services, loading, error };
 };

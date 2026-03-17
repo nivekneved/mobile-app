@@ -1,5 +1,5 @@
 export const Colors = {
-  primary: '#E11D48', // Brand Red (approx from admin/web apps)
+  primary: '#DC2626', // Travel Lounge Red
   charcoal: '#1F2937', // Dark Slate/Charcoal
   background: '#FFFFFF',
   surface: '#F9FAFB',

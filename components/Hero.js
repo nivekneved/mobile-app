@@ -17,7 +17,6 @@ export default function Hero() {
         const { data, error } = await supabase
           .from('hero_slides')
           .select('*')
-          .eq('is_active', true)
           .order('order_index', { ascending: true });
 
         if (error) throw error;

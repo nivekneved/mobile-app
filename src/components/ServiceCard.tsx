@@ -8,26 +8,49 @@ type ServiceCardProps = {
   name: string;
   image_url: string;
   price: number;
+  category?: string;
   location?: string;
   onPress: () => void;
 };
 
-export const ServiceCard = ({ name, image_url, price, location, onPress }: ServiceCardProps) => {
+export const ServiceCard = ({ 
+  name, 
+  image_url, 
+  price, 
+  category, 
+  location, 
+  onPress 
+}: ServiceCardProps) => {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
-      <Surface style={styles.container} elevation={1}>
-        <Image source={{ uri: image_url || 'https://via.placeholder.com/300x200?text=No+Image' }} style={styles.image} />
+      <Surface style={styles.container} elevation={2}>
+        <View style={styles.imageContainer}>
+          <Image 
+            source={{ uri: image_url || 'https://via.placeholder.com/300x200?text=No+Image' }} 
+            style={styles.image} 
+          />
+          <View style={styles.priceTag}>
+            <Text style={styles.priceValue}>
+              {price !== undefined && price !== null 
+                ? `Rs ${price.toLocaleString()}` 
+                : 'Price on request'}
+            </Text>
+          </View>
+        </View>
         <View style={styles.content}>
+          <View style={styles.topRow}>
+            <Text style={styles.category}>{category || 'Experience'}</Text>
+          </View>
           <Text variant="titleMedium" style={styles.name} numberOfLines={1}>{name}</Text>
           {location && (
             <View style={styles.locationContainer}>
-              <MapPin size={12} color={Colors.textSecondary} />
+              <MapPin size={14} color={Colors.primary} />
               <Text variant="bodySmall" style={styles.location}>{location}</Text>
             </View>
           )}
-          <View style={styles.footer}>
-            <Text variant="labelLarge" style={styles.priceLabel}>From</Text>
-            <Text variant="titleLarge" style={styles.price}>Rs {price.toLocaleString()}</Text>
+          <View style={styles.ratingRow}>
+             {/* Add a static premium tag/rating for template look */}
+             <Text style={styles.premiumBadge}>Selected</Text>
           </View>
         </View>
       </Surface>
@@ -37,24 +60,59 @@ export const ServiceCard = ({ name, image_url, price, location, onPress }: Servi
 
 const styles = StyleSheet.create({
   container: {
-    width: 260,
-    borderRadius: 20,
+    width: 280,
+    borderRadius: 24,
     overflow: 'hidden',
     backgroundColor: Colors.white,
-    marginRight: 16,
-    marginBottom: 8,
+    marginRight: 20,
+    marginBottom: 12,
+  },
+  imageContainer: {
+    position: 'relative',
   },
   image: {
     width: '100%',
-    height: 160,
+    height: 180,
+    backgroundColor: '#F1F5F9',
+  },
+  priceTag: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    backgroundColor: Colors.white,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  priceValue: {
+    color: Colors.primary,
+    fontWeight: '900',
+    fontSize: 14,
   },
   content: {
     padding: 16,
   },
+  topRow: {
+    marginBottom: 4,
+  },
+  category: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
   name: {
     color: Colors.charcoal,
-    fontWeight: '800',
-    marginBottom: 4,
+    fontWeight: '900',
+    fontSize: 18,
+    marginBottom: 6,
+    letterSpacing: -0.5,
   },
   locationContainer: {
     flexDirection: 'row',
@@ -64,20 +122,23 @@ const styles = StyleSheet.create({
   },
   location: {
     color: Colors.textSecondary,
-    fontWeight: '500',
+    fontWeight: '600',
+    fontSize: 13,
   },
-  footer: {
+  ratingRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 4,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
-  priceLabel: {
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
+  premiumBadge: {
     fontSize: 10,
-  },
-  price: {
-    color: Colors.primary,
     fontWeight: '900',
+    color: Colors.primary,
+    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 });

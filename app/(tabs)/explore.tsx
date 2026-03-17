@@ -1,20 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { Text, Searchbar, Chip, ActivityIndicator, Surface } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
 import { useHomeData } from '../../src/hooks/useHomeData';
 import { useSearchServices } from '../../src/hooks/useSearchServices';
 import { ServiceCard } from '../../src/components/ServiceCard';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Search, FilterX } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 
 export default function ExploreScreen() {
+  const params = useLocalSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    (params.category as string) || 'all'
+  );
   const { categories, loading: loadingCats } = useHomeData();
   const { services, loading: loadingServices } = useSearchServices(searchQuery, selectedCategory);
   const router = useRouter();
+
+  // Sync state if params change (e.g., navigating from home again)
+  useEffect(() => {
+    if (params.category) {
+      setSelectedCategory(params.category as string);
+    }
+  }, [params.category]);
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
@@ -64,10 +74,10 @@ export default function ExploreScreen() {
           {categories.map((cat) => (
             <Chip
               key={cat.id}
-              selected={selectedCategory === cat.id}
-              onPress={() => setSelectedCategory(cat.id)}
-              style={[styles.chip, selectedCategory === cat.id && styles.selectedChip]}
-              textStyle={[styles.chipText, selectedCategory === cat.id && styles.selectedChipText]}
+              selected={selectedCategory === cat.slug}
+              onPress={() => setSelectedCategory(cat.slug)}
+              style={[styles.chip, selectedCategory === cat.slug && styles.selectedChip]}
+              textStyle={[styles.chipText, selectedCategory === cat.slug && styles.selectedChipText]}
               showSelectedOverlay
             >
               {cat.name}
@@ -92,6 +102,7 @@ export default function ExploreScreen() {
                 name={item.name}
                 image_url={item.image_url}
                 price={item.price}
+                category={item.category}
                 location={item.location}
                 onPress={() => router.push(`/services/${item.id}`)}
               />
