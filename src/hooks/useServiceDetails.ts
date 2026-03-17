@@ -15,7 +15,7 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
         setLoading(true);
         const { data, error: serviceError } = await supabase
           .from('services')
-          .select('*')
+          .select('*, amenities, itinerary')
           .eq('id', id)
           .single();
 

@@ -4,7 +4,7 @@ import { Text, ActivityIndicator, Button, Surface } from 'react-native-paper';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
 import { useServiceDetails } from '../../src/hooks/useServiceDetails';
-import { MapPin, ArrowLeft, Share2, Mail, Clock, Info } from 'lucide-react-native';
+import { MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, Calendar as CalendarIcon } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
 import { BookingModal } from '../../src/components/BookingModal';
@@ -33,7 +33,7 @@ export default function ServiceDetailScreen() {
     const bookingData = {
       activity_name: service.name,
       activity_type: service.category || 'Experience',
-      description: `Customer: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone}\nRequirements: ${data.specialRequirements || 'None'}`,
+      description: `Customer: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\nPhone: ${data.phone}${data.roomType ? `\nRoom Type: ${data.roomType}` : ''}\nRequirements: ${data.specialRequirements || 'None'}`,
       start_date: data.date.toISOString().split('T')[0],
       amount: service.price,
       total_amount: service.price,
@@ -157,6 +157,49 @@ export default function ServiceDetailScreen() {
               {service.description || "Discover the beauty and luxury of this carefully curated experience by Travel Lounge. We ensure every detail is handled with professional care for your comfort and enjoyment."}
             </Text>
           </View>
+
+          {/* Amenities Section */}
+          {service.amenities && service.amenities.length > 0 && (
+            <View style={styles.amenitiesSection}>
+              <Text variant="titleLarge" style={styles.sectionTitle}>What's Included</Text>
+              <View style={styles.amenitiesGrid}>
+                {service.amenities.map((item, index) => (
+                  <View key={index} style={styles.amenityItem}>
+                    <View style={styles.amenityIconContainer}>
+                      <Check size={14} color={Colors.primary} />
+                    </View>
+                    <Text style={styles.amenityText}>{item}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Itinerary Section */}
+          {service.itinerary && service.itinerary.length > 0 && (
+            <View style={styles.itinerarySection}>
+              <Text variant="titleLarge" style={styles.sectionTitle}>Detailed Itinerary</Text>
+              <View style={styles.itineraryList}>
+                {service.itinerary.map((item, index) => (
+                  <View key={index} style={styles.itineraryItem}>
+                    <View style={styles.itineraryTimeline}>
+                      <View style={styles.itineraryDot} />
+                      {index !== (service.itinerary?.length || 0) - 1 && <View style={styles.itineraryLine} />}
+                    </View>
+                    <View style={styles.itineraryContent}>
+                      <View style={styles.itineraryHeader}>
+                        <View style={styles.timeBadge}>
+                          <Text style={styles.timeText}>{item.time}</Text>
+                        </View>
+                        <Text style={styles.itineraryTitle}>{item.title}</Text>
+                      </View>
+                      <Text style={styles.itineraryDescription}>{item.description}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
           
           {/* Spacing for bottom bar */}
           <View style={{ height: 120 }} />
@@ -345,11 +388,104 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   descriptionSection: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   description: {
     color: Colors.textSecondary,
     lineHeight: 28,
+  },
+  amenitiesSection: {
+    marginBottom: 32,
+  },
+  amenitiesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  amenityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(220, 38, 38, 0.05)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 38, 38, 0.1)',
+  },
+  amenityIconContainer: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  amenityText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.charcoal,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  itinerarySection: {
+    marginBottom: 32,
+  },
+  itineraryList: {
+    marginTop: 8,
+  },
+  itineraryItem: {
+    flexDirection: 'row',
+    minHeight: 80,
+  },
+  itineraryTimeline: {
+    width: 24,
+    alignItems: 'center',
+  },
+  itineraryDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: Colors.primary,
+    zIndex: 2,
+  },
+  itineraryLine: {
+    flex: 1,
+    width: 2,
+    backgroundColor: Colors.border,
+    marginVertical: 4,
+  },
+  itineraryContent: {
+    flex: 1,
+    paddingLeft: 16,
+    paddingBottom: 24,
+  },
+  itineraryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 4,
+  },
+  timeBadge: {
+    backgroundColor: Colors.border,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  timeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Colors.textSecondary,
+  },
+  itineraryTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: Colors.charcoal,
+  },
+  itineraryDescription: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 22,
   },
   bottomBar: {
     position: 'absolute',

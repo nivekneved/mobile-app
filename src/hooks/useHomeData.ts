@@ -29,6 +29,8 @@ export type Service = {
   service_type: string; // Actual column name
   category: string;     // mapped for UI
   location?: string;
+  amenities?: string[];
+  itinerary?: { time: string; title: string; description: string }[];
 };
 
 export const useHomeData = () => {

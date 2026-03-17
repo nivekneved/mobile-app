@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { Modal, Portal, Text, TextInput, Button, IconButton, Surface } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Colors } from '../theme/colors';
 import { Calendar, Users, X, CheckCircle } from 'lucide-react-native';
+import { supabase } from '../lib/supabase';
 
 const bookingSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -14,6 +15,7 @@ const bookingSchema = z.object({
   phone: z.string().min(8, 'Valid phone number is required'),
   paxAdults: z.number().min(1, 'At least 1 adult is required'),
   paxChildren: z.number().min(0),
+  roomType: z.string().optional(),
   specialRequirements: z.string().optional(),
 });
 
@@ -31,10 +33,42 @@ interface BookingModalProps {
   onSubmit: (data: BookingFormData & { date: Date }) => Promise<void>;
 }
 
+interface RoomType {
+  id: string;
+  name: string;
+  weekday_price: number;
+  weekend_price: number;
+}
+
 export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingModalProps) => {
   const [date, setDate] = useState(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
+  const [fetchingRooms, setFetchingRooms] = useState(false);
+
+  React.useEffect(() => {
+    if (visible && service.category?.toLowerCase() === 'hotel') {
+      fetchRoomTypes();
+    }
+  }, [visible, service.id]);
+
+  const fetchRoomTypes = async () => {
+    try {
+      setFetchingRooms(true);
+      const { data, error } = await supabase
+        .from('room_types')
+        .select('*')
+        .eq('service_id', service.id);
+
+      if (error) throw error;
+      setRoomTypes(data || []);
+    } catch (err) {
+      console.error('Error fetching room types:', err);
+    } finally {
+      setFetchingRooms(false);
+    }
+  };
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -45,6 +79,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
       phone: '',
       paxAdults: 1,
       paxChildren: 0,
+      roomType: '',
       specialRequirements: '',
     },
   });
@@ -228,6 +263,51 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
             </View>
           </View>
 
+          {service.category?.toLowerCase() === 'hotel' && (
+            <View style={styles.roomTypeSection}>
+              <Text style={styles.fieldLabel}>Select Room Type</Text>
+              {fetchingRooms ? (
+                <ActivityIndicator size="small" color={Colors.primary} style={{ marginVertical: 10 }} />
+              ) : (
+                <Controller
+                  control={control}
+                  name="roomType"
+                  render={({ field: { onChange, value } }) => (
+                    <View style={styles.roomTypeList}>
+                      {roomTypes.map((type) => (
+                        <TouchableOpacity
+                          key={type.id}
+                          onPress={() => onChange(type.name)}
+                          style={[
+                            styles.roomTypeCard,
+                            value === type.name && styles.roomTypeCardSelected
+                          ]}
+                        >
+                          <View style={styles.roomTypeInfo}>
+                            <Text style={[
+                              styles.roomTypeName,
+                              value === type.name && styles.roomTypeTextSelected
+                            ]}>{type.name}</Text>
+                            <Text style={[
+                              styles.roomTypePrice,
+                              value === type.name && styles.roomTypeTextSelected
+                            ]}>Rs {type.weekday_price.toLocaleString()}</Text>
+                          </View>
+                          {value === type.name && (
+                            <CheckCircle size={20} color={Colors.white} />
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                      {roomTypes.length === 0 && (
+                        <Text style={styles.noRoomsText}>No room types available for selection.</Text>
+                      )}
+                    </View>
+                  )}
+                />
+              )}
+            </View>
+          )}
+
           <Controller
             control={control}
             name="specialRequirements"
@@ -299,6 +379,57 @@ const styles = StyleSheet.create({
   },
   col: {
     flex: 1,
+  },
+  fieldLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.charcoal,
+    marginBottom: 8,
+    textTransform: 'uppercase',
+  },
+  roomTypeSection: {
+    marginVertical: 16,
+  },
+  roomTypeList: {
+    gap: 8,
+  },
+  roomTypeCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+  },
+  roomTypeCardSelected: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  roomTypeInfo: {
+    flex: 1,
+  },
+  roomTypeName: {
+    fontWeight: '800',
+    fontSize: 14,
+    color: Colors.charcoal,
+    marginBottom: 2,
+  },
+  roomTypePrice: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontWeight: '700',
+  },
+  roomTypeTextSelected: {
+    color: Colors.white,
+  },
+  noRoomsText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    padding: 10,
   },
   input: {
     backgroundColor: Colors.white,
