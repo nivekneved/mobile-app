@@ -7,9 +7,11 @@ import { HeroCarousel } from '../../src/components/HeroCarousel';
 import { CategoryCard } from '../../src/components/CategoryCard';
 import { ServiceCard } from '../../src/components/ServiceCard';
 import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
   const { heroSlides, categories, featuredServices, loading, error } = useHomeData();
+  const router = useRouter();
 
   if (loading) {
     return (
@@ -66,7 +68,7 @@ export default function HomeScreen() {
                 image_url={service.image_url}
                 price={service.price}
                 location={service.location}
-                onPress={() => console.log('Service pressed:', service.name)}
+                onPress={() => router.push(`/services/${service.id}`)}
               />
             ))}
           </ScrollView>
