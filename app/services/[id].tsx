@@ -28,6 +28,7 @@ export default function ServiceDetailScreen() {
         name: room.type || 'Standard Room',
         weekday_price: parseInt(room.prices?.mon) || 0,
         weekend_price: parseInt(room.prices?.sat) || 0,
+        min_stay: parseInt(room.min_stay) || 1,
         image_url: room.image_url,
         amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
       }));

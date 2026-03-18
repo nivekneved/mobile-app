@@ -39,6 +39,7 @@ interface RoomType {
   name: string;
   weekday_price: number;
   weekend_price: number;
+  min_stay?: number;
 }
 
 export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingModalProps) => {
@@ -55,6 +56,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
         name: room.type || 'Standard Room',
         weekday_price: parseInt(room.prices?.mon) || 0,
         weekend_price: parseInt(room.prices?.sat) || 0,
+        min_stay: parseInt(room.min_stay) || 1,
         image_url: room.image_url,
         amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
       }));
@@ -296,6 +298,14 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
                                 ]}> Rs {type.weekend_price.toLocaleString()}</Text>
                               </View>
                             </View>
+                            {type.min_stay && type.min_stay > 1 && (
+                              <Text style={[
+                                styles.minStayText,
+                                value === type.name && styles.roomTypeTextSelected
+                              ]}>
+                                {type.min_stay} nights minimum stay required
+                              </Text>
+                            )}
                           </View>
                           {value === type.name && (
                             <CheckCircle size={20} color={Colors.white} />
@@ -439,6 +449,13 @@ const styles = StyleSheet.create({
   },
   roomTypeTextSelected: {
     color: Colors.white,
+  },
+  minStayText: {
+    fontSize: 10,
+    color: Colors.primary,
+    fontWeight: '800',
+    marginTop: 4,
+    textTransform: 'uppercase',
   },
   noRoomsText: {
     fontSize: 12,
