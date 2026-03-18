@@ -5,9 +5,12 @@ import { useAuth } from '../../src/context/AuthContext';
 import { Colors } from '../../src/theme/colors';
 import { LogOut, User, Mail, Shield, Bell, CircleHelp, ChevronRight } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useSettings } from '../../src/context/SettingsContext';
+import * as Linking from 'expo-linking';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
+  const { mobileConfig } = useSettings();
 
   const handleLogout = () => {
     Alert.alert(
@@ -100,7 +103,10 @@ export default function ProfileScreen() {
             <ProfileItem 
               icon={Mail} 
               title="Contact Us" 
-              onPress={() => console.log('Contact Us')}
+              onPress={() => {
+                const email = mobileConfig?.supportEmail || 'support@travellounge.mu';
+                Linking.openURL(`mailto:${email}`);
+              }}
               showDivider={false}
             />
           </Surface>
@@ -116,7 +122,9 @@ export default function ProfileScreen() {
           >
             Sign Out
           </Button>
-          <Text style={styles.versionText}>Version 1.0.0 (Travel Lounge Mobile)</Text>
+          <Text style={styles.versionText}>
+            Version {mobileConfig?.appVersion || '1.0.0'} (Travel Lounge Mobile)
+          </Text>
         </View>
       </ScrollView>
     </View>

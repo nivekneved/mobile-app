@@ -11,6 +11,8 @@ import { useRouter } from 'expo-router';
 import { Search, MapPin, Bell, Filter, LogOut } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { PremiumCarousel } from '../../src/components/PremiumCarousel';
+import { useSettings } from '../../src/context/SettingsContext';
+import * as Linking from 'expo-linking';
 import Animated, { 
   useAnimatedStyle, 
   interpolate, 
@@ -67,6 +69,7 @@ const DestinationCard = ({ item, index, scrollX, onPress }: {
 export default function HomeScreen() {
   const { heroSlides, categories, featuredServices, loading, error } = useHomeData();
   const { user, signOut } = useAuth();
+  const { mobileConfig, generalConfig } = useSettings();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -239,7 +242,13 @@ export default function HomeScreen() {
         </View>
 
         {/* Support Banner */}
-        <TouchableOpacity style={styles.supportBanner}>
+        <TouchableOpacity 
+          style={styles.supportBanner}
+          onPress={() => {
+            const phone = mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 54911149';
+            Linking.openURL(`tel:${phone.replace(/\s/g, '')}`);
+          }}
+        >
           <View style={styles.supportContent}>
             <Text style={styles.supportTitle}>Need Help?</Text>
             <Text style={styles.supportText}>Talk to our travel specialists</Text>
