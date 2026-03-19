@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { Text, ActivityIndicator, Surface } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
 import { useHomeData } from '../../src/hooks/useHomeData';
@@ -58,12 +58,12 @@ export default function ExploreScreen() {
 
         <View style={styles.searchWrapper}>
              <Search size={20} color={Colors.slate[400]} />
-             <input 
+             <TextInput 
                 style={styles.searchInput}
                 placeholder="Search benefits, hotels, prices..."
                 placeholderTextColor={Colors.slate[300]}
                 value={searchQuery}
-                onTextChange={setSearchQuery} // Note: This is a conceptual input for the elite look, assuming standard RN TextInput-like behavior if refactored or standard RN TextInput
+                onChangeText={setSearchQuery}
              />
         </View>
         
