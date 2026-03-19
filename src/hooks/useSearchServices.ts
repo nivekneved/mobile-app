@@ -8,9 +8,10 @@ export const useSearchServices = (query: string, categorySlug: string | null) =>
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoading(true); // Signal loading immediately
+    setError(null);
+
     const fetchServices = async () => {
-      setLoading(true);
-      setError(null);
 
       try {
         let supabaseQuery = supabase

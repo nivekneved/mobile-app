@@ -51,4 +51,17 @@
 ### Verified
 - Explore screen filters now accurately display services for all categories.
 - Service Detail action bar maintains correct row layout even when sticking to the top.
-- Application bundles without TypeScript errors in the modified files.
+## 2026-03-19 - Ecosystem Security & Performance Audit
+
+### Changes Made
+
+- **Supabase Hardening**: Tightened RLS (Row-Level Security) policies for `bookings`, `booking_items`, and `customers` to prevent unauthorized data insertion and ensure relational integrity.
+- **Database De-bloating**: Removed 8 legacy/unused tables (`products`, `orders`, `hotel_rooms`, etc.) to clean up the schema and optimize metadata queries.
+- **Search UX Optimization**: Improved the responsiveness of the Explore search in the mobile app by ensuring the `loading` state is triggered immediately on user input during debounce.
+- **Ecoytem Validation**: Verified the `web-app` build status and performed a thorough code audit to reconcile Next.js version anomalies and ensure repository cleanliness.
+
+### Verified
+
+- RLS policies prevent invalid inserts via direct Supabase API calls.
+- `mobile-app` search feels significantly faster and more interactive.
+- All repositories are free of leaked `.env` files and redundant build artifacts.
