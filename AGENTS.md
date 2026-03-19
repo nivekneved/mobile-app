@@ -40,3 +40,15 @@
 - Clean root directories across `mobile-app`, `web-app`, and `admin-app`.
 - Consistent documentation hierarchy (docs/, tests/, scripts/, supabase/).
 - Verified `.gitignore` functionality prevents accidental exposure of configuration or build artifacts.
+
+## 2026-03-19 - Explore & UI Optimization
+
+### Changes Made
+- **Robust Category Filtering**: Re-engineered `useSearchServices.ts` to use the `service_categories` join table, ensuring all category slugs (e.g., "Day Packages", "Group Tours") correctly map to the database.
+- **Service Detail UI Correction**: Fixed the sticky header action bar in `app/services/[id].tsx` to ensure WhatsApp, Email, and Booking icons are aligned in a horizontal row, resolving the vertical stacking issue.
+- **Stability & Type Safety**: Resolved several TypeScript lint errors in the Service Detail screen, including safer itinerary mapping and correct prop definitions for `BookingModal`.
+
+### Verified
+- Explore screen filters now accurately display services for all categories.
+- Service Detail action bar maintains correct row layout even when sticking to the top.
+- Application bundles without TypeScript errors in the modified files.

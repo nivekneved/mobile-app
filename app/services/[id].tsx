@@ -76,21 +76,23 @@ export default function ServiceDetailScreen() {
         </View>
 
         {/* Action Conversion Bar (Sticky) */}
-        <View style={styles.actionConversionBar}>
-            <TouchableOpacity style={styles.actionItem} onPress={() => handleInquiry('whatsapp')}>
-                <MessageCircle size={20} color={Colors.primary} />
-                <Text style={styles.actionText}>WHATSAPP</Text>
-            </TouchableOpacity>
-            <View style={styles.actionDivider} />
-            <TouchableOpacity style={styles.actionItem} onPress={() => handleInquiry('email')}>
-                <Mail size={20} color={Colors.charcoal} />
-                <Text style={styles.actionText}>EMAIL</Text>
-            </TouchableOpacity>
-            <View style={styles.actionDivider} />
-            <TouchableOpacity style={styles.actionItem} onPress={() => setBookingVisible(true)}>
-                <CalendarIcon size={20} color={Colors.charcoal} />
-                <Text style={styles.actionText}>BOOKING</Text>
-            </TouchableOpacity>
+        <View style={styles.stickyActionWrapper}>
+            <View style={styles.actionConversionBar}>
+                <TouchableOpacity style={styles.actionItem} onPress={() => handleInquiry('whatsapp')}>
+                    <MessageCircle size={20} color={Colors.primary} />
+                    <Text style={styles.actionText}>WHATSAPP</Text>
+                </TouchableOpacity>
+                <View style={styles.actionDivider} />
+                <TouchableOpacity style={styles.actionItem} onPress={() => handleInquiry('email')}>
+                    <Mail size={20} color={Colors.charcoal} />
+                    <Text style={styles.actionText}>EMAIL</Text>
+                </TouchableOpacity>
+                <View style={styles.actionDivider} />
+                <TouchableOpacity style={styles.actionItem} onPress={() => setBookingVisible(true)}>
+                    <CalendarIcon size={20} color={Colors.charcoal} />
+                    <Text style={styles.actionText}>BOOKING</Text>
+                </TouchableOpacity>
+            </View>
         </View>
 
         {/* Content Section */}
@@ -134,16 +136,16 @@ export default function ServiceDetailScreen() {
           {service.itinerary && service.itinerary.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>The Journey</Text>
-              {service.itinerary.map((item, index) => (
+              {(service.itinerary as any[]).map((item, index) => (
                 <View key={index} style={styles.journeyItem}>
                   <View style={styles.journeyLineWrapper}>
                     <View style={styles.journeyDot} />
                     {index !== service.itinerary.length - 1 && <View style={styles.journeyLine} />}
                   </View>
                   <View style={styles.journeyContent}>
-                     <Text style={styles.journeyTime}>{item.time}</Text>
-                     <Text style={styles.journeyTitle}>{item.title}</Text>
-                     <Text style={styles.journeyDesc}>{item.description}</Text>
+                     <Text style={styles.journeyTime}>{item?.time}</Text>
+                     <Text style={styles.journeyTitle}>{item?.title}</Text>
+                     <Text style={styles.journeyDesc}>{item?.description}</Text>
                   </View>
                 </View>
               ))}
@@ -155,7 +157,7 @@ export default function ServiceDetailScreen() {
       </ScrollView>
 
       {/* Elite Sticky Footer Conversion */}
-      <Surface style={styles.footerBar} elevation={10}>
+      <Surface style={styles.footerBar} elevation={5}>
          <View style={styles.footerInfo}>
              <Text style={styles.footerPriceLabel}>TOTAL FROM</Text>
              <Text style={styles.footerPriceVal}>Rs {service.price.toLocaleString()}</Text>
@@ -168,8 +170,13 @@ export default function ServiceDetailScreen() {
       <BookingModal
         visible={bookingVisible}
         onDismiss={() => setBookingVisible(false)}
-        service={{ id: service.id, name: service.name, price: service.price, category: service.category, room_types: service.room_types }}
-        onSubmit={() => {}}
+        service={{ 
+          id: service.id, 
+          name: service.name, 
+          price: service.price, 
+          category: service.category
+        }}
+        onSubmit={async () => {}}
       />
     </View>
   );
@@ -190,7 +197,24 @@ const styles = StyleSheet.create({
   name: { color: Colors.white, fontFamily: 'Outfit_900Black', fontSize: 32, letterSpacing: -1, marginBottom: 8 },
   locationContainer: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   location: { color: '#CBD5E1', fontFamily: 'Outfit_600SemiBold', fontSize: 14 },
-  actionConversionBar: { flexDirection: 'row', height: 74, backgroundColor: '#FFFFFF', marginHorizontal: 24, marginTop: -37, borderRadius: 24, borderWidth: 1, borderColor: Colors.border, shadowColor: '#0F172A', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 5 },
+  stickyActionWrapper: { zIndex: 100, backgroundColor: 'transparent' },
+  actionConversionBar: { 
+    flexDirection: 'row', 
+    height: 74, 
+    backgroundColor: '#FFFFFF', 
+    marginHorizontal: 24, 
+    marginTop: -37, 
+    borderRadius: 24, 
+    borderWidth: 1, 
+    borderColor: Colors.border, 
+    shadowColor: '#0F172A', 
+    shadowOffset: { width: 0, height: 10 }, 
+    shadowOpacity: 0.1, 
+    shadowRadius: 20, 
+    elevation: 5,
+    width: width - 48,
+    alignSelf: 'center'
+  },
   actionItem: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 4 },
   actionText: { fontFamily: 'Outfit_900Black', fontSize: 9, color: Colors.charcoal, letterSpacing: 1 },
   actionDivider: { width: 1, height: 30, backgroundColor: Colors.border, alignSelf: 'center' },

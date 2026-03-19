@@ -9,7 +9,7 @@ import {
   Portal,
   Modal,
 } from 'react-native-paper';
-import { supabase } from '../src/lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export default function InquiryForm({ visible, onDismiss, serviceId, serviceName }) {
   const [name, setName] = useState('');

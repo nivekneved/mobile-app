@@ -15,20 +15,14 @@ export const useSearchServices = (query: string, categorySlug: string | null) =>
       try {
         let supabaseQuery = supabase
           .from('services')
-          .select('*');
+          .select('*, service_categories!inner(categories!inner(slug))');
 
         if (query) {
           supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
         }
 
         if (categorySlug && categorySlug !== 'all') {
-          // Mapping "hotels" -> "hotel", "activities" -> "activity"
-          let type = categorySlug;
-          if (type === 'hotels') type = 'hotel';
-          if (type === 'activities') type = 'activity';
-          if (type === 'cruises') type = 'cruise';
-          
-          supabaseQuery = supabaseQuery.eq('service_type', type);
+          supabaseQuery = supabaseQuery.eq('service_categories.categories.slug', categorySlug);
         }
 
         const { data, error: searchError } = await supabaseQuery.order('name');

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, Dimensions, ScrollView, Animated } from 'react-native';
 import { Text, Button, ActivityIndicator, useTheme } from 'react-native-paper';
-import { supabase } from '../src/lib/supabase';
+import { supabase } from '../lib/supabase';
 
 const { width } = Dimensions.get('window');
 
