@@ -8,7 +8,7 @@ import { CategoryCard } from '../../src/components/CategoryCard';
 import { ServiceCard } from '../../src/components/ServiceCard';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { Search, Plane, Bed, Sparkles, Percent, MessageCircle, Mail, Phone, Heart } from 'lucide-react-native';
+import { Search, Filter, Plane, Bed, Sparkles, Percent, MessageCircle, Mail, Phone, Heart } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { PremiumCarousel } from '../../src/components/PremiumCarousel';
 import { useSettings } from '../../src/context/SettingsContext';
@@ -223,6 +223,7 @@ const styles = StyleSheet.create({
   featuredList: { paddingLeft: 24, paddingRight: 8 },
   conversionCta: { padding: 24 },
   ctaCard: { backgroundColor: Colors.charcoal, borderRadius: 40, padding: 32, gap: 24 },
+  ctaContent: { gap: 8 },
   ctaTitle: { color: Colors.white, fontSize: 24, fontFamily: 'Outfit_900Black' },
   ctaText: { color: 'rgba(255,255,255,0.6)', fontSize: 14, fontFamily: 'Outfit_500Medium', lineHeight: 22 },
   ctaActions: { flexDirection: 'row', gap: 12 },
