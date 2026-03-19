@@ -104,6 +104,7 @@ export default function HomeScreen() {
                   <CategoryCard 
                     key={cat.id} 
                     name={cat.name} 
+                    slug={cat.slug}
                     image_url={cat.image_url} 
                     onPress={() => router.push(`/explore?category=${cat.slug}`)} 
                   />
