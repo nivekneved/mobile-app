@@ -14,12 +14,13 @@ export const CategoryCard = ({ name, image_url, onPress }: CategoryCardProps) =>
     <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.container}>
       <View style={styles.content}>
         <Image 
-          source={{ uri: image_url || 'https://via.placeholder.com/200x200?text=Premium' }} 
+          source={{ uri: image_url || 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=400' }} 
           style={styles.image} 
         />
         <View style={styles.overlay}>
-           <Text style={styles.labelTitle}>EXPLORE</Text>
-           <Text style={styles.name}>{name}</Text>
+           <View style={styles.labelContainer}>
+              <Text style={styles.name}>{name?.toUpperCase()}</Text>
+           </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -28,45 +29,42 @@ export const CategoryCard = ({ name, image_url, onPress }: CategoryCardProps) =>
 
 const styles = StyleSheet.create({
   container: {
-    width: 160,
-    height: 160,
-    borderRadius: 32, // Elite rounding 
+    width: 156,
+    height: 240,
+    borderRadius: 40, // Extreme Elite rounding from image
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.slate[50],
     marginRight: 16,
-    marginBottom: 12,
   },
   content: {
     width: '100%',
     height: '100%',
-    position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
-    backgroundColor: Colors.slate[100],
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.15)',
+    backgroundColor: 'rgba(15, 23, 42, 0.2)', // HD Slate shadow overlay
     justifyContent: 'flex-end',
-    padding: 20,
+    padding: 16,
+    paddingBottom: 24,
   },
-  labelTitle: {
-    fontFamily: 'Outfit_900Black',
-    fontSize: 8,
-    letterSpacing: 3,
-    color: Colors.white,
-    opacity: 0.8,
-    marginBottom: 2,
-    textTransform: 'uppercase',
+  labelContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   name: {
-    color: Colors.white,
+    color: '#FFFFFF',
     fontFamily: 'Outfit_900Black',
-    fontSize: 16,
-    letterSpacing: -0.5,
+    fontSize: 14,
+    letterSpacing: 1.5,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
   },
 });

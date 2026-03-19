@@ -93,14 +93,28 @@ export default function HomeScreen() {
              <Filter size={18} color={Colors.primary} />
            </TouchableOpacity>
 
+           {/* Mobile Elite Category Slider (Reference Image Align) */}
+           <View style={styles.categoriesWrapper}>
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false} 
+                contentContainerStyle={styles.categoryScroll}
+              >
+                {categories.length > 0 ? categories.map((cat) => (
+                  <CategoryCard 
+                    key={cat.id} 
+                    name={cat.name} 
+                    image_url={cat.image_url} 
+                    onPress={() => router.push(`/explore?category=${cat.slug}`)} 
+                  />
+                )) : [1,2,3,4].map(k => <View key={k} style={[styles.categorySkeleton, {width: 156, height: 240}]} />)}
+              </ScrollView>
+           </View>
+
            <View style={styles.quickFilters}>
               <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/explore?benefits=all-inclusive')}>
                 <View style={[styles.filterIcon, {backgroundColor: 'rgba(220, 38, 38, 0.1)'}]}><Sparkles size={16} color={Colors.primary} /></View>
                 <Text style={styles.filterText}>ALL-INCLUSIVE</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/explore?category=hotels')}>
-                <View style={[styles.filterIcon, {backgroundColor: 'rgba(15, 23, 42, 0.05)'}]}><Bed size={16} color={Colors.charcoal} /></View>
-                <Text style={styles.filterText}>HOTELS</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/explore?on_sale=true')}>
                 <View style={[styles.filterIcon, {backgroundColor: 'rgba(16, 185, 129, 0.1)'}]}><Percent size={16} color="#10B981" /></View>
@@ -201,7 +215,10 @@ const styles = StyleSheet.create({
     borderRadius: 20, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 20, gap: 16,
   },
   searchPlaceholder: { flex: 1, fontFamily: 'Outfit_600SemiBold', fontSize: 14, color: Colors.slate[400] },
-  quickFilters: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 },
+  categoriesWrapper: { marginTop: 24, marginBottom: 24 },
+  categoryScroll: { paddingRight: 24 },
+  categorySkeleton: { backgroundColor: Colors.slate[50], borderRadius: 40, marginRight: 16 },
+  quickFilters: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
   filterBtn: { alignItems: 'center', gap: 8, width: 75 },
   filterIcon: { width: 50, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   filterText: { fontSize: 8, fontFamily: 'Outfit_900Black', color: Colors.slate[500], textAlign: 'center' },
