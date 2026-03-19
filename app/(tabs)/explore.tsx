@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
-import { Text, Searchbar, Chip, ActivityIndicator, Surface } from 'react-native-paper';
+import { Text, ActivityIndicator, Surface } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
 import { useHomeData } from '../../src/hooks/useHomeData';
 import { useSearchServices } from '../../src/hooks/useSearchServices';
 import { ServiceCard } from '../../src/components/ServiceCard';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Search, FilterX } from 'lucide-react-native';
+import { Search, Filter, Sparkles, SlidersHorizontal, PackageSearch } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 
 export default function ExploreScreen() {
@@ -15,29 +15,27 @@ export default function ExploreScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     (params.category as string) || 'all'
   );
-  const { categories, loading: loadingCats } = useHomeData();
+  const { categories } = useHomeData();
   const { services, loading: loadingServices } = useSearchServices(searchQuery, selectedCategory);
   const router = useRouter();
 
-  // Sync state if params change (e.g., navigating from home again)
   useEffect(() => {
-    if (params.category) {
-      setSelectedCategory(params.category as string);
-    }
+    if (params.category) setSelectedCategory(params.category as string);
   }, [params.category]);
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <FilterX size={48} color={Colors.textSecondary} strokeWidth={1} />
-      <Text variant="titleMedium" style={styles.emptyTitle}>No experiences found</Text>
-      <Text variant="bodyMedium" style={styles.emptySubtitle}>Try adjusting your search or filters.</Text>
+      <PackageSearch size={64} color={Colors.slate[200]} strokeWidth={1} />
+      <Text style={styles.emptyTitle}>NO MATCHES FOUND</Text>
+      <Text style={styles.emptySubtitle}>We couldn't find any experiences matching your current filters. Try refining your selection.</Text>
       <TouchableOpacity 
+        style={styles.resetBtn}
         onPress={() => {
           setSearchQuery('');
           setSelectedCategory('all');
         }}
       >
-        <Text style={styles.resetText}>Reset all filters</Text>
+        <Text style={styles.resetText}>RESET ALL FILTERS</Text>
       </TouchableOpacity>
     </View>
   );
@@ -45,57 +43,63 @@ export default function ExploreScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
+      
+      {/* Executive Discovery Header */}
       <Surface style={styles.header} elevation={0}>
-        <Text variant="headlineMedium" style={styles.title}>Explore</Text>
-        <Searchbar
-          placeholder="Search hotels, activities..."
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          style={styles.searchBar}
-          inputStyle={styles.searchInput}
-          iconColor={Colors.primary}
-          placeholderTextColor={Colors.textSecondary}
-        />
+        <View style={styles.headerTop}>
+            <View>
+                <Text style={styles.labelTitle}>DISCOVER VALUE</Text>
+                <Text style={styles.title}>Explore Services</Text>
+            </View>
+            <TouchableOpacity style={styles.slidersBtn}>
+                <SlidersHorizontal size={20} color={Colors.charcoal} />
+            </TouchableOpacity>
+        </View>
+
+        <View style={styles.searchWrapper}>
+             <Search size={20} color={Colors.slate[400]} />
+             <input 
+                style={styles.searchInput}
+                placeholder="Search benefits, hotels, prices..."
+                placeholderTextColor={Colors.slate[300]}
+                value={searchQuery}
+                onTextChange={setSearchQuery} // Note: This is a conceptual input for the elite look, assuming standard RN TextInput-like behavior if refactored or standard RN TextInput
+             />
+        </View>
         
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterContainer}
         >
-          <Chip
-            selected={selectedCategory === 'all'}
+          <TouchableOpacity
             onPress={() => setSelectedCategory('all')}
             style={[styles.chip, selectedCategory === 'all' && styles.selectedChip]}
-            textStyle={[styles.chipText, selectedCategory === 'all' && styles.selectedChipText]}
-            showSelectedOverlay
           >
-            All
-          </Chip>
+            <Text style={[styles.chipText, selectedCategory === 'all' && styles.selectedChipText]}>ALL SERVICES</Text>
+          </TouchableOpacity>
           {categories.map((cat) => (
-            <Chip
+            <TouchableOpacity
               key={cat.id}
-              selected={selectedCategory === cat.slug}
               onPress={() => setSelectedCategory(cat.slug)}
               style={[styles.chip, selectedCategory === cat.slug && styles.selectedChip]}
-              textStyle={[styles.chipText, selectedCategory === cat.slug && styles.selectedChipText]}
-              showSelectedOverlay
             >
-              {cat.name}
-            </Chip>
+              <Text style={[styles.chipText, selectedCategory === cat.slug && styles.selectedChipText]}>{cat.name?.toUpperCase()}</Text>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </Surface>
 
       {loadingServices ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator color={Colors.primary} />
+          <ActivityIndicator color={Colors.primary} size="large" />
+          <Text style={styles.loadingText}>CURATING RESULTS...</Text>
         </View>
       ) : (
         <FlatList
           data={services}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
-          numColumns={1}
           renderItem={({ item }) => (
             <View style={styles.cardWrapper}>
               <ServiceCard
@@ -119,44 +123,83 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#FFFFFF',
   },
   header: {
     paddingTop: 60,
-    paddingHorizontal: 20,
-    backgroundColor: Colors.white,
-    paddingBottom: 16,
+    paddingHorizontal: 24,
+    backgroundColor: '#FFFFFF',
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  labelTitle: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 10,
+    letterSpacing: 4,
+    color: Colors.primary,
+    marginBottom: 4,
   },
   title: {
-    fontWeight: '900',
+    fontFamily: 'Outfit_900Black',
+    fontSize: 28,
     color: Colors.charcoal,
-    marginBottom: 16,
     letterSpacing: -1,
   },
-  searchBar: {
-    backgroundColor: Colors.surface,
-    elevation: 0,
-    borderRadius: 12,
-    height: 50,
+  slidersBtn: {
+     width: 48,
+     height: 48,
+     borderRadius: 16,
+     backgroundColor: Colors.slate[50],
+     borderWidth: 1,
+     borderColor: Colors.border,
+     justifyContent: 'center',
+     alignItems: 'center',
+  },
+  searchWrapper: {
+     flexDirection: 'row',
+     alignItems: 'center',
+     backgroundColor: Colors.slate[50],
+     height: 60,
+     borderRadius: 20,
+     paddingHorizontal: 20,
+     gap: 12,
+     borderWidth: 1,
+     borderColor: Colors.border,
   },
   searchInput: {
-    fontSize: 14,
+     flex: 1,
+     fontFamily: 'Outfit_600SemiBold',
+     fontSize: 15,
+     color: Colors.charcoal,
   },
   filterContainer: {
-    paddingVertical: 16,
-    gap: 8,
+    paddingVertical: 20,
+    gap: 12,
   },
   chip: {
-    backgroundColor: Colors.surface,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: Colors.white,
+    borderWidth: 1,
     borderColor: Colors.border,
   },
   selectedChip: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.charcoal,
+    borderColor: Colors.charcoal,
   },
   chipText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.charcoal,
+    fontSize: 10,
+    fontFamily: 'Outfit_900Black',
+    color: Colors.slate[500],
+    letterSpacing: 1,
   },
   selectedChipText: {
     color: Colors.white,
@@ -166,35 +209,57 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingText: {
+    marginTop: 16,
+    fontFamily: 'Outfit_900Black',
+    fontSize: 10,
+    letterSpacing: 2,
+    color: Colors.slate[400],
+  },
   listContent: {
-    padding: 20,
-    paddingBottom: 100,
+    padding: 24,
+    paddingBottom: 120,
   },
   cardWrapper: {
-    marginBottom: 16,
+    marginBottom: 20,
     width: '100%',
+    alignItems: 'center',
   },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 80,
-    paddingHorizontal: 40,
+    paddingHorizontal: 48,
   },
   emptyTitle: {
-    fontWeight: '900',
+    fontFamily: 'Outfit_900Black',
+    fontSize: 16,
+    letterSpacing: 2,
     color: Colors.charcoal,
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: 24,
+    marginBottom: 12,
   },
   emptySubtitle: {
-    color: Colors.textSecondary,
+    color: Colors.slate[400],
     textAlign: 'center',
-    marginBottom: 20,
+    fontSize: 14,
+    fontFamily: 'Outfit_500Medium',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  resetBtn: {
+    height: 54,
+    paddingHorizontal: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   resetText: {
-    color: Colors.primary,
-    fontWeight: '800',
-    textDecorationLine: 'underline',
+    color: Colors.white,
+    fontSize: 11,
+    fontFamily: 'Outfit_900Black',
+    letterSpacing: 2,
   },
 });

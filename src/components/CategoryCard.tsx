@@ -11,11 +11,16 @@ type CategoryCardProps = {
 
 export const CategoryCard = ({ name, image_url, onPress }: CategoryCardProps) => {
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
-      <Image source={{ uri: image_url }} style={styles.image} />
-      <View style={styles.overlay} />
+    <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.container}>
       <View style={styles.content}>
-        <Text variant="labelLarge" style={styles.name}>{name}</Text>
+        <Image 
+          source={{ uri: image_url || 'https://via.placeholder.com/200x200?text=Premium' }} 
+          style={styles.image} 
+        />
+        <View style={styles.overlay}>
+           <Text style={styles.labelTitle}>EXPLORE</Text>
+           <Text style={styles.name}>{name}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -23,31 +28,45 @@ export const CategoryCard = ({ name, image_url, onPress }: CategoryCardProps) =>
 
 const styles = StyleSheet.create({
   container: {
-    width: 120,
-    height: 120,
-    borderRadius: 16,
+    width: 160,
+    height: 160,
+    borderRadius: 32, // Elite rounding 
     overflow: 'hidden',
-    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+    marginRight: 16,
+    marginBottom: 12,
+  },
+  content: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
+    backgroundColor: Colors.slate[100],
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    justifyContent: 'flex-end',
+    padding: 20,
   },
-  content: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 8,
+  labelTitle: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 8,
+    letterSpacing: 3,
+    color: Colors.white,
+    opacity: 0.8,
+    marginBottom: 2,
+    textTransform: 'uppercase',
   },
   name: {
     color: Colors.white,
-    fontWeight: '900',
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    fontFamily: 'Outfit_900Black',
+    fontSize: 16,
+    letterSpacing: -0.5,
   },
 });

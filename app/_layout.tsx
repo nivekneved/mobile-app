@@ -1,11 +1,33 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
-import { useColorScheme } from 'react-native';
+import { 
+  PaperProvider, 
+  MD3LightTheme, 
+  MD3DarkTheme, 
+  configureFonts, 
+  adaptNavigationTheme 
+} from 'react-native-paper';
+import { useColorScheme, View } from 'react-native';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { WishlistProvider } from '../src/context/WishlistContext';
 import { SettingsProvider, useSettings } from '../src/context/SettingsContext';
+import { Colors } from '../src/theme/colors';
+import * as SplashScreen from 'expo-splash-screen';
+import { 
+  useFonts,
+  Outfit_300Light,
+  Outfit_400Regular,
+  Outfit_500Medium,
+  Outfit_600SemiBold,
+  Outfit_700Bold,
+  Outfit_800ExtraBold,
+  Outfit_900Black,
+} from '@expo-google-fonts/outfit';
+
 import '../src/lib/i18n';
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
   const { session, isLoading: authLoading } = useAuth();
@@ -14,41 +36,115 @@ function RootLayoutNav() {
   const router = useRouter();
   const colorScheme = useColorScheme();
 
-  const primaryColor = mobileConfig?.primaryColor || '#DC2626';
+  const [fontsLoaded, fontError] = useFonts({
+    Outfit_300Light,
+    Outfit_400Regular,
+    Outfit_500Medium,
+    Outfit_600SemiBold,
+    Outfit_700Bold,
+    Outfit_800ExtraBold,
+    Outfit_900Black,
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  const primaryColor = mobileConfig?.primaryColor || Colors.primary;
+
+  const fontConfig = {
+    displaySmall: { fontFamily: 'Outfit_300Light' },
+    displayMedium: { fontFamily: 'Outfit_400Regular' },
+    displayLarge: { fontFamily: 'Outfit_500Medium' },
+    headlineSmall: { fontFamily: 'Outfit_600SemiBold' },
+    headlineMedium: { fontFamily: 'Outfit_700Bold' },
+    headlineLarge: { fontFamily: 'Outfit_800ExtraBold' },
+    titleSmall: { fontFamily: 'Outfit_500Medium' },
+    titleMedium: { fontFamily: 'Outfit_700Bold' },
+    titleLarge: { fontFamily: 'Outfit_900Black' },
+    labelSmall: { fontFamily: 'Outfit_500Medium' },
+    labelMedium: { fontFamily: 'Outfit_700Bold' },
+    labelLarge: { fontFamily: 'Outfit_800ExtraBold' },
+    bodySmall: { fontFamily: 'Outfit_400Regular' },
+    bodyMedium: { fontFamily: 'Outfit_500Medium' },
+    bodyLarge: { fontFamily: 'Outfit_600SemiBold' },
+  };
 
   const theme = {
     ...(colorScheme === 'dark' ? MD3DarkTheme : MD3LightTheme),
+    fonts: configureFonts({ config: fontConfig }),
     colors: {
       ...(colorScheme === 'dark' ? MD3DarkTheme.colors : MD3LightTheme.colors),
       primary: primaryColor,
-      secondary: '#1E293B', // Slate 900
-      tertiary: '#475569', // Slate 600
-      background: colorScheme === 'dark' ? '#0F172A' : '#F8FAFC',
+      secondary: Colors.charcoal,
+      tertiary: Colors.textSecondary,
+      background: colorScheme === 'dark' ? '#0F172A' : '#FFFFFF',
       surface: colorScheme === 'dark' ? '#1E293B' : '#FFFFFF',
-      outline: '#E2E8F0',
+      outline: Colors.border,
     },
   };
 
   return (
-    <PaperProvider theme={theme}>
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: theme.colors.surface,
-          },
-          headerTintColor: theme.colors.secondary,
-          headerTitleStyle: {
-            fontWeight: '900',
-          },
-          headerShadowVisible: false,
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
-        <Stack.Screen name="faq" options={{ title: 'FAQ', headerShown: true }} />
-        <Stack.Screen name="news" options={{ title: 'News', headerShown: true }} />
-      </Stack>
-    </PaperProvider>
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <PaperProvider theme={theme}>
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: '#FFFFFF',
+            },
+            headerTintColor: Colors.charcoal,
+            headerTitleStyle: {
+              fontFamily: 'Outfit_900Black',
+              fontSize: 18,
+              letterSpacing: -0.5,
+            },
+            headerShadowVisible: false,
+            headerShown: false,
+            contentStyle: {
+              backgroundColor: Colors.white,
+            }
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+          <Stack.Screen 
+            name="faq" 
+            options={{ 
+              headerShown: true,
+              title: 'FAQ',
+              headerTitleStyle: {
+                fontFamily: 'Outfit_900Black',
+                textTransform: 'uppercase',
+                letterSpacing: 2,
+                fontSize: 14,
+              },
+              headerStyle: {
+                backgroundColor: '#FFFFFF',
+              },
+              headerBottomBorderWidth: 1, // Custom implementation in components usually required but Stack handles headerShadowVisible
+            }} 
+          />
+          <Stack.Screen 
+            name="news" 
+            options={{ 
+              headerShown: true,
+              title: 'LATEST NEWS',
+              headerTitleStyle: {
+                fontFamily: 'Outfit_900Black',
+                textTransform: 'uppercase',
+                letterSpacing: 2,
+                fontSize: 14,
+              }
+            }} 
+          />
+        </Stack>
+      </PaperProvider>
+    </View>
   );
 }
 

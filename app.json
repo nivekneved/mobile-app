@@ -25,7 +25,8 @@
     },
     "scheme": "travellounge",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-font"
     ],
     "web": {
       "favicon": "./assets/favicon.png"
