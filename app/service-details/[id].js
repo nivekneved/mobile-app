@@ -22,7 +22,7 @@ import { supabase } from '../../src/lib/supabase';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useWishlist } from '../../src/context/WishlistContext';
 
-import InquiryForm from '../../components/InquiryForm';
+import InquiryForm from '../../src/components/InquiryForm';
 
 const { width } = Dimensions.get('window');
 

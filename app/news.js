@@ -15,7 +15,7 @@ import {
   useTheme,
 } from 'react-native-paper';
 import { supabase } from '../src/lib/supabase';
-import PremiumCard from '../components/PremiumCard';
+import PremiumCard from '../src/components/PremiumCard';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function NewsScreen() {
