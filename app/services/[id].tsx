@@ -176,7 +176,117 @@ export default function ServiceDetailScreen() {
           price: service.price, 
           category: service.category
         }}
-        onSubmit={async () => {}}
+        onSubmit={async (data) => {
+          try {
+            // 1. Check for authenticated user or use guest info
+            const { data: { user } } = await supabase.auth.getUser();
+            let customerId: string | undefined;
+
+            if (user) {
+              const { data: customer } = await supabase
+                .from('customers')
+                .select('id')
+                .eq('id', user.id)
+                .single();
+              
+              if (!customer) {
+                // If customer record doesn't exist, create one from profile
+                const { data: profile } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .eq('id', user.id)
+                  .single();
+
+                if (profile) {
+                  const names = (profile.name || '').split(' ');
+                  const { data: newCustomer, error: insertError } = await supabase
+                    .from('customers')
+                    .insert([{
+                      id: user.id,
+                      user_id: user.id,
+                      first_name: names[0] || 'Member',
+                      last_name: names.slice(1).join(' ') || 'User',
+                      email: profile.email,
+                      phone: profile.phone,
+                      status: 'Active'
+                    }])
+                    .select()
+                    .single();
+                  
+                  if (insertError) throw insertError;
+                  customerId = newCustomer?.id;
+                } else {
+                  customerId = user.id;
+                }
+              } else {
+                customerId = customer.id;
+              }
+            } else {
+              // Guest user - handle identification
+              const { data: existingCustomer } = await supabase
+                .from('customers')
+                .select('id')
+                .eq('email', data.email)
+                .maybeSingle();
+
+              if (existingCustomer) {
+                customerId = existingCustomer.id;
+              } else {
+                const { data: newGuest, error: guestError } = await supabase
+                  .from('customers')
+                  .insert([{
+                    first_name: data.firstName,
+                    last_name: data.lastName,
+                    email: data.email,
+                    phone: data.phone,
+                    status: 'Lead'
+                  }])
+                  .select()
+                  .single();
+                
+                if (guestError) throw guestError;
+                customerId = newGuest?.id;
+              }
+            }
+
+            if (!customerId) throw new Error('Customer identification failed');
+
+            // 2. Prepare payload for the booking RPC
+            const bookingPayload = {
+              customer_id: customerId,
+              start_date: data.date.toISOString(),
+              status: 'Pending',
+              pax_adults: data.paxAdults,
+              pax_children: data.paxChildren,
+              amount: service.price,
+              activity_type: service.category || 'General',
+              activity_name: service.name,
+              description: data.roomType 
+                ? `Booking for ${service.name}. Room: ${data.roomType}. Special: ${data.specialRequirements || 'None'}`
+                : `Booking for ${service.name}. Special: ${data.specialRequirements || 'None'}`,
+              created_at: new Date().toISOString()
+            };
+
+            const itemsPayload = [{
+              service_id: service.id,
+              service_name: service.name,
+              service_category: service.category || 'General',
+              amount: service.price
+            }];
+
+            // 3. Execute transactional insert via RPC
+            const { error: rpcError } = await supabase.rpc('create_booking_v1', {
+              p_booking_data: bookingPayload,
+              p_items_data: itemsPayload
+            });
+
+            if (rpcError) throw rpcError;
+
+          } catch (error) {
+            console.error('Mobile booking submission failed:', error);
+            throw error; // Re-throw so the modal can show error alert
+          }
+        }}
       />
     </View>
   );
