@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
-    borderWidth: 1 networks,
+    borderWidth: 1,
     borderColor: Colors.charcoal,
   },
   bookText: {
