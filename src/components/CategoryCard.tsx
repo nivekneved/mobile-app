@@ -12,11 +12,11 @@ type CategoryCardProps = {
 
 // Travel Lounge Elite: Synced with Web-App assets
 const LOCAL_ASSETS: Record<string, any> = {
-  'activities': require('../../assets/categories/activities.png'),
+  'activities': require('../../assets/categories/activities.jpg'),
   'day-packages': require('../../assets/categories/day-packages.png'),
   'group-tours': require('../../assets/categories/group_tours.png'),
   'cruises': require('../../assets/categories/cruises.png'),
-  'rodrigues': require('../../assets/categories/rodrigues.png'),
+  'rodrigues': require('../../assets/categories/rodrigues.jpg'),
   'hotels': require('../../assets/categories/hotels.png'),
   'flights': require('../../assets/categories/flights.png'),
 };
