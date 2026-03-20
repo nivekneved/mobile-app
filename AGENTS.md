@@ -1,5 +1,19 @@
 # AGENTS.md
 
+## 2026-03-20 - Mobile CLI & Startup Fix
+
+### Changes Made
+
+- **Local CLI Enforcement**: Updated `package.json` to use `npx expo` for the `start`, `dev`, `android`, and `ios` scripts. This prevents conflicts with global `expo-cli` installations and resolves the `MODULE_NOT_FOUND` error.
+- **Dependency Repair**: Re-executed `npm install` to stabilize a corrupted `node_modules` state after an earlier `npm i` attempt unmounted critical packages.
+- **Environment Stability**: Confirmed `npx expo start` successfully exports `.env` variables and initializes the Metro bundler.
+
+### Verification Results
+
+- `npx expo -v` returns local CLI version `0.22.28`.
+- Project starts successfully without global CLI errors.
+- Unified "start" command is now robust across different user environments.
+
 ## 2026-03-20 - Android Build & Runtime Fixes
 
 ### Changes Made
