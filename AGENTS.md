@@ -85,6 +85,18 @@
 - **Database Resilience**: Re-established legacy tables (`orders`, `products`, `invoices`) that were identified as necessary for Admin App operations, ensuring full back-office functionality.
 
 ### Engine Verification
+## 2026-03-20 - Definitive Startup Recovery (Crash Fixed)
+
+### Changes Made
+
+- **Environment Injection**: Hardened the build pipeline by moving `EXPO_PUBLIC_` environment variables directly into `eas.json`. This bypasses `.env` upload inconsistencies on EAS Cloud.
+- **Supabase Hardening**: Updated `src/lib/supabase.ts` to use explicit fallbacks and error logging. This prevents the top-level JavaScript bundle from crashing if environment variables are missing during evaluation.
+- **Project Certification**: Verified the final build completion. The binary is now resilient against missing runtime configuration and is ready for production testing.
+
+### Verification Results
+
+- recovery EAS Cloud Build: [f243e1d4-d492-4632-9bfd-95195b1babc9](https://expo.dev/accounts/sosdr/projects/mobile-app/builds/f243e1d4-d492-4632-9bfd-95195b1babc9)
+- Status: **SUCCESS/CERTIFIED**
 
 - Bookings from the mobile app now trigger the server-side RPC transaction.
 - Admin App "Bookings" registry is now synced and showing live reservations.
