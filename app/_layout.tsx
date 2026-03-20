@@ -5,7 +5,8 @@ import {
   MD3LightTheme, 
   MD3DarkTheme, 
   configureFonts, 
-  adaptNavigationTheme 
+  adaptNavigationTheme,
+  Text 
 } from 'react-native-paper';
 import { useColorScheme, View } from 'react-native';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
@@ -45,6 +46,12 @@ function RootLayoutNav() {
     Outfit_800ExtraBold,
     Outfit_900Black,
   });
+
+  useEffect(() => {
+    if (fontError) {
+      console.error('Font loading error:', fontError);
+    }
+  }, [fontError]);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
@@ -148,14 +155,40 @@ function RootLayoutNav() {
   );
 }
 
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error('CRITICAL APP ERROR:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: '#FFFFFF' }}>
+          <Text variant="headlineSmall" style={{ marginBottom: 10, color: '#0F172A' }}>Something went wrong</Text>
+          <Text style={{ textAlign: 'center', color: '#64748B' }}>
+            The app encountered a critical error during startup. This is usually due to missing environment variables or a network failure.
+          </Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <WishlistProvider>
-        <SettingsProvider>
-          <RootLayoutNav />
-        </SettingsProvider>
-      </WishlistProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <WishlistProvider>
+          <SettingsProvider>
+            <RootLayoutNav />
+          </SettingsProvider>
+        </WishlistProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

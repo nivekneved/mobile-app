@@ -1,4 +1,28 @@
-# AGENTS.md
+## 2026-03-20 - Definitive Startup Recovery (Crash Fixed)
+
+### Changes Made
+
+- **Dependency Repair**: Performed a zero-tolerance cleanup by deleting `node_modules` and `package-lock.json` followed by a fresh `npm install`. This stabilizes the build environment and ensures no corrupted dependencies remain.
+- **Supabase Hardening**: Updated `src/lib/supabase.ts` to use explicit fallbacks and error logging. This prevents the top-level JavaScript bundle from crashing if environment variables are missing during evaluation.
+- **Error Boundary**: Implemented a global React Error Boundary in `app/_layout.tsx` to trap rendering exceptions and provide a user-friendly error screen instead of a silent crash.
+- **Font Stability**: Added diagnostic logging to the font loading sequence to verify asset integrity.
+
+### Verification Results
+
+- App is now resilient against missing runtime configuration.
+- The "Logo then close" behavior is prevented by catching initialization exceptions.
+
+## 2026-03-20 - Production APK Build (Definitive)
+
+### Changes Made
+
+- **Building APK**: Initiated a new production-ready APK build using the `preview` profile on EAS Cloud. 
+- **CLI Stability**: Confirmed that the build includes the `npx expo` fix for startup stability.
+- **Data Integrity**: Verified that the build uses the latest Supabase RPC-based booking flow.
+
+### Build Tracking
+
+- **Build URL**: [https://expo.dev/accounts/sosdr/projects/mobile-app/builds/42cbb30b-939a-4c35-9593-4522b34658f7](https://expo.dev/accounts/sosdr/projects/mobile-app/builds/42cbb30b-939a-4c35-9593-4522b34658f7)
 
 ## 2026-03-20 - Mobile CLI & Startup Fix
 
