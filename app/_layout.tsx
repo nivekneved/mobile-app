@@ -47,14 +47,6 @@ function RootLayoutNav() {
     Outfit_900Black,
   });
 
-  useEffect(() => {
-    // Failsafe: Hide splash screen after 5 seconds no matter what
-    const timer = setTimeout(async () => {
-      await SplashScreen.hideAsync();
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
@@ -160,9 +152,13 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   static getDerivedStateFromError() { return { hasError: true }; }
   componentDidCatch(error: any, errorInfo: any) {
     console.error('CRITICAL APP ERROR:', error, errorInfo);
+    // Ensure splash screen is hidden on crash
+    SplashScreen.hideAsync().catch(() => {});
   }
   render() {
     if (this.state.hasError) {
+      // Final guard: try to hide splash screen during render if it's still showing
+      SplashScreen.hideAsync().catch(() => {});
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: '#FFFFFF' }}>
           <Text variant="headlineSmall" style={{ marginBottom: 10, color: '#0F172A' }}>Something went wrong</Text>
@@ -177,6 +173,17 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    // TOP-LEVEL Failsafe: Hide splash screen after 5 seconds even if providers hang
+    console.log('[RootLayout] Global startup timer started...');
+    const timer = setTimeout(async () => {
+      console.log('[RootLayout] Failsafe: Hiding splash screen manually...');
+      await SplashScreen.hideAsync().catch(() => {});
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <ErrorBoundary>
       <AuthProvider>

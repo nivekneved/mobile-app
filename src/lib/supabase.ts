@@ -21,10 +21,15 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 // Defensive initialization to prevent hard crash if environment variables are missing in APK
 let supabaseInstance;
 try {
+  // Use a placeholder if env vars are missing to prevent createClient from immediate throwing
+  const effectiveUrl = supabaseUrl || 'https://placeholder-url.supabase.co';
+  const effectiveKey = supabaseAnonKey || 'placeholder-key';
+
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase initialization failed: Missing environment variables');
+    console.warn('Supabase initialization using placeholders due to missing environment variables');
   }
-  supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
+  
+  supabaseInstance = createClient(effectiveUrl, effectiveKey, {
     auth: {
       storage: ExpoSecureStoreAdapter as any,
       autoRefreshToken: true,
@@ -33,7 +38,7 @@ try {
     },
   });
 } catch (error) {
-  console.error('CRITICAL: Supabase client creation failed:', error);
+  console.error('CRITICAL: Supabase client creation failed during evaluation:', error);
   // Create a minimal placeholder to avoid further crashes during module evaluation
   const mockResult = Promise.resolve({ data: [], error: null });
   const mockQueryBuilder: any = {
@@ -41,7 +46,7 @@ try {
     eq: () => mockQueryBuilder,
     single: () => mockResult,
     maybeSingle: () => mockResult,
-    then: (cb: any) => mockResult.then(cb),
+    then: (cb: any) => { cb({ data: [], error: null }); return mockResult; },
     catch: (cb: any) => mockResult.catch(cb),
   };
   
