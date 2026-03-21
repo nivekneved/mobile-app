@@ -13,12 +13,12 @@ type CategoryCardProps = {
 // Travel Lounge Elite: Synced with Web-App assets
 const LOCAL_ASSETS: Record<string, any> = {
   'activities': require('../../assets/categories/activities.jpg'),
-  'day-packages': require('../../assets/categories/day-packages.png'),
-  'group-tours': require('../../assets/categories/group_tours.png'),
-  'cruises': require('../../assets/categories/cruises.png'),
+  'day-packages': require('../../assets/categories/day-packages.jpg'),
+  'group-tours': require('../../assets/categories/group_tours.jpg'),
+  'cruises': require('../../assets/categories/cruises.jpg'),
   'rodrigues': require('../../assets/categories/rodrigues.jpg'),
-  'hotels': require('../../assets/categories/hotels.png'),
-  'flights': require('../../assets/categories/flights.png'),
+  'hotels': require('../../assets/categories/hotels.jpg'),
+  'flights': require('../../assets/categories/flights.jpg'),
 };
 
 import { resolveImageUrl } from '../utils/imageUtils';

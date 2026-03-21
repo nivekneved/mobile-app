@@ -8,10 +8,13 @@ const LOCAL_PLACEHOLDERS: Record<string, any> = {
   '/hero-adventure.png': require('../../assets/hero-adventure.jpg'),
   '/hero-flight.png': require('../../assets/hero-flight.jpg'),
   '/hero-cruise.png': require('../../assets/hero-cruise.jpg'),
-  '/placeholders/hotel_main.png': require('../../assets/hero-hotel.jpg'),
-  '/placeholders/activity_main.png': require('../../assets/hero-adventure.jpg'),
-  '/placeholders/flight_main.png': require('../../assets/hero-flight.jpg'),
-  '/placeholders/cruise_main.png': require('../../assets/hero-cruise.jpg'),
+  '/placeholders/hotel_main.png': require('../../assets/placeholders/hotel_main.jpg'),
+  '/placeholders/activity_main.png': require('../../assets/placeholders/activity_main.jpg'),
+  '/placeholders/flight_main.png': require('../../assets/placeholders/flight_main.jpg'),
+  '/placeholders/cruise_main.png': require('../../assets/placeholders/cruise_main.jpg'),
+  '/placeholders/group_tours_main.png': require('../../assets/placeholders/group_tours_main.jpg'),
+  '/placeholders/tour_main.png': require('../../assets/placeholders/tour_main.jpg'),
+  '/placeholders/transfer_main.png': require('../../assets/placeholders/transfer_main.jpg'),
 };
 
 /**
