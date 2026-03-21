@@ -1,56 +1,48 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { Service } from './useHomeData';
 
-export const useSearchServices = (query: string, categorySlug: string | null) => {
+export const useSearchServices = () => {
   const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setLoading(true); // Signal loading immediately
+  const searchServices = useCallback(async (query: string, categorySlug: string | null = null) => {
+    setIsLoading(true);
     setError(null);
+    try {
+      let supabaseQuery = supabase
+        .from('services')
+        .select('*');
 
-    const fetchServices = async () => {
-
-      try {
-        let supabaseQuery = supabase
-          .from('services')
-          .select('*, service_categories!inner(categories!inner(slug))');
-
-        if (query) {
-          supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
-        }
-
-        if (categorySlug && categorySlug !== 'all') {
-          supabaseQuery = supabaseQuery.eq('service_categories.categories.slug', categorySlug);
-        }
-
-        const { data, error: searchError } = await supabaseQuery.order('name');
-
-        if (searchError) throw searchError;
-        
-        const mappedData = (data || []).map(s => ({
-          ...s,
-          price: s.base_price || 0,
-          category: s.service_type || 'Experience'
-        }));
-        
-        setServices(mappedData);
-      } catch (err: any) {
-        console.error('Error searching services:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (query) {
+        supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
       }
-    };
 
-    const timer = setTimeout(() => {
-      fetchServices();
-    }, 300); // Debounce search
+      // If categorySlug is provided, we filter by category
+      // Note: In your DB, services might have a service_type or similar mapping
+      if (categorySlug && categorySlug !== 'all') {
+        supabaseQuery = supabaseQuery.eq('service_type', categorySlug);
+      }
 
-    return () => clearTimeout(timer);
-  }, [query, categorySlug]);
+      const { data, error: searchError } = await supabaseQuery;
 
-  return { services, loading, error };
+      if (searchError) throw searchError;
+
+      const mappedServices = (data || []).map((s: any) => ({
+        ...s,
+        price: s.base_price || 0,
+        category: s.service_type || 'Experience'
+      }));
+
+      setServices(mappedServices);
+    } catch (err: any) {
+      console.error('Search Error:', err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { services, isLoading, error, searchServices };
 };

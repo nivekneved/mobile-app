@@ -1,17 +1,6 @@
 import { MD3LightTheme, configureFonts } from 'react-native-paper';
 import { Colors } from './colors';
 
-const fontConfig = {
-  displayLarge: {
-    fontFamily: 'System',
-    fontSize: 57,
-    fontWeight: '700',
-    letterSpacing: 0,
-    lineHeight: 64,
-  },
-  // Add other font styles as needed
-};
-
 export const theme = {
   ...MD3LightTheme,
   colors: {
@@ -23,5 +12,6 @@ export const theme = {
     surface: Colors.surface,
     outline: Colors.border,
   },
-  fonts: configureFonts({ config: fontConfig }),
+  // Use default fonts or configure properly for MD3
+  fonts: configureFonts({}),
 };

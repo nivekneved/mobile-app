@@ -9,7 +9,7 @@ import { useSettings } from '../../src/context/SettingsContext';
 import * as Linking from 'expo-linking';
 
 export default function ProfileScreen() {
-  const { user, signOut } = useAuth();
+  const { session, signOut } = useAuth();
   const { mobileConfig, generalConfig } = useSettings();
 
   const handleLogout = () => {
@@ -61,7 +61,7 @@ export default function ProfileScreen() {
             <View style={styles.avatarWrapper}>
                 <Avatar.Text 
                     size={90} 
-                    label={user?.email?.substring(0, 2).toUpperCase() || 'TL'} 
+                    label={session?.user?.email?.substring(0, 2).toUpperCase() || 'TL'} 
                     style={styles.avatar}
                     labelStyle={styles.avatarLabel}
                 />
@@ -70,8 +70,8 @@ export default function ProfileScreen() {
                 </View>
             </View>
             <View style={styles.userInfo}>
-              <Text style={styles.userName}>{user?.email?.split('@')[0].toUpperCase() || 'MEMBER'}</Text>
-              <Text style={styles.userEmail}>{user?.email}</Text>
+              <Text style={styles.userName}>{session?.user?.email?.split('@')[0].toUpperCase() || 'MEMBER'}</Text>
+              <Text style={styles.userEmail}>{session?.user?.email}</Text>
               <View style={styles.membershipBadge}>
                 <Shield size={10} color={Colors.white} />
                 <Text style={styles.membershipText}>EXECUTIVE MEMBER</Text>

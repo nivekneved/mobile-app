@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,18 +9,23 @@ import {
   List, 
   ActivityIndicator, 
   Text, 
-  useTheme, 
   Searchbar,
 } from 'react-native-paper';
 import { supabase } from '../src/lib/supabase';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+type FAQ = {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  order_index: number;
+};
 
 export default function FAQScreen() {
-  const [faqs, setFaqs] = useState([]);
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedId, setExpandedId] = useState(null);
-  const theme = useTheme();
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFAQs();
@@ -49,7 +54,7 @@ export default function FAQScreen() {
   );
 
   // Group FAQs by category
-  const categories = [...new Set(faqs.map(faq => faq.category))];
+  const categories = Array.from(new Set(faqs.map(faq => faq.category)));
 
   if (loading) {
     return (

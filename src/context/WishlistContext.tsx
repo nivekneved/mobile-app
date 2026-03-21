@@ -1,10 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Service } from '../hooks/useHomeData';
 
-const WishlistContext = createContext();
+type WishlistContextType = {
+  wishlist: Service[];
+  toggleWishlist: (service: Service) => Promise<void>;
+  isInWishlist: (id: string) => boolean;
+};
 
-export const WishlistProvider = ({ children }) => {
-  const [wishlist, setWishlist] = useState([]);
+const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
+
+export const WishlistProvider = ({ children }: { children: React.ReactNode }) => {
+  const [wishlist, setWishlist] = useState<Service[]>([]);
 
   useEffect(() => {
     loadWishlist();
@@ -21,9 +28,9 @@ export const WishlistProvider = ({ children }) => {
     }
   };
 
-  const toggleWishlist = async (service) => {
+  const toggleWishlist = async (service: Service) => {
     try {
-      let newWishlist;
+      let newWishlist: Service[];
       const exists = wishlist.find(item => item.id === service.id);
       
       if (exists) {
@@ -39,7 +46,7 @@ export const WishlistProvider = ({ children }) => {
     }
   };
 
-  const isInWishlist = (id) => {
+  const isInWishlist = (id: string) => {
     return wishlist.some(item => item.id === id);
   };
 
@@ -50,4 +57,10 @@ export const WishlistProvider = ({ children }) => {
   );
 };
 
-export const useWishlist = () => useContext(WishlistContext);
+export const useWishlist = () => {
+  const context = useContext(WishlistContext);
+  if (context === undefined) {
+    throw new Error('useWishlist must be used within a WishlistProvider');
+  }
+  return context;
+};

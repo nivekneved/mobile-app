@@ -4,15 +4,18 @@ import { Service } from './useHomeData';
 
 export const useServiceDetails = (id: string | string[] | undefined) => {
   const [service, setService] = useState<Service | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) {
+      setIsLoading(false);
+      return;
+    }
 
     const fetchService = async () => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         const { data, error: serviceError } = await supabase
           .from('services')
           .select('*, amenities, itinerary')
@@ -32,12 +35,12 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
         console.error('Error fetching service details:', err);
         setError(err.message);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchService();
   }, [id]);
 
-  return { service, loading, error };
+  return { service, isLoading, error };
 };

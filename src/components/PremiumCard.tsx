@@ -1,8 +1,15 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { Card, useTheme } from 'react-native-paper';
 
-export default function PremiumCard({ children, style, onPress, ...props }) {
+type PremiumCardProps = {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  onPress?: () => void;
+  [key: string]: any;
+};
+
+export default function PremiumCard({ children, style, onPress, ...props }: PremiumCardProps) {
   const theme = useTheme();
 
   return (
@@ -34,7 +41,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
     borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.5)', // Slate 200 with transparency
+    borderColor: 'rgba(226, 232, 240, 0.5)', 
     overflow: 'hidden',
   },
 });

@@ -42,7 +42,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (error) throw error;
 
       if (data) {
-        data.forEach((item) => {
+        data.forEach((item: any) => {
           if (item.key === 'mobile_config') {
             setMobileConfig(item.value);
           } else if (item.key === 'general_config') {

@@ -1,119 +1,117 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { Text, ActivityIndicator, Surface } from 'react-native-paper';
-import { Colors } from '../../src/theme/colors';
-import { useHomeData } from '../../src/hooks/useHomeData';
+import { View, StyleSheet, FlatList, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { Text, ActivityIndicator, Surface, Chip } from 'react-native-paper';
 import { useSearchServices } from '../../src/hooks/useSearchServices';
-import { ServiceCard } from '../../src/components/ServiceCard';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Search, Filter, Sparkles, SlidersHorizontal, PackageSearch } from 'lucide-react-native';
+import { Colors } from '../../src/theme/colors';
+import { Search, MapPin, Star, Filter, X } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { useHomeData } from '../../src/hooks/useHomeData';
 import { StatusBar } from 'expo-status-bar';
 
 export default function ExploreScreen() {
-  const params = useLocalSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    (params.category as string) || 'all'
-  );
-  const { categories } = useHomeData();
-  const { services, loading: loadingServices } = useSearchServices(searchQuery, selectedCategory);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
+  const { categories, isLoading: categoriesLoading } = useHomeData();
+  const { services, isLoading, error, searchServices } = useSearchServices();
   const router = useRouter();
 
   useEffect(() => {
-    if (params.category) setSelectedCategory(params.category as string);
-  }, [params.category]);
+    searchServices(searchQuery, selectedCategory);
+  }, [searchQuery, selectedCategory, searchServices]);
 
-  const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <PackageSearch size={64} color={Colors.slate[200]} strokeWidth={1} />
-      <Text style={styles.emptyTitle}>NO MATCHES FOUND</Text>
-      <Text style={styles.emptySubtitle}>We couldn't find any experiences matching your current filters. Try refining your selection.</Text>
-      <TouchableOpacity 
-        style={styles.resetBtn}
-        onPress={() => {
-          setSearchQuery('');
-          setSelectedCategory('all');
-        }}
-      >
-        <Text style={styles.resetText}>RESET ALL FILTERS</Text>
-      </TouchableOpacity>
-    </View>
+  const renderServiceItem = ({ item }: { item: any }) => (
+    <TouchableOpacity 
+      onPress={() => router.push(`/services/${item.id}`)}
+      activeOpacity={0.9}
+    >
+      <Surface style={styles.serviceCard} elevation={2}>
+        <View style={styles.serviceImageContainer}>
+          <Text style={styles.placeholderText}>Service Image</Text>
+        </View>
+        <View style={styles.serviceInfo}>
+          <View style={styles.categoryBadge}>
+            <Text style={styles.categoryText}>{item.category || 'Experience'}</Text>
+          </View>
+          <Text variant="titleMedium" style={styles.serviceName}>{item.name}</Text>
+          <View style={styles.locationContainer}>
+            <MapPin size={14} color={Colors.textSecondary} />
+            <Text style={styles.locationText}>{item.location}</Text>
+          </View>
+          <View style={styles.priceRow}>
+            <Text style={styles.price}>Rs {item.price.toLocaleString()}</Text>
+            <View style={styles.ratingContainer}>
+              <Star size={14} color="#FFD700" fill="#FFD700" />
+              <Text style={styles.ratingText}>4.9</Text>
+            </View>
+          </View>
+        </View>
+      </Surface>
+    </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.root}>
       <StatusBar style="dark" />
-      
-      {/* Executive Discovery Header */}
-      <Surface style={styles.header} elevation={0}>
-        <View style={styles.headerTop}>
-            <View>
-                <Text style={styles.labelTitle}>DISCOVER VALUE</Text>
-                <Text style={styles.title}>Explore Services</Text>
-            </View>
-            <TouchableOpacity style={styles.slidersBtn}>
-                <SlidersHorizontal size={20} color={Colors.charcoal} />
+      <View style={styles.header}>
+        <Text variant="headlineMedium" style={styles.title}>Explore</Text>
+        <View style={styles.searchContainer}>
+          <Search size={20} color={Colors.textSecondary} style={styles.searchIcon} />
+          <TextInput
+            placeholder="Search experiences..."
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor={Colors.textSecondary}
+          />
+          {searchQuery !== '' && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <X size={18} color={Colors.textSecondary} />
             </TouchableOpacity>
+          )}
         </View>
+      </View>
 
-        <View style={styles.searchWrapper}>
-             <Search size={20} color={Colors.slate[400]} />
-             <TextInput 
-                style={styles.searchInput}
-                placeholder="Search benefits, hotels, prices..."
-                placeholderTextColor={Colors.slate[300]}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-             />
-        </View>
-        
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterContainer}
-        >
-          <TouchableOpacity
+      <View style={styles.filterSection}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryList}>
+          <Chip 
+            selected={selectedCategory === 'all'} 
             onPress={() => setSelectedCategory('all')}
-            style={[styles.chip, selectedCategory === 'all' && styles.selectedChip]}
+            style={[styles.categoryChip, selectedCategory === 'all' && styles.selectedChip]}
+            textStyle={[styles.chipText, selectedCategory === 'all' && styles.selectedChipText]}
           >
-            <Text style={[styles.chipText, selectedCategory === 'all' && styles.selectedChipText]}>ALL SERVICES</Text>
-          </TouchableOpacity>
+            All
+          </Chip>
           {categories.map((cat) => (
-            <TouchableOpacity
+            <Chip 
               key={cat.id}
+              selected={selectedCategory === cat.slug} 
               onPress={() => setSelectedCategory(cat.slug)}
-              style={[styles.chip, selectedCategory === cat.slug && styles.selectedChip]}
+              style={[styles.categoryChip, selectedCategory === cat.slug && styles.selectedChip]}
+              textStyle={[styles.chipText, selectedCategory === cat.slug && styles.selectedChipText]}
             >
-              <Text style={[styles.chipText, selectedCategory === cat.slug && styles.selectedChipText]}>{cat.name?.toUpperCase()}</Text>
-            </TouchableOpacity>
+              {cat.name}
+            </Chip>
           ))}
         </ScrollView>
-      </Surface>
+      </View>
 
-      {loadingServices ? (
+      {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator color={Colors.primary} size="large" />
-          <Text style={styles.loadingText}>CURATING RESULTS...</Text>
         </View>
       ) : (
         <FlatList
           data={services}
+          renderItem={renderServiceItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => (
-            <View style={styles.cardWrapper}>
-              <ServiceCard
-                name={item.name}
-                image_url={item.image_url}
-                price={item.price}
-                category={item.category}
-                location={item.location}
-                onPress={() => router.push(`/services/${item.id}`)}
-              />
-            </View>
-          )}
-          ListEmptyComponent={renderEmpty}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text variant="titleMedium" style={styles.emptyText}>No services found</Text>
+              <Text style={styles.emptySubtext}>Try adjusting your search or filters</Text>
+            </View>
+          }
         />
       )}
     </View>
@@ -121,85 +119,64 @@ export default function ExploreScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background,
   },
   header: {
-    paddingTop: 60,
+    paddingTop: 80,
     paddingHorizontal: 24,
-    backgroundColor: '#FFFFFF',
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  labelTitle: {
-    fontFamily: 'Outfit_900Black',
-    fontSize: 10,
-    letterSpacing: 4,
-    color: Colors.primary,
-    marginBottom: 4,
+    paddingBottom: 20,
+    backgroundColor: Colors.white,
   },
   title: {
-    fontFamily: 'Outfit_900Black',
-    fontSize: 28,
+    fontWeight: '900',
     color: Colors.charcoal,
     letterSpacing: -1,
+    marginBottom: 16,
   },
-  slidersBtn: {
-     width: 48,
-     height: 48,
-     borderRadius: 16,
-     backgroundColor: Colors.slate[50],
-     borderWidth: 1,
-     borderColor: Colors.border,
-     justifyContent: 'center',
-     alignItems: 'center',
-  },
-  searchWrapper: {
-     flexDirection: 'row',
-     alignItems: 'center',
-     backgroundColor: Colors.slate[50],
-     height: 60,
-     borderRadius: 20,
-     paddingHorizontal: 20,
-     gap: 12,
-     borderWidth: 1,
-     borderColor: Colors.border,
-  },
-  searchInput: {
-     flex: 1,
-     fontFamily: 'Outfit_600SemiBold',
-     fontSize: 15,
-     color: Colors.charcoal,
-  },
-  filterContainer: {
-    paddingVertical: 20,
-    gap: 12,
-  },
-  chip: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: Colors.white,
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 52,
     borderWidth: 1,
     borderColor: Colors.border,
   },
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '500',
+    color: Colors.charcoal,
+  },
+  filterSection: {
+    paddingVertical: 16,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  categoryList: {
+    paddingHorizontal: 20,
+    gap: 8,
+  },
+  categoryChip: {
+    backgroundColor: Colors.surface,
+    borderColor: Colors.border,
+    borderRadius: 12,
+  },
   selectedChip: {
-    backgroundColor: Colors.charcoal,
-    borderColor: Colors.charcoal,
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   chipText: {
-    fontSize: 10,
-    fontFamily: 'Outfit_900Black',
-    color: Colors.slate[500],
-    letterSpacing: 1,
+    fontWeight: '600',
+    color: Colors.charcoal,
+    fontSize: 13,
   },
   selectedChipText: {
     color: Colors.white,
@@ -209,57 +186,95 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loadingText: {
-    marginTop: 16,
-    fontFamily: 'Outfit_900Black',
-    fontSize: 10,
-    letterSpacing: 2,
-    color: Colors.slate[400],
-  },
   listContent: {
     padding: 24,
-    paddingBottom: 120,
+    paddingBottom: 40,
   },
-  cardWrapper: {
+  serviceCard: {
+    backgroundColor: Colors.white,
+    borderRadius: 24,
+    overflow: 'hidden',
     marginBottom: 20,
-    width: '100%',
-    alignItems: 'center',
   },
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
+  serviceImageContainer: {
+    height: 180,
+    backgroundColor: Colors.surface,
     justifyContent: 'center',
-    marginTop: 80,
-    paddingHorizontal: 48,
+    alignItems: 'center',
   },
-  emptyTitle: {
-    fontFamily: 'Outfit_900Black',
-    fontSize: 16,
-    letterSpacing: 2,
+  placeholderText: {
+    color: Colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  serviceInfo: {
+    padding: 20,
+  },
+  categoryBadge: {
+    backgroundColor: Colors.primary + '10',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  categoryText: {
+    color: Colors.primary,
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  serviceName: {
+    fontWeight: '800',
     color: Colors.charcoal,
-    marginTop: 24,
+    marginBottom: 8,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     marginBottom: 12,
   },
-  emptySubtitle: {
-    color: Colors.slate[400],
-    textAlign: 'center',
-    fontSize: 14,
-    fontFamily: 'Outfit_500Medium',
-    lineHeight: 22,
-    marginBottom: 24,
+  locationText: {
+    color: Colors.textSecondary,
+    fontSize: 12,
+    fontWeight: '500',
   },
-  resetBtn: {
-    height: 54,
-    paddingHorizontal: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  price: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: Colors.primary,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  ratingText: {
+    fontWeight: '700',
+    fontSize: 12,
+    color: Colors.charcoal,
+  },
+  emptyContainer: {
+    padding: 40,
     alignItems: 'center',
   },
-  resetText: {
-    color: Colors.white,
-    fontSize: 11,
-    fontFamily: 'Outfit_900Black',
-    letterSpacing: 2,
+  emptyText: {
+    fontWeight: '700',
+    color: Colors.charcoal,
+    marginBottom: 4,
+  },
+  emptySubtext: {
+    color: Colors.textSecondary,
+    fontSize: 14,
   },
 });

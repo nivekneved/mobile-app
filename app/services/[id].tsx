@@ -19,7 +19,7 @@ export default function ServiceDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { mobileConfig, generalConfig } = useSettings();
-  const { service, loading, error } = useServiceDetails(id);
+  const { service, isLoading, error } = useServiceDetails(id);
   const { roomTypes: hookRoomTypes } = useRoomTypes(id as string);
 
   const roomTypes = React.useMemo(() => {
@@ -49,7 +49,7 @@ export default function ServiceDetailScreen() {
     if (method === 'email') Linking.openURL(`mailto:${contact.email}?subject=${encodeURIComponent(message)}`);
   };
 
-  if (loading) return <View style={styles.loadingContainer}><ActivityIndicator color={Colors.primary} size="large" /></View>;
+  if (isLoading) return <View style={styles.loadingContainer}><ActivityIndicator color={Colors.primary} size="large" /></View>;
   if (error || !service) return <View style={styles.loadingContainer}><Text>Service not found</Text></View>;
 
   return (
@@ -140,7 +140,7 @@ export default function ServiceDetailScreen() {
                 <View key={index} style={styles.journeyItem}>
                   <View style={styles.journeyLineWrapper}>
                     <View style={styles.journeyDot} />
-                    {index !== service.itinerary.length - 1 && <View style={styles.journeyLine} />}
+                    {index !== (service.itinerary?.length || 0) - 1 && <View style={styles.journeyLine} />}
                   </View>
                   <View style={styles.journeyContent}>
                      <Text style={styles.journeyTime}>{item?.time}</Text>

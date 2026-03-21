@@ -38,13 +38,13 @@ export const useHomeData = () => {
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredServices, setFeaturedServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         
         // Fetch Hero Slides
         const { data: slides, error: slidesError } = await supabase
@@ -56,7 +56,6 @@ export const useHomeData = () => {
           console.error('Supabase error (hero_slides):', slidesError);
           throw slidesError;
         }
-        console.log('Fetched Hero Slides:', slides?.length || 0);
 
         // Fetch Categories
         const { data: cats, error: catsError } = await supabase
@@ -68,7 +67,6 @@ export const useHomeData = () => {
           console.error('Supabase error (categories):', catsError);
           throw catsError;
         }
-        console.log('Fetched Categories:', cats?.length || 0);
 
         // Fetch Featured Services
         const { data: services, error: servicesError } = await supabase
@@ -80,9 +78,8 @@ export const useHomeData = () => {
           console.error('Supabase error (services):', servicesError);
           throw servicesError;
         }
-        console.log('Fetched Featured Services:', services?.length || 0);
 
-        const mappedServices = (services || []).map(s => ({
+        const mappedServices = (services || []).map((s: any) => ({
           ...s,
           price: s.base_price || 0,
           category: s.service_type || 'Experience'
@@ -95,12 +92,12 @@ export const useHomeData = () => {
         console.error('Home Data Error:', err.message || err);
         setError(err.message || 'An error occurred while loading home data');
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchAllData();
   }, []);
 
-  return { heroSlides, categories, featuredServices, loading, error };
+  return { heroSlides, categories, featuredServices, isLoading, error };
 };

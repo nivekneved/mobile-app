@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Image, Dimensions, ScrollView, Animated } from 'react-native';
+import { StyleSheet, View, Image, Dimensions, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Text, Button, ActivityIndicator, useTheme } from 'react-native-paper';
 import { supabase } from '../lib/supabase';
+import { HeroSlide } from '../hooks/useHomeData';
 
 const { width } = Dimensions.get('window');
 
 export default function Hero() {
-  const [slides, setSlides] = useState([]);
+  const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
   const theme = useTheme();
@@ -30,7 +31,7 @@ export default function Hero() {
     loadHeroSlides();
   }, []);
 
-  const handleScroll = (event) => {
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const slideIndex = Math.round(event.nativeEvent.contentOffset.x / width);
     setActiveSlide(slideIndex);
   };
@@ -54,20 +55,19 @@ export default function Hero() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        {slides.map((slide, index) => (
+        {slides.map((slide) => (
           <View key={slide.id} style={styles.slide}>
             <Image
               source={{ uri: slide.image_url }}
               style={styles.image}
               resizeMode="cover"
             />
-            {/* Overlay Gradient Placeholder */}
             <View style={styles.overlay} />
             
             <View style={styles.content}>
               <Text style={styles.tag}>TRAVEL DEALS</Text>
               <Text style={styles.title}>{slide.title}</Text>
-              <Text style={styles.subtitle}>{slide.subtitle || slide.description}</Text>
+              <Text style={styles.subtitle}>{slide.subtitle}</Text>
               
               <View style={styles.buttonRow}>
                 <Button 
@@ -84,7 +84,6 @@ export default function Hero() {
         ))}
       </ScrollView>
 
-      {/* Pagination Indicators */}
       <View style={styles.pagination}>
         {slides.map((_, i) => (
           <View
@@ -119,7 +118,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.4)', // Slate 900 with transparency
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
   },
   content: {
     flex: 1,

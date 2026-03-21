@@ -1,4 +1,4 @@
-import i18n from 'i18next';
+import i18n, { LanguageDetectorAsyncModule } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -47,26 +47,23 @@ const resources = {
   }
 };
 
-const LANGUAGE_DETECTOR = {
+const LANGUAGE_DETECTOR: LanguageDetectorAsyncModule = {
   type: 'languageDetector',
   async: true,
-  detect: async (callback) => {
-    try {
-      const savedLanguage = await AsyncStorage.getItem('user-language');
-      if (savedLanguage) {
-        return callback(savedLanguage);
-      }
+  detect: (callback: (lng: string | readonly string[] | undefined) => void) => {
+    AsyncStorage.getItem('user-language').then((savedLanguage) => {
+      callback(savedLanguage || 'en');
+    }).catch(() => {
       callback('en');
-    } catch (error) {
-      console.log('Error fetching language', error);
-      callback('en');
-    }
+    });
   },
   init: () => {},
-  cacheUserLanguage: async (language) => {
+  cacheUserLanguage: async (language: string) => {
     try {
       await AsyncStorage.setItem('user-language', language);
-    } catch (error) {}
+    } catch (error) {
+      console.warn('i18n storage initialization failed:', error);
+    }
   }
 };
 

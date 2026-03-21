@@ -1,11 +1,16 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Text, Title, Paragraph, Surface } from 'react-native-paper';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const { width } = Dimensions.get('window');
+type Promotion = {
+    id: string;
+    title: string;
+    description: string;
+    image: string;
+    category: string;
+};
 
-const PROMOTIONS = [
+const PROMOTIONS: Promotion[] = [
     {
         id: 'promo1',
         title: 'Summer Sale',
@@ -30,7 +35,7 @@ const PROMOTIONS = [
 ];
 
 export default function PromotionsCarousel() {
-    const renderItem = ({ item }) => (
+    const renderItem = ({ item }: { item: Promotion }) => (
         <Surface style={styles.card} elevation={2}>
             <TouchableOpacity activeOpacity={0.9} style={styles.touchable}>
                 <Image

@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 export default function BookingsScreen() {
-  const { bookings, loading, error } = useCustomerBookings();
+  const { bookings, isLoading, error } = useCustomerBookings();
   const router = useRouter();
 
   const getStatusColor = (status: Booking['status']) => {
@@ -90,7 +90,7 @@ export default function BookingsScreen() {
         <Text variant="bodyMedium" style={styles.subtitle}>Your travel history and inquiries</Text>
       </View>
 
-      {loading ? (
+      {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator color={Colors.primary} />
         </View>

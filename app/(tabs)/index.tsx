@@ -43,8 +43,8 @@ const DestinationCard = ({ item, index, scrollX, onPress }: {
 };
 
 export default function HomeScreen() {
-  const { heroSlides, categories, featuredServices, loading, error } = useHomeData();
-  const { user } = useAuth();
+  const { heroSlides, categories, featuredServices, isLoading, error } = useHomeData();
+  const { session } = useAuth();
   const { mobileConfig, generalConfig } = useSettings();
   const router = useRouter();
 
@@ -64,7 +64,7 @@ export default function HomeScreen() {
     if (method === 'call') Linking.openURL(`tel:${contact.phone}`);
   };
 
-  if (loading) return <View style={styles.loadingContainer}><ActivityIndicator color={Colors.primary} size="large" /></View>;
+  if (isLoading) return <View style={styles.loadingContainer}><ActivityIndicator color={Colors.primary} size="large" /></View>;
 
   return (
     <View style={styles.root}>

@@ -15,19 +15,23 @@
       "supportsTablet": true
     },
     "android": {
+      "versionCode": 2,
       "package": "com.travellounge.mobile",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
+      }
     },
     "scheme": "travellounge",
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-secure-store",
+      "expo-asset",
+      "expo-system-ui",
+      "@react-native-community/datetimepicker"
     ],
     "web": {
       "favicon": "./assets/favicon.png"
@@ -38,8 +42,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "7ce4f4a9-2b5a-4a0f-86c7-9811d49162f9"
+        "projectId": "66687993-0165-43df-8d28-8d43701b3d56"
       }
-    }
+    },
+    "owner": "travellounge"
   }
 }

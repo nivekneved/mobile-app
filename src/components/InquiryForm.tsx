@@ -4,20 +4,24 @@ import {
   TextInput, 
   Button, 
   Text, 
-  useTheme, 
-  ActivityIndicator,
   Portal,
   Modal,
 } from 'react-native-paper';
 import { supabase } from '../lib/supabase';
 
-export default function InquiryForm({ visible, onDismiss, serviceId, serviceName }) {
+type InquiryFormProps = {
+  visible: boolean;
+  onDismiss: () => void;
+  serviceId: string;
+  serviceName: string;
+};
+
+export default function InquiryForm({ visible, onDismiss, serviceId, serviceName }: InquiryFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const theme = useTheme();
 
   const handleSubmit = async () => {
     if (!name || !email || !message) {

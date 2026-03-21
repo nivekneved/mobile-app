@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -12,17 +12,25 @@ import {
   Text, 
   Title, 
   Paragraph, 
-  useTheme,
 } from 'react-native-paper';
 import { supabase } from '../src/lib/supabase';
 import PremiumCard from '../src/components/PremiumCard';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+type Post = {
+  id: string;
+  title: string;
+  excerpt: string;
+  featured_image: string;
+  published_at: string;
+  admins: {
+    name: string;
+  } | null;
+};
 
 export default function NewsScreen() {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const theme = useTheme();
 
   useEffect(() => {
     fetchPosts();
@@ -54,12 +62,12 @@ export default function NewsScreen() {
     setRefreshing(false);
   };
 
-  const renderPostItem = ({ item }) => (
+  const renderPostItem = useCallback(({ item }: { item: Post }) => (
     <PremiumCard style={styles.card}>
       {item.featured_image && (
         <Image source={{ uri: item.featured_image }} style={styles.cardImage} />
       )}
-      <PremiumCard.Content style={styles.cardContent}>
+      <View style={styles.cardContent}>
         <View style={styles.metaRow}>
           <Text style={styles.metaText}>
             {new Date(item.published_at).toLocaleDateString('en-US', {
@@ -76,9 +84,9 @@ export default function NewsScreen() {
         <Paragraph numberOfLines={3} style={styles.cardPara}>
           {item.excerpt}
         </Paragraph>
-      </PremiumCard.Content>
+      </View>
     </PremiumCard>
-  );
+  ), []);
 
   if (loading) {
     return (
@@ -150,7 +158,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   cardContent: {
-    paddingtop: 16,
+    paddingTop: 16,
   },
   metaRow: {
     flexDirection: 'row',

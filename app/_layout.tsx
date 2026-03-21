@@ -31,7 +31,7 @@ import '../src/lib/i18n';
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
-  const { session, isLoading: authLoading } = useAuth();
+  const { session, loading: authLoading } = useAuth();
   const { mobileConfig, isLoading: settingsLoading } = useSettings();
   const segments = useSegments();
   const router = useRouter();
@@ -48,10 +48,13 @@ function RootLayoutNav() {
   });
 
   useEffect(() => {
-    if (fontError) {
-      console.error('Font loading error:', fontError);
-    }
-  }, [fontError]);
+    // Failsafe: Hide splash screen after 5 seconds no matter what
+    const timer = setTimeout(async () => {
+      await SplashScreen.hideAsync();
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
@@ -109,7 +112,6 @@ function RootLayoutNav() {
             headerTitleStyle: {
               fontFamily: 'Outfit_900Black',
               fontSize: 18,
-              letterSpacing: -0.5,
             },
             headerShadowVisible: false,
             headerShown: false,
@@ -126,14 +128,11 @@ function RootLayoutNav() {
               title: 'FAQ',
               headerTitleStyle: {
                 fontFamily: 'Outfit_900Black',
-                textTransform: 'uppercase',
-                letterSpacing: 2,
                 fontSize: 14,
               },
               headerStyle: {
                 backgroundColor: '#FFFFFF',
               },
-              headerBottomBorderWidth: 1, // Custom implementation in components usually required but Stack handles headerShadowVisible
             }} 
           />
           <Stack.Screen 
@@ -143,8 +142,6 @@ function RootLayoutNav() {
               title: 'LATEST NEWS',
               headerTitleStyle: {
                 fontFamily: 'Outfit_900Black',
-                textTransform: 'uppercase',
-                letterSpacing: 2,
                 fontSize: 14,
               }
             }} 

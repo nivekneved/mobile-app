@@ -1,4 +1,0 @@
-{
-  "extends": "expo",
-  "ignorePatterns": ["node_modules/", "babel.config.js"]
-}

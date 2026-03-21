@@ -18,20 +18,20 @@ export type Booking = {
 };
 
 export const useCustomerBookings = () => {
-  const { user } = useAuth();
+  const { session } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
+    if (!session?.user) {
+      setIsLoading(false);
       return;
     }
 
     const fetchBookings = async () => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         // We fetch from the 'bookings' table and join with 'services'
         const { data, error: bookingsError } = await supabase
           .from('bookings')
@@ -49,7 +49,7 @@ export const useCustomerBookings = () => {
               category
             )
           `)
-          .eq('user_id', user.id)
+          .eq('user_id', session.user.id)
           .order('created_at', { ascending: false });
 
         if (bookingsError) throw bookingsError;
@@ -58,12 +58,12 @@ export const useCustomerBookings = () => {
         console.error('Error fetching bookings:', err);
         setError(err.message);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchBookings();
-  }, [user]);
+  }, [session?.user]);
 
-  return { bookings, loading, error };
+  return { bookings, isLoading, error };
 };
