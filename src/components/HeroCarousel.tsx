@@ -20,6 +20,8 @@ type HeroSlideItemProps = {
   scrollX: SharedValue<number>;
 };
 
+import { resolveImageUrl } from '../utils/imageUtils';
+
 const HeroSlideItem = ({ item, index, scrollX }: HeroSlideItemProps) => {
   const animatedImageStyle = useAnimatedStyle(() => {
     const input = [(index - 1) * width, index * width, (index + 1) * width];
@@ -44,7 +46,7 @@ const HeroSlideItem = ({ item, index, scrollX }: HeroSlideItemProps) => {
     <View style={styles.slide}>
       <View style={styles.imageContainer}>
         <Animated.Image 
-          source={{ uri: item.image_url }} 
+          source={resolveImageUrl(item.image_url)} 
           style={[styles.image, animatedImageStyle]} 
         />
       </View>

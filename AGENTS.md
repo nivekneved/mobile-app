@@ -1,5 +1,18 @@
 # AGENTS.md
 
+## 2026-03-22 - Featured Offer Image Fix (ULTIMATE PARITY)
+
+### Changes Made
+- **Image Resolution Engine**: Created `src/utils/imageUtils.ts` to handle relative vs absolute URLs. It automatically prepends Supabase Storage URLs for relative paths and maps specific web-app placeholders (like `/hero-hotel.png`) to local bundled assets.
+- **Asset Migration**: Migrated core placeholder images from the Web App to `mobile-app/assets` to ensure 100% reliability for Featured Offers (Casela, LUX, Oberoi).
+- **Component Hardening**: Updated `ServiceCard`, `HeroCarousel`, `CategoryCard`, `ExploreScreen`, and `ServiceDetailScreen` to use the new resolution engine.
+- **Explore Screen Upgrade**: Fixed the Explore screen which was previously showing "Service Image" text instead of actual visual content.
+
+### Verification Expected
+- Featured Offer cards (Casela, LUX, etc.) will now display high-quality images.
+- Explore screen lists will show full-bleed service images.
+- Hero Carousel will correctly resolve remote Supabase assets.
+
 ## 2026-03-22 - Startup Resilience Hardening (CRITICAL)
 
 ### Changes Made

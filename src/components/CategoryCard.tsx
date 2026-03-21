@@ -21,10 +21,12 @@ const LOCAL_ASSETS: Record<string, any> = {
   'flights': require('../../assets/categories/flights.png'),
 };
 
+import { resolveImageUrl } from '../utils/imageUtils';
+
 export const CategoryCard = ({ name, image_url, slug, onPress }: CategoryCardProps) => {
   // Use local asset if valid slug exists and no remote image_url is provided, or as higher priority for brand parity
   const localImage = slug ? LOCAL_ASSETS[slug] : null;
-  const source = localImage ? localImage : { uri: image_url || 'https://via.placeholder.com/400x600?text=Premium' };
+  const source = localImage ? localImage : resolveImageUrl(image_url);
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.container}>

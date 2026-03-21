@@ -11,6 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { BookingModal } from '../../src/components/BookingModal';
 import { supabase } from '../../src/lib/supabase';
 import { useSettings } from '../../src/context/SettingsContext';
+import { resolveImageUrl } from '../../src/utils/imageUtils';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 450;
@@ -60,7 +61,7 @@ export default function ServiceDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false} style={styles.container} stickyHeaderIndices={[1]}>
         {/* Elite Image Header */}
         <View style={styles.imageContainer}>
-          <Image source={{ uri: service.image_url || 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800' }} style={styles.image} />
+          <Image source={resolveImageUrl(service.image_url)} style={styles.image} />
           <View style={styles.overlay} />
           <View style={styles.topControls}>
             <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}><ArrowLeft color={Colors.white} size={22} /></TouchableOpacity>
@@ -119,7 +120,7 @@ export default function ServiceDetailScreen() {
               <Text style={styles.sectionTitle}>Elite Accommodation</Text>
               {roomTypes.map((room) => (
                 <Surface key={room.id} style={styles.roomCard} elevation={0}>
-                  <Image source={{ uri: room.image_url || 'https://via.placeholder.com/400x300' }} style={styles.roomImage} />
+                  <Image source={resolveImageUrl(room.image_url)} style={styles.roomImage} />
                   <View style={styles.roomContent}>
                     <Text style={styles.roomName}>{room.name}</Text>
                     <View style={styles.priceGrid}>

@@ -15,6 +15,7 @@ import {
 } from 'react-native-paper';
 import { supabase } from '../src/lib/supabase';
 import PremiumCard from '../src/components/PremiumCard';
+import { resolveImageUrl } from '../src/utils/imageUtils';
 
 type Post = {
   id: string;
@@ -65,7 +66,7 @@ export default function NewsScreen() {
   const renderPostItem = useCallback(({ item }: { item: Post }) => (
     <PremiumCard style={styles.card}>
       {item.featured_image && (
-        <Image source={{ uri: item.featured_image }} style={styles.cardImage} />
+        <Image source={resolveImageUrl(item.featured_image)} style={styles.cardImage} />
       )}
       <View style={styles.cardContent}>
         <View style={styles.metaRow}>

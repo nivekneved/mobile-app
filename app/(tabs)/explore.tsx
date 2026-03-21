@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, FlatList, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Text, ActivityIndicator, Surface, Chip } from 'react-native-paper';
 import { useSearchServices } from '../../src/hooks/useSearchServices';
 import { Colors } from '../../src/theme/colors';
@@ -7,6 +7,7 @@ import { Search, MapPin, Star, Filter, X } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useHomeData } from '../../src/hooks/useHomeData';
 import { StatusBar } from 'expo-status-bar';
+import { resolveImageUrl } from '../../src/utils/imageUtils';
 
 export default function ExploreScreen() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +27,11 @@ export default function ExploreScreen() {
     >
       <Surface style={styles.serviceCard} elevation={2}>
         <View style={styles.serviceImageContainer}>
-          <Text style={styles.placeholderText}>Service Image</Text>
+          <Image 
+            source={resolveImageUrl(item.image_url)} 
+            style={styles.serviceImage} 
+            resizeMode="cover"
+          />
         </View>
         <View style={styles.serviceInfo}>
           <View style={styles.categoryBadge}>
@@ -199,8 +204,11 @@ const styles = StyleSheet.create({
   serviceImageContainer: {
     height: 180,
     backgroundColor: Colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  serviceImage: {
+    width: '100%',
+    height: '100%',
   },
   placeholderText: {
     color: Colors.textSecondary,

@@ -14,6 +14,8 @@ type ServiceCardProps = {
   onPress: () => void;
 };
 
+import { resolveImageUrl } from '../utils/imageUtils';
+
 export const ServiceCard = ({ 
   name, 
   image_url, 
@@ -28,7 +30,7 @@ export const ServiceCard = ({
       <Surface style={styles.container} elevation={0}>
         <View style={styles.imageContainer}>
           <Image 
-            source={{ uri: image_url || 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=400' }} 
+            source={resolveImageUrl(image_url)} 
             style={styles.image} 
           />
           <View style={styles.priceTag}>
