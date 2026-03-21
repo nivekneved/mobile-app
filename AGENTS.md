@@ -1,3 +1,17 @@
+# AGENTS.md
+
+## 2026-03-22 - Startup Resilience Hardening (CRITICAL)
+
+### Changes Made
+- **Global Startup Failsafe**: Moved the 5-second splash screen timeout to the top-level `RootLayout` component, ensuring the app proceeds even if providers (Auth/Settings) hang.
+- **ErrorBoundary Shield**: Hardened the `ErrorBoundary` to explicitly hide the splash screen when a crash occurs, preventing the "stuck on logo" state.
+- **Supabase Mock Resilience**: Improved the fallback Supabase client to ensure it never blocks the initialization lifecycle if environment variables are missing in the binary.
+- **EAS Build**: Initiated a fresh hardened build for the Android APK.
+
+### Verification Expected
+- App will now force-hide the splash screen after 5 seconds of inactivity.
+- Error boundary UI will now be correctly visible on crashes.
+
 ## 2026-03-21 - Production Certification & Android Startup Fix (FINAL)
 
 ### Changes Made
