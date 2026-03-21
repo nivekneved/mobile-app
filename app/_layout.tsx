@@ -1,4 +1,18 @@
 import React, { useEffect, useCallback } from 'react';
+import { Platform } from 'react-native';
+
+// POLYFILL: Hermes in some environments (SDK 52) may lack WeakRef
+if (typeof WeakRef === 'undefined') {
+  (global as any).WeakRef = class WeakRef<T extends object> {
+    private target: T;
+    constructor(target: T) {
+      this.target = target;
+    }
+    deref(): T | undefined {
+      return this.target;
+    }
+  };
+}
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { 
   PaperProvider, 
