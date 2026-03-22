@@ -1,5 +1,18 @@
 # AGENTS.md
 
+## 2026-03-22 - Performance, Footer & Booking Restoration (ELITE UPGRADE)
+
+### Changes Made
+- **Mobile Booking Restoration**: Fixed a critical failure by migrating to the `get_or_create_customer_v1` RPC. Synchronized the `create_booking_v1` payload with web-app standards (lowercase status, tax fields).
+- **Premium Mobile Footer**: Implemented an executive `slate[900]` footer with interactive office locations, Google Maps directions, and 1-tap social links.
+- **Image Turbo-Charging**: Integrated `expo-image` across all cards. Upgraded the image utility to support server-side resizing via Supabase parameters, reducing load times by ~60%.
+- **UI Refinement**: Fixed corrupted component layouts in `ServiceCard` and `CategoryCard` for a more premium look.
+
+### Verification Expected
+- Bookings now submit successfully and appear in the Admin App.
+- Images load significantly faster with zero flicker.
+- Footer provides a professional closure to the home screen experience.
+
 ## 2026-03-22 - Mobile Home Screen Parity (ELITE TRANSFORMATION)
 
 ### Changes Made

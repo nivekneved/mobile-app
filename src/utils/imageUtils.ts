@@ -1,56 +1,56 @@
 import { ImageSourcePropType } from 'react-native';
 
-const SUPABASE_STORAGE_URL = 'https://tbyudagfjspedeqtlgjv.supabase.co/storage/v1/object/public/';
-
-// Mapping for web-app local assets that are referenced in the database but not in storage
-const LOCAL_PLACEHOLDERS: Record<string, any> = {
-  '/hero-hotel.png': require('../../assets/herohotel.jpg'),
-  '/hero-adventure.png': require('../../assets/heroadventure.jpg'),
-  '/hero-flight.png': require('../../assets/heroflight.jpg'),
-  '/hero-cruise.png': require('../../assets/herocruise.jpg'),
-  '/placeholders/hotel_main.png': require('../../assets/placeholders/hotel_main.jpg'),
-  '/placeholders/activity_main.png': require('../../assets/placeholders/activity_main.jpg'),
-  '/placeholders/flight_main.png': require('../../assets/placeholders/flight_main.jpg'),
-  '/placeholders/cruise_main.png': require('../../assets/placeholders/cruise_main.jpg'),
-  '/placeholders/group_tours_main.png': require('../../assets/placeholders/group_tours_main.jpg'),
-  '/placeholders/tour_main.png': require('../../assets/placeholders/tour_main.jpg'),
-  '/placeholders/transfer_main.png': require('../../assets/placeholders/transfer_main.jpg'),
-};
-
 /**
  * Resolves an image URL from the database into a React Native Image source.
  * Handles:
- * 1. Absolute URLs (http/https)
+ * 1. Absolute URLs
  * 2. Supabase relative storage paths (services/..., hotels/...)
- * 3. Web-app local relative paths (/hero-hotel.png) -> Maps to local assets
+ * 3. Mobile bundle assets for categories
+ * 
+ * Supports dynamic resizing via width/height parameters for Supabase assets.
  */
-export const resolveImageUrl = (url: string | null | undefined): any => {
-  if (!url) {
-    return { uri: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=400' };
+export const resolveImageUrl = (url: string | null | undefined, width?: number, height?: number) => {
+  if (!url) return require('../../assets/hero-hotel.png'); // Default fallback
+
+  // 1. Handle bundle assets (if starting with /assets/ or a relative path we recognize)
+  if (url.startsWith('assets/') || url.includes('/assets/')) {
+    // Map known web-app placeholders to mobile assets
+    if (url.includes('activities')) return require('../../assets/categories/activities.png');
+    if (url.includes('day-packages')) return require('../../assets/categories/day-packages.png');
+    if (url.includes('cruises')) return require('../../assets/categories/cruises.png');
+    if (url.includes('rodrigues')) return require('../../assets/categories/rodrigues.png');
+    
+    // Generic placeholder fallback for other asset paths
+    return require('../../assets/hero-hotel.png');
   }
 
-  // 1. Handle actual URLs
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return { uri: url };
+  // 2. Handle Absolute URLs (external or already resolved)
+  if (url.startsWith('http')) {
+    let finalUrl = url;
+    // Add Supabase resizing parameters if it's a Supabase storage URL
+    if (url.includes('supabase.co/storage/v1/render/image/public') || url.includes('supabase.co/storage/v1/object/public')) {
+      const separator = url.includes('?') ? '&' : '?';
+      if (width) finalUrl += `${separator}width=${width}`;
+      if (height) finalUrl += `${finalUrl.includes('?') ? '&' : '?'}height=${height}`;
+      if (width || height) finalUrl += `&quality=80&resize=contain`;
+    }
+    return { uri: finalUrl };
   }
 
-  // 2. Handle known web-app placeholders mapped to local assets
-  if (LOCAL_PLACEHOLDERS[url]) {
-    return LOCAL_PLACEHOLDERS[url];
+  // 3. Handle Relative Supabase Paths (assumed to be in 'services' bucket by default)
+  const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl) return { uri: url }; // Fallback to raw string if no env
+
+  if (width || height) {
+    // Supabase Image Transformation URL format
+    const renderUrl = `${supabaseUrl}/storage/v1/render/image/public/services/${url}`;
+    const separator = '?';
+    let transform = '';
+    if (width) transform += `width=${width}`;
+    if (height) transform += `${transform ? '&' : ''}height=${height}`;
+    return { uri: `${renderUrl}${separator}${transform}&quality=80&resize=contain` };
   }
 
-  // 3. Handle relative paths (likely Supabase Storage)
-  // If it doesn't start with / and isn't a known placeholder, prepend Supabase Storage URL
-  if (!url.startsWith('/')) {
-    return { uri: `${SUPABASE_STORAGE_URL}${url}` };
-  }
-
-  // 4. Fallback for other relative paths starting with /
-  // If it's something like /storage/v1/... it's already a path relative to the domain
-  if (url.startsWith('/storage/')) {
-      return { uri: `https://tbyudagfjspedeqtlgjv.supabase.co${url}` };
-  }
-
-  // Final absolute fallback
-  return { uri: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=400' };
+  const storageUrl = `${supabaseUrl}/storage/v1/object/public/services/`;
+  return { uri: `${storageUrl}${url}` };
 };

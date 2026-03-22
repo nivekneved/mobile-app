@@ -12,6 +12,7 @@ import { Search, Filter, Plane, Bed, Sparkles, Percent, MessageCircle, Mail, Pho
 import { useAuth } from '../../src/context/AuthContext';
 import { PremiumCarousel } from '../../src/components/PremiumCarousel';
 import { PartnerSlider } from '../../src/components/PartnerSlider';
+import Footer from '../../src/components/Footer';
 import { useSettings } from '../../src/context/SettingsContext';
 import * as Linking from 'expo-linking';
 import Animated, { useAnimatedStyle, interpolate, Extrapolate, SharedValue } from 'react-native-reanimated';
@@ -206,7 +207,7 @@ export default function HomeScreen() {
            <PartnerSlider />
         </View>
 
-        <View style={styles.footerSpacing} />
+        <Footer />
       </ScrollView>
     </View>
   );

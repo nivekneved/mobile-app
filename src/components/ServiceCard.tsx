@@ -1,82 +1,62 @@
 import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 import { Colors } from '../theme/colors';
-import { MapPin, Share2, Star, CheckCircle2 } from 'lucide-react-native';
+import { MapPin, Sparkles } from 'lucide-react-native';
+import { resolveImageUrl } from '../utils/imageUtils';
+import { Image as ExpoImage } from 'expo-image';
 
-type ServiceCardProps = {
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = width * 0.75;
+
+interface ServiceCardProps {
   name: string;
-  image_url: string;
+  image_url: string | null;
   price: number;
   category?: string;
   location?: string;
-  benefits?: string[]; // New: Benefits logic
   onPress: () => void;
-};
+}
 
-import { resolveImageUrl } from '../utils/imageUtils';
-
-export const ServiceCard = ({ 
-  name, 
-  image_url, 
-  price, 
-  category, 
-  location, 
-  benefits = ['All-Inclusive', 'VIP Transfer'], // Mock defaults for elite look
-  onPress 
-}: ServiceCardProps) => {
+export const ServiceCard = ({ name, image_url, price, category, location, onPress }: ServiceCardProps) => {
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
-      <Surface style={styles.container} elevation={0}>
+    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.9}>
+      <Surface style={styles.card} elevation={0}>
         <View style={styles.imageContainer}>
-          <Image 
-            source={resolveImageUrl(image_url)} 
-            style={styles.image} 
+          <ExpoImage 
+            source={resolveImageUrl(image_url, 400, 300)} 
+            style={styles.image}
+            contentFit="cover"
+            transition={300}
+            cachePolicy="disk"
           />
           <View style={styles.priceTag}>
             <Text style={styles.priceLabel}>FROM</Text>
             <Text style={styles.priceValue}>
-              {price !== undefined && price !== null && price > 0
-                ? `Rs ${price.toLocaleString()}` 
-                : 'UPON REQUEST'}
+              Rs {price?.toLocaleString() || '0'}
             </Text>
           </View>
-          <TouchableOpacity style={styles.shareIcon}>
-             <Share2 size={16} color={Colors.charcoal} />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.content}>
-          <View style={styles.topRow}>
-            <Text style={styles.category}>{category || 'EXCLUSIVE EXPERIENCE'}</Text>
+          <View style={styles.headerRow}>
+            <Text style={styles.category}>{category || 'Experience'}</Text>
+            <View style={styles.benefitBadge}>
+              <Sparkles size={10} color="#D97706" />
+              <Text style={styles.benefitText}>ELITE CHOICE</Text>
+            </View>
           </View>
+          
           <Text style={styles.name} numberOfLines={1}>{name}</Text>
           
-          {location && (
-            <View style={styles.locationContainer}>
+          <View style={styles.footer}>
+            <View style={styles.locationRow}>
               <MapPin size={12} color={Colors.slate[400]} />
-              <Text style={styles.location}>{location}</Text>
+              <Text style={styles.location} numberOfLines={1}>{location || 'Mauritius'}</Text>
             </View>
-          )}
-
-          {/* Benefits Section - Key User Request */}
-          <View style={styles.benefitsRow}>
-            {benefits.slice(0, 2).map((benefit, idx) => (
-              <View key={idx} style={styles.benefitTag}>
-                <CheckCircle2 size={10} color={Colors.primary} />
-                <Text style={styles.benefitText}>{benefit}</Text>
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.footerRow}>
-             <View style={styles.ratingRow}>
-                <Star size={12} color="#F59E0B" fill="#F59E0B" />
-                <Text style={styles.ratingText}>Top Choice</Text>
-             </View>
-             <TouchableOpacity style={styles.bookBadge} onPress={onPress}>
-                <Text style={styles.bookText}>INQUIRE</Text>
-             </TouchableOpacity>
+            <View style={styles.bookAction}>
+              <Text style={styles.bookText}>DISCOVER</Text>
+            </View>
           </View>
         </View>
       </Surface>
@@ -86,145 +66,117 @@ export const ServiceCard = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: 290,
-    borderRadius: 32, 
-    overflow: 'hidden',
-    backgroundColor: Colors.white,
+    width: CARD_WIDTH,
     marginRight: 20,
-    marginBottom: 16,
+    marginBottom: 10,
+  },
+  card: {
+    borderRadius: 32,
+    backgroundColor: Colors.white,
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border,
   },
   imageContainer: {
+    width: '100%',
+    height: 180,
     position: 'relative',
   },
   image: {
     width: '100%',
-    height: 190,
-    backgroundColor: Colors.slate[100],
+    height: '100%',
   },
   priceTag: {
     position: 'absolute',
     bottom: 12,
     right: 12,
-    backgroundColor: Colors.charcoal,
-    paddingHorizontal: 12,
+    backgroundColor: Colors.white,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   priceLabel: {
-    color: 'rgba(255,255,255,0.5)',
     fontFamily: 'Outfit_900Black',
     fontSize: 8,
-    letterSpacing: 1,
+    color: Colors.slate[400],
+    letterSpacing: 1.5,
+    marginBottom: 2,
   },
   priceValue: {
-    color: Colors.white,
     fontFamily: 'Outfit_900Black',
-    fontSize: 12,
-    letterSpacing: 0.5,
-  },
-  shareIcon: {
-     position: 'absolute',
-     top: 12,
-     right: 12,
-     width: 36,
-     height: 36,
-     borderRadius: 18,
-     backgroundColor: 'rgba(255,255,255,0.9)',
-     justifyContent: 'center',
-     alignItems: 'center',
+    fontSize: 16,
+    color: Colors.primary,
   },
   content: {
     padding: 20,
   },
-  topRow: {
-    marginBottom: 4,
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   category: {
+    fontFamily: 'Outfit_900Black',
     fontSize: 9,
-    fontFamily: 'Outfit_900Black',
     color: Colors.primary,
-    textTransform: 'uppercase',
     letterSpacing: 2,
+    textTransform: 'uppercase',
   },
-  name: {
-    color: Colors.charcoal,
-    fontFamily: 'Outfit_900Black',
-    fontSize: 19,
-    marginBottom: 4,
-    letterSpacing: -0.5,
-  },
-  locationContainer: {
+  benefitBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: 12,
-  },
-  location: {
-    color: Colors.slate[400],
-    fontFamily: 'Outfit_600SemiBold',
-    fontSize: 12,
-  },
-  benefitsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 16,
-    borderTopWidth: 1,
-    borderTopColor: Colors.slate[100],
-    paddingTop: 12,
-  },
-  benefitTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.slate[50],
+    backgroundColor: '#FEF3C7',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(203, 213, 225, 0.3)',
   },
   benefitText: {
-    fontSize: 10,
-    fontFamily: 'Outfit_700Bold',
-    color: Colors.slate[600],
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  footerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  ratingText: {
-    fontSize: 11,
-    fontFamily: 'Outfit_800ExtraBold',
+    fontFamily: 'Outfit_900Black',
+    fontSize: 8,
     color: '#D97706',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
-  bookBadge: {
-    backgroundColor: Colors.white,
+  name: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 18,
+    color: Colors.charcoal,
+    marginBottom: 16,
+    letterSpacing: -0.5,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    flex: 1,
+  },
+  location: {
+    fontFamily: 'Outfit_600SemiBold',
+    fontSize: 12,
+    color: Colors.slate[400],
+  },
+  bookAction: {
+    backgroundColor: Colors.slate[50],
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: Colors.charcoal,
   },
   bookText: {
-    fontSize: 10,
     fontFamily: 'Outfit_900Black',
+    fontSize: 10,
     color: Colors.charcoal,
     letterSpacing: 1,
-  }
+  },
 });

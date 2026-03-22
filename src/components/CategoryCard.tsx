@@ -1,46 +1,30 @@
 import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Colors } from '../theme/colors';
-
-type CategoryCardProps = {
-  name: string;
-  image_url: string;
-  slug?: string;
-  onPress: () => void;
-};
-
-// Travel Lounge Elite: Synced with Web-App assets
-const LOCAL_ASSETS: Record<string, any> = {
-  'activities': require('../../assets/categories/activities.jpg'),
-  'day-packages': require('../../assets/categories/day-packages.jpg'),
-  'group-tours': require('../../assets/categories/group_tours.jpg'),
-  'cruises': require('../../assets/categories/cruises.jpg'),
-  'rodrigues': require('../../assets/categories/rodrigues.jpg'),
-  'hotels': require('../../assets/categories/hotels.jpg'),
-  'flights': require('../../assets/categories/flights.jpg'),
-};
-
 import { resolveImageUrl } from '../utils/imageUtils';
+import { Image as ExpoImage } from 'expo-image';
 
-export const CategoryCard = ({ name, image_url, slug, onPress }: CategoryCardProps) => {
-  // Use local asset if valid slug exists and no remote image_url is provided, or as higher priority for brand parity
-  const localImage = slug ? LOCAL_ASSETS[slug] : null;
-  const source = localImage ? localImage : resolveImageUrl(image_url);
+interface CategoryCardProps {
+  name: string;
+  slug: string;
+  image_url: string | null;
+  onPress: () => void;
+}
 
+export const CategoryCard = ({ name, slug, image_url, onPress }: CategoryCardProps) => {
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.container}>
-      <View style={styles.content}>
-        <Image 
-          source={source} 
-          style={styles.image}
-          resizeMode="cover"
-        />
-        <View style={styles.overlay}>
-           <View style={styles.labelContainer}>
-              <Text style={styles.name}>{name?.toUpperCase()}</Text>
-           </View>
-        </View>
+    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
+      <ExpoImage 
+        source={resolveImageUrl(image_url, 300, 450)} 
+        style={styles.image}
+        contentFit="cover"
+        transition={300}
+        cachePolicy="disk"
+      />
+      <View style={styles.overlay}>
+        <Text style={styles.name}>{name}</Text>
+        <View style={styles.indicator} />
       </View>
     </TouchableOpacity>
   );
@@ -50,16 +34,12 @@ const styles = StyleSheet.create({
   container: {
     width: 156,
     height: 240,
-    borderRadius: 40, 
+    borderRadius: 40,
     overflow: 'hidden',
+    backgroundColor: Colors.slate[50],
+    marginRight: 16,
     borderWidth: 1,
     borderColor: Colors.border,
-    backgroundColor: Colors.slate[100],
-    marginRight: 16,
-  },
-  content: {
-    width: '100%',
-    height: '100%',
   },
   image: {
     width: '100%',
@@ -67,23 +47,22 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.25)', 
+    backgroundColor: 'rgba(15, 23, 42, 0.2)',
     justifyContent: 'flex-end',
-    padding: 16,
-    paddingBottom: 24,
-  },
-  labelContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 20,
   },
   name: {
-    color: '#FFFFFF',
+    color: Colors.white,
     fontFamily: 'Outfit_900Black',
-    fontSize: 13,
-    letterSpacing: 1.5,
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.6)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+    fontSize: 14,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
+  indicator: {
+    width: 24,
+    height: 3,
+    backgroundColor: Colors.primary,
+    borderRadius: 2,
   },
 });

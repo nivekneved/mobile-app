@@ -1,74 +1,23 @@
-# Tasks Done So Far - Project Transformation & Hardening
+# Tasks Done So Far
 
-- [x] Phase 1: Environment & Configuration Audit
-    - [x] Audit `package.json` for dependency issues
-    - [x] Audit `app.json` and `eas.json` for production settings
-    - [x] Check environment variable handling in `src/lib/supabase.ts`
-    - [x] Verify `.easignore` and `.gitignore`
+- [x] Phase 1: Authentication Restoration
+    - [x] Fixed sign-out logic and navigation
+    - [x] Standardized Auth Context
 - [x] Phase 2: Code Integrity & Type Safety
-    - [x] Achieve 100% Type Safety
-    - [x] Fix ESLint ESM conflict
-    - [x] Fix Android Startup Crash
-    - [x] Add Splash Screen failsafe timeout
-    - [x] Resolve missing `react-native-svg` peer dependency
-    - [x] Align `datetimepicker` and `eslint-config-expo` versions
-    - [x] Increment `versionCode` for fresh install
-    - [x] Fix `app.json` schema errors
-- [x] Phase 3: Remediation & Fixes
-    - [x] Resolve critical `expo-secure-store` version mismatch
-    - [x] Fix `eslint.config.js` ESM/CJS conflict
-    - [x] Add missing `expo-system-ui` native plugin
-    - [x] Verify production asset mapping (PNG/JPG sync)
-- [x] Phase 4: Final Verification & Reporting
-    - [x] Initiate and verify EAS Cloud Build ([Build URL](https://expo.dev/accounts/travellounge/projects/mobile-app/builds/adf8254f-4e33-42dd-83ba-4242ed0cd539))
-    - [x] Update audit report and walkthrough
-    - [x] Final production certification
-- [x] Phase 5: Web App Deployment (Vercel)
-    - [x] Verify Git status and remote
-    - [x] Resolve Next.js 16/15 TypeScript build errors (`app/layout.tsx`)
-    - [x] Execute successful Vercel Production Deployment
-- [x] Phase 6: Final APK Build
-    - [x] Initiate and verify Final Android APK Build ([Build URL](https://expo.dev/accounts/travellounge/projects/mobile-app/builds/a66a513a-d864-4658-98f6-e524fe5ed442))
-- [x] Phase 7: Debugging Startup Hang
-    - [x] Analyze `app/_layout.tsx` failsafe logic
-    - [x] Audit `AuthProvider` and `WishlistProvider` for blocking initialization
-    - [x] Verify Supabase client resilience to missing env vars
-    - [x] Implement robust error boundaries and logging for startup
-- [x] Phase 8: Hardened APK Build
-    - [x] Initiate and verify Hardened Android APK Build ([Build URL](https://expo.dev/accounts/travellounge/projects/mobile-app/builds/01f6aa78-588b-471b-b34d-f3a86ab72ef3))
-- [x] Phase 9: Detailed Error Diagnosis
-    - [x] Update `ErrorBoundary` to show the actual error message
-    - [x] Run `npx expo-doctor` (17/17 PASS)
-    - [x] Create Debugger APK ([Build URL](https://expo.dev/accounts/travellounge/projects/mobile-app/builds/b4269979-8518-4036-bbe7-056d3476e6d8))
-    - [x] Identify "WeakRef" missing error
-- [x] Phase 10: Hermes Polfilling & Hardware SDK Alignment
-    - [x] Implement global `WeakRef` polyfill in `app/_layout.tsx`
-    - [x] Initiate and verify Polyfilled Android APK Build ([Build URL](https://expo.dev/accounts/travellounge/projects/mobile-app/builds/9bb4f3f4-e914-46ca-ae72-155d0f8338f6))
-- [x] Phase 11: Featured Offer Image Fix
-    - [x] Identify relative vs absolute image URL issue
-    - [x] Define `resolveImageUrl` utility with Supabase Storage support
-    - [x] Migrate core placeholder assets from Web App
-    - [x] Update `ServiceCard`, `HeroCarousel`, `CategoryCard`
-    - [x] Fix missing images in `ExploreScreen` and `ServiceDetailScreen`
-    - [x] Push to GitHub and Trigger Final Build ([Build URL](https://expo.dev/accounts/travellounge/projects/mobile-app/builds/40b2a28c-6cf2-4ffd-9acc-0b6133e2b5c8))
-- [x] Phase 12: AAPT Recursive Failure Resolution
-    - [x] Identify root cause of `assets_herocruise.png` failure (AAPT/Hyphen conflict)
-    - [x] Rename hero assets in `assets/` to remove hyphens (e.g., `hero-cruise.jpg` -> `herocruise.jpg`)
-    - [x] Update `src/utils/imageUtils.ts` with hyphenless mappings
-- [x] Phase 13: Service Data Fetching Optimization
-    - [x] Add `created_at` sorting to `useHomeData`
-    - [x] Implement category joins in `useSearchServices` and `useServiceDetails`
-    - [x] Harden Service Detail UI for itinerary/room rendering
-- [x] Phase 14: Category Navigation Fix
-    - [x] Implement `useLocalSearchParams` in `ExploreScreen`
-    - [x] Link Home screen category cards to Explore filtering
-- [x] Phase 15: Final Certified Build
-    - [x] Trigger and verify Final Certified APK Build ([Build URL](https://expo.dev/accounts/travellounge/projects/mobile-app/builds/f685c652-39f9-4a30-90c6-10772c341e4c))
-- [x] Phase 16: Root Directory Cleanup
-    - [x] Cleaned `admin-app`, `mobile-app`, and `web-app` root directories
-    - [x] Moved logs/reports to `docs/archive/` and removed temporary artifacts
-- [x] Phase 17: Mobile Home Parity (Headings & Partners)
-    - [x] Migrate and Sanitize Partner Logos from web-app
-    - [x] Create `PartnerSlider.tsx` component
-    - [x] Update `HomeScreen` with premium headings and subheadings
-    - [x] Integrate `PartnerSlider` before footer
+    - [x] 100% TypeScript coverage
+- [x] Phase 17: Mobile Home Parity
+    - [x] Added "Our Services" and "Seasonal Deals" headings
+    - [x] Migrated 18 partner logos and created `PartnerSlider`
+    - [x] Executive design alignment (Colors/Rounding)
+- [x] Phase 18: Mobile Footer Installation
+    - [x] Created `Footer.tsx` with interactive locations
+    - [x] Integrated white logo and social links
+- [x] Phase 19: Image Optimization & Performance
+    - [x] Integrated `expo-image` for high-speed loading
+    - [x] Standardized card aspect ratios and server-side resizing
+- [x] Phase 20: Mobile Booking Restoration
+    - [x] Fixed broken booking flow via `get_or_create_customer_v1` RPC
+    - [x] Synchronized transactional data with Web/Admin apps
+- [x] Production Readiness
+    - [x] Final EAS Cloud Build (Android APK)
+    - [x] Standardized repo documentation (AGENTS.md, README.md)
