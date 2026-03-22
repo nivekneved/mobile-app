@@ -18,7 +18,7 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
         setIsLoading(true);
         const { data, error: serviceError } = await supabase
           .from('services')
-          .select('*, amenities, itinerary, service_categories(categories(name))')
+          .select('*, amenities, itinerary, gallery_images, service_categories(categories(name))')
           .eq('id', id)
           .single();
 

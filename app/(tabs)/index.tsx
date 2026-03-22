@@ -45,16 +45,10 @@ const DestinationCard = ({ item, index, scrollX, onPress }: {
 };
 
 export default function HomeScreen() {
-  const { heroSlides, categories, featuredServices, isLoading, error } = useHomeData();
+  const { heroSlides, categories, destinations, featuredServices, isLoading, error } = useHomeData();
   const { session } = useAuth();
   const { mobileConfig, generalConfig } = useSettings();
   const router = useRouter();
-
-  const destinations = useMemo(() => [
-    { name: 'MAURITIUS', image: require('../../assets/paris_card.png'), query: 'Mauritius' },
-    { name: 'RODRIGUES', image: require('../../assets/london_card.png'), query: 'Rodrigues' },
-    { name: 'DUBAI', image: require('../../assets/dubai_card.png'), query: 'Dubai' },
-  ], []);
 
   const handleInquiry = (method: 'whatsapp' | 'email' | 'call') => {
     const contact = {
@@ -87,6 +81,9 @@ export default function HomeScreen() {
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         
+        {/* Dynamic Hero Carousel Restoration (CRITICAL PARITY) */}
+        <HeroCarousel data={heroSlides} />
+
         {/* Core Logic 1: Find Value (Prices/Benefits) */}
         <View style={styles.valuationSection}>
            <TouchableOpacity style={styles.searchBar} onPress={() => router.push('/explore')}>

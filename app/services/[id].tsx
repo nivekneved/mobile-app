@@ -12,6 +12,10 @@ import { BookingModal } from '../../src/components/BookingModal';
 import { supabase } from '../../src/lib/supabase';
 import { useSettings } from '../../src/context/SettingsContext';
 import { resolveImageUrl } from '../../src/utils/imageUtils';
+import { PremiumCarousel } from '../../src/components/PremiumCarousel';
+import { useServiceAddons } from '../../src/hooks/useServiceAddons';
+import { StarRating } from '../../src/components/StarRating';
+import { User } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 450;
@@ -22,6 +26,7 @@ export default function ServiceDetailScreen() {
   const { mobileConfig, generalConfig } = useSettings();
   const { service, isLoading, error } = useServiceDetails(id);
   const { roomTypes: hookRoomTypes } = useRoomTypes(id as string);
+  const { reviews, faqs } = useServiceAddons(id as string);
 
   const roomTypes = React.useMemo(() => {
     // 1. Check for JSONB room_types in the service object first (from services table)
@@ -68,9 +73,21 @@ export default function ServiceDetailScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       
       <ScrollView showsVerticalScrollIndicator={false} style={styles.container} stickyHeaderIndices={[1]}>
-        {/* Elite Image Header */}
+        {/* Elite Image Header / Gallery */}
         <View style={styles.imageContainer}>
-          <Image source={resolveImageUrl(service.image_url)} style={styles.image} />
+          {service.gallery_images && service.gallery_images.length > 0 ? (
+            <PremiumCarousel
+              data={service.gallery_images.map(img => ({ image: img }))}
+              itemWidth={width}
+              gap={0}
+              showIndicators={true}
+              renderItem={({ item }: { item: { image: string } }) => (
+                <Image source={resolveImageUrl(item.image)} style={styles.image} />
+              )}
+            />
+          ) : (
+            <Image source={resolveImageUrl(service.image_url)} style={styles.image} />
+          )}
           <View style={styles.overlay} />
           <View style={styles.topControls}>
             <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}><ArrowLeft color={Colors.white} size={22} /></TouchableOpacity>
@@ -157,6 +174,44 @@ export default function ServiceDetailScreen() {
                      <Text style={styles.journeyTitle}>{item?.title}</Text>
                      <Text style={styles.journeyDesc}>{item?.description}</Text>
                   </View>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Client Impressions (Reviews) */}
+          {reviews.length > 0 && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeaderRow}>
+                <Text style={styles.sectionTitle}>Client Impressions</Text>
+                <View style={styles.avgRatingRow}>
+                  <StarRating rating={reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length} size={14} />
+                  <Text style={styles.avgRatingText}>({reviews.length})</Text>
+                </View>
+              </View>
+              {reviews.map((review) => (
+                <View key={review.id} style={styles.reviewCard}>
+                  <View style={styles.reviewHeader}>
+                    <View style={styles.reviewUserIcon}><User size={16} color={Colors.slate[400]} /></View>
+                    <View>
+                      <Text style={styles.reviewUser}>{review.customer_name}</Text>
+                      <StarRating rating={review.rating} size={10} />
+                    </View>
+                  </View>
+                  <Text style={styles.reviewComment}>"{review.comment}"</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Frequently Asked Questions */}
+          {faqs.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Common Questions</Text>
+              {faqs.map((faq) => (
+                <View key={faq.id} style={styles.faqItem}>
+                  <Text style={styles.faqQuestion}>{faq.question}</Text>
+                  <Text style={styles.faqAnswer}>{faq.answer}</Text>
                 </View>
               ))}
             </View>
@@ -312,4 +367,15 @@ const styles = StyleSheet.create({
   footerPriceVal: { fontFamily: 'Outfit_900Black', fontSize: 24, color: Colors.charcoal, letterSpacing: -0.5 },
   footerCta: { flex: 1.2, height: 64, backgroundColor: Colors.primary, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   footerCtaText: { color: Colors.white, fontFamily: 'Outfit_900Black', fontSize: 12, letterSpacing: 2 },
+  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  avgRatingRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  avgRatingText: { fontFamily: 'Outfit_900Black', fontSize: 11, color: Colors.slate[400] },
+  reviewCard: { backgroundColor: Colors.slate[50], padding: 20, borderRadius: 24, marginBottom: 16 },
+  reviewHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  reviewUserIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: Colors.white, justifyContent: 'center', alignItems: 'center' },
+  reviewUser: { fontFamily: 'Outfit_900Black', fontSize: 12, color: Colors.charcoal, textTransform: 'uppercase' },
+  reviewComment: { fontFamily: 'Outfit_500Medium', fontSize: 14, color: Colors.slate[500], fontStyle: 'italic', lineHeight: 22 },
+  faqItem: { marginBottom: 24 },
+  faqQuestion: { fontFamily: 'Outfit_900Black', fontSize: 15, color: Colors.charcoal, marginBottom: 8 },
+  faqAnswer: { fontFamily: 'Outfit_500Medium', fontSize: 14, color: Colors.slate[500], lineHeight: 22 },
 });

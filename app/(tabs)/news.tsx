@@ -13,9 +13,9 @@ import {
   Title, 
   Paragraph, 
 } from 'react-native-paper';
-import { supabase } from '../src/lib/supabase';
-import PremiumCard from '../src/components/PremiumCard';
-import { resolveImageUrl } from '../src/utils/imageUtils';
+import { supabase } from '../../src/lib/supabase';
+import PremiumCard from '../../src/components/PremiumCard';
+import { resolveImageUrl } from '../../src/utils/imageUtils';
 
 type Post = {
   id: string;

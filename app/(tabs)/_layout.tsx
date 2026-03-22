@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
-import { Home, Search, Calendar, User, LogOut } from 'lucide-react-native';
+import { Home, Search, Calendar, User, Newspaper } from 'lucide-react-native';
 import { TouchableOpacity, Alert } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 
@@ -69,6 +69,13 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <User size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="news"
+        options={{
+          title: 'Insights',
+          tabBarIcon: ({ color }) => <Newspaper size={24} color={color} />,
         }}
       />
     </Tabs>

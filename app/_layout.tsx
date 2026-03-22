@@ -40,6 +40,7 @@ import {
 } from '@expo-google-fonts/outfit';
 
 import '../src/lib/i18n';
+import { PopupManager } from '../src/components/PopupManager';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -109,6 +110,7 @@ function RootLayoutNav() {
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <PaperProvider theme={theme}>
+        <PopupManager />
         <Stack
           screenOptions={{
             headerStyle: {

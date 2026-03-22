@@ -31,12 +31,14 @@ export type Service = {
   location?: string;
   amenities?: string[];
   itinerary?: { time: string; title: string; description: string }[];
+  gallery_images?: string[];
   room_types?: any[]; // JSON column
 };
 
 export const useHomeData = () => {
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [destinations, setDestinations] = useState<{name: string, image: any, query: string}[]>([]);
   const [featuredServices, setFeaturedServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,6 +94,25 @@ export const useHomeData = () => {
           };
         });
 
+        // Fetch Unique Regions for "Elite Collections"
+        const { data: regionData, error: regionError } = await supabase
+          .from('services')
+          .select('region')
+          .not('region', 'is', null);
+
+        if (!regionError && regionData) {
+          const uniqueRegions = [...new Set((regionData as {region: string}[]).map(r => r.region))];
+          const mappedDestinations = uniqueRegions.slice(0, 5).map(region => ({
+            name: region.toUpperCase(),
+            query: region,
+            // Fallback images for regions since they aren't in a separate table yet
+            image: region.toLowerCase().includes('mauritius') ? require('../../assets/paris_card.png') :
+                   region.toLowerCase().includes('rodrigues') ? require('../../assets/london_card.png') :
+                   require('../../assets/dubai_card.png')
+          }));
+          setDestinations(mappedDestinations);
+        }
+
         setHeroSlides(slides || []);
         setCategories(cats || []);
         setFeaturedServices(mappedServices);
@@ -106,5 +127,5 @@ export const useHomeData = () => {
     fetchAllData();
   }, []);
 
-  return { heroSlides, categories, featuredServices, isLoading, error };
+  return { heroSlides, categories, destinations, featuredServices, isLoading, error };
 };

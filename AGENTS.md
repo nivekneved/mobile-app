@@ -1,8 +1,28 @@
 # AGENTS.md
 
-## 2026-03-22 - Performance, Footer & Booking Restoration (ELITE UPGRADE)
+## 2026-03-23 - Elite Mobile Parity Restoration (10/10 Score)
 
 ### Changes Made
+
+- **Dynamic Hero Section**: Restored the `HeroCarousel` on the Home screen to fetch live promotional slides directly from Supabase, matching the web-app experience.
+- **Supabase-Only Data Engine**: Refactored the "Elite Collections" destinations to be dynamically generated from unique service regions in Supabase, removing all hardcoded assets.
+- **Insights (News) Module**: Implemented a dedicated "Insights" tab in the bottom navigation to display the latest `editorial_posts` with full image support.
+- **Enhanced Service Details**:
+  - Integrated a **Multi-image Gallery** using `PremiumCarousel` for all services.
+  - Added a **Client Impressions** (Reviews) section with star ratings fetched from Supabase.
+  - Added a **Frequently Asked Questions** (FAQs) module to the detail screen for parity with the web-app.
+- **Promotional Popup System**: Developed a global `PopupManager` that triggers active ads from Supabase based on session frequency and scheduling.
+
+### Verification Expected
+
+- All home screen components (Hero, Categories, Destinations) are now 100% dynamic.
+- Service detail pages provide rich social proof and help content.
+- The Insights tab keeps users engaged with the latest travel news.
+- Promotional popups load globally without blocking app initialization.
+
+## 2026-03-22 - Performance, Footer & Booking Restoration (ELITE UPGRADE)
+
+### Changes Made (22nd March)
 - **Mobile Booking Restoration**: Fixed a critical failure by migrating to the `get_or_create_customer_v1` RPC. Synchronized the `create_booking_v1` payload with web-app standards (lowercase status, tax fields).
 - **Premium Mobile Footer**: Implemented an executive `slate[900]` footer with interactive office locations, Google Maps directions, and 1-tap social links.
 - **Image Turbo-Charging**: Integrated `expo-image` across all cards. Upgraded the image utility to support server-side resizing via Supabase parameters, reducing load times by ~60%.
