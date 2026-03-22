@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 import { Search, Filter, Plane, Bed, Sparkles, Percent, MessageCircle, Mail, Phone, Heart } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { PremiumCarousel } from '../../src/components/PremiumCarousel';
+import { PartnerSlider } from '../../src/components/PartnerSlider';
 import { useSettings } from '../../src/context/SettingsContext';
 import * as Linking from 'expo-linking';
 import Animated, { useAnimatedStyle, interpolate, Extrapolate, SharedValue } from 'react-native-reanimated';
@@ -93,6 +94,11 @@ export default function HomeScreen() {
              <Filter size={18} color={Colors.primary} />
            </TouchableOpacity>
 
+           <View style={styles.servicesHeader}>
+              <Text style={styles.labelTitle}>OUR SERVICES</Text>
+              <Text style={[styles.sectionTitle, { fontSize: 32 }]}>Helping You Plan{"\n"}<Text style={{color: Colors.slate[300]}}>Perfect Holidays.</Text></Text>
+           </View>
+
            {/* Mobile Elite Category Slider (Reference Image Align) */}
            <View style={styles.categoriesWrapper}>
               <ScrollView 
@@ -152,8 +158,8 @@ export default function HomeScreen() {
         <View style={[styles.section, styles.featuredSection]}>
           <View style={styles.sectionHeader}>
             <View>
-              <Text style={styles.labelTitle}>LIVE THE MOMENT</Text>
-              <Text style={styles.sectionTitle}>Featured Offers</Text>
+              <Text style={styles.labelTitle}>EXCLUSIVE OFFERS</Text>
+              <Text style={styles.sectionTitle}>Seasonal Deals</Text>
             </View>
             <TouchableOpacity onPress={() => router.push('/explore')}><Text style={styles.viewAll}>VIEW ALL</Text></TouchableOpacity>
           </View>
@@ -188,6 +194,16 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                 </View>
             </View>
+        </View>
+
+        {/* Partners Slider Section */}
+        <View style={styles.partnersSection}>
+           <View style={styles.partnerHeader}>
+              <View style={styles.partnerLine} />
+              <Text style={styles.partnerLabel}>OUR GLOBAL PARTNERS</Text>
+              <View style={styles.partnerLine} />
+           </View>
+           <PartnerSlider />
         </View>
 
         <View style={styles.footerSpacing} />
@@ -249,5 +265,10 @@ const styles = StyleSheet.create({
   primaryCtaText: { color: Colors.white, fontFamily: 'Outfit_900Black', fontSize: 12, letterSpacing: 1 },
   secondaryCta: { flex: 0.8, height: 60, backgroundColor: Colors.white, borderRadius: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   secondaryCtaText: { color: Colors.charcoal, fontFamily: 'Outfit_900Black', fontSize: 10, letterSpacing: 1 },
+  servicesHeader: { marginTop: 32, marginBottom: 16 },
+  partnersSection: { marginTop: 40, paddingBottom: 20 },
+  partnerHeader: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingHorizontal: 24, marginBottom: 12 },
+  partnerLine: { flex: 1, height: 1, backgroundColor: Colors.borderLight },
+  partnerLabel: { fontFamily: 'Outfit_900Black', fontSize: 9, letterSpacing: 4, color: Colors.slate[400] },
   footerSpacing: { height: 120 },
 });

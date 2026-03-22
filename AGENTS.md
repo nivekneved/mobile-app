@@ -1,6 +1,22 @@
 # AGENTS.md
 
+## 2026-03-22 - Mobile Home Screen Parity (ELITE TRANSFORMATION)
+
+### Changes Made
+
+- **Partner Logo Sanitization**: Migrated and sanitized 18 partner logos from the web-app, ensuring they are lowercase and alpha-numeric to prevent AAPT build failures.
+- **PartnerSlider Component**: Created a high-performance, auto-scrolling marquee component for global partners, maintaining exact visual parity with the web experience.
+- **HomeScreen Branding**: Rebranded "Featured Offers" to "Seasonal Deals" and added the "Helping You Plan Perfect Holidays" slogans using premium typography in `app/(tabs)/index.tsx`.
+- **UI Architecture**: Implemented decorative "Our Global Partners" layout before the footer to enhance the executive feel of the home screen.
+
+### Verification Expected
+
+- Home screen now displays the "Our Services" and "Seasonal Deals" headings with premium slate/red styling.
+- Global Partner slider auto-scrolls smoothly before the footer.
+- All partner logos load correctly and resist Android build compilation errors.
+
 ## 2026-03-22 - Featured Offer Image Fix (ULTIMATE PARITY)
+
 
 ### Changes Made
 - **Image Resolution Engine**: Created `src/utils/imageUtils.ts` to handle relative vs absolute URLs. It automatically prepends Supabase Storage URLs for relative paths and maps specific web-app placeholders (like `/hero-hotel.png`) to local bundled assets.
