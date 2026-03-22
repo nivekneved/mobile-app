@@ -24,18 +24,27 @@ export default function ServiceDetailScreen() {
   const { roomTypes: hookRoomTypes } = useRoomTypes(id as string);
 
   const roomTypes = React.useMemo(() => {
+    // 1. Check for JSONB room_types in the service object first (from services table)
     if (service?.room_types && Array.isArray(service.room_types) && service.room_types.length > 0) {
-      return service.room_types.map((room: any, index: number) => ({
-        id: `json-${index}`,
-        name: room.type || 'Standard Room',
-        weekday_price: parseInt(room.prices?.mon) || 0,
-        weekend_price: parseInt(room.prices?.sat) || 0,
-        min_stay: parseInt(room.min_stay) || 1,
-        image_url: room.image_url,
-        amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
-      }));
+      return service.room_types.map((room: any, index: number) => {
+        // Handle both string and number for prices
+        const weekday = typeof room.prices?.mon === 'string' ? parseFloat(room.prices.mon) : (room.prices?.mon || 0);
+        const weekend = typeof room.prices?.sat === 'string' ? parseFloat(room.prices.sat) : (room.prices?.sat || 0);
+        
+        return {
+          id: `json-${index}`,
+          name: room.type || room.name || 'Standard Room',
+          weekday_price: weekday,
+          weekend_price: weekend,
+          min_stay: parseInt(room.min_stay) || 1,
+          image_url: room.image_url || room.image,
+          amenities: Array.isArray(room.features) ? room.features : 
+                     (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
+        };
+      });
     }
-    return hookRoomTypes;
+    // 2. Fallback to separate room_types table if the JSON column is empty
+    return hookRoomTypes || [];
   }, [service?.room_types, hookRoomTypes]);
 
   const [bookingVisible, setBookingVisible] = React.useState(false);

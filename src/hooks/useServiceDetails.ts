@@ -18,17 +18,20 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
         setIsLoading(true);
         const { data, error: serviceError } = await supabase
           .from('services')
-          .select('*, amenities, itinerary')
+          .select('*, amenities, itinerary, service_categories(categories(name))')
           .eq('id', id)
           .single();
 
         if (serviceError) throw serviceError;
         
         if (data) {
+          // Extract category name from the join if available
+          const categoryName = data.service_categories?.[0]?.categories?.name || data.service_type || 'Experience';
+
           setService({
             ...data,
             price: data.base_price || 0,
-            category: data.service_type || 'Experience'
+            category: categoryName
           });
         }
       } catch (err: any) {

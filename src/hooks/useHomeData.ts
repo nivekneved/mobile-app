@@ -71,7 +71,9 @@ export const useHomeData = () => {
         // Fetch Featured Services
         const { data: services, error: servicesError } = await supabase
           .from('services')
-          .select('*')
+          .select('*, service_categories(categories(name))')
+          .order('priority', { ascending: false })
+          .order('created_at', { ascending: false })
           .limit(10);
 
         if (servicesError) {
@@ -79,11 +81,16 @@ export const useHomeData = () => {
           throw servicesError;
         }
 
-        const mappedServices = (services || []).map((s: any) => ({
-          ...s,
-          price: s.base_price || 0,
-          category: s.service_type || 'Experience'
-        }));
+        const mappedServices = (services || []).map((s: any) => {
+          // Extract category name from the join if available
+          const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
+          
+          return {
+            ...s,
+            price: s.base_price || 0,
+            category: categoryName
+          };
+        });
 
         setHeroSlides(slides || []);
         setCategories(cats || []);

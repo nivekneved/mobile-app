@@ -4,18 +4,29 @@ import { Text, ActivityIndicator, Surface, Chip } from 'react-native-paper';
 import { useSearchServices } from '../../src/hooks/useSearchServices';
 import { Colors } from '../../src/theme/colors';
 import { Search, MapPin, Star, Filter, X } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useHomeData } from '../../src/hooks/useHomeData';
 import { StatusBar } from 'expo-status-bar';
 import { resolveImageUrl } from '../../src/utils/imageUtils';
 
 export default function ExploreScreen() {
+  const params = useLocalSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
   const { categories, isLoading: categoriesLoading } = useHomeData();
   const { services, isLoading, error, searchServices } = useSearchServices();
   const router = useRouter();
 
+  // Sync state with URL parameters from Home screen or direct navigation
+  useEffect(() => {
+    if (params.category) {
+      setSelectedCategory(params.category as string);
+    } else if (params.query) {
+      setSearchQuery(params.query as string);
+    }
+  }, [params.category, params.query]);
+
+  // Perform search when filters or query changes
   useEffect(() => {
     searchServices(searchQuery, selectedCategory);
   }, [searchQuery, selectedCategory, searchServices]);

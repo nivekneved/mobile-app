@@ -13,27 +13,33 @@ export const useSearchServices = () => {
     try {
       let supabaseQuery = supabase
         .from('services')
-        .select('*');
+        .select('*, service_categories!inner(categories!inner(id, name, slug))')
+        .order('priority', { ascending: false })
+        .order('created_at', { ascending: false });
 
       if (query) {
         supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
       }
 
-      // If categorySlug is provided, we filter by category
-      // Note: In your DB, services might have a service_type or similar mapping
+      // Filter by category slug via the join table
       if (categorySlug && categorySlug !== 'all') {
-        supabaseQuery = supabaseQuery.eq('service_type', categorySlug);
+        supabaseQuery = supabaseQuery.eq('service_categories.categories.slug', categorySlug);
       }
 
       const { data, error: searchError } = await supabaseQuery;
 
       if (searchError) throw searchError;
 
-      const mappedServices = (data || []).map((s: any) => ({
-        ...s,
-        price: s.base_price || 0,
-        category: s.service_type || 'Experience'
-      }));
+      const mappedServices = (data || []).map((s: any) => {
+        // Extract category name from the join if available
+        const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
+        
+        return {
+          ...s,
+          price: s.base_price || 0,
+          category: categoryName
+        };
+      });
 
       setServices(mappedServices);
     } catch (err: any) {
