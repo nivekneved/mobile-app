@@ -10,22 +10,24 @@ import { ImageSourcePropType } from 'react-native';
  * Supports dynamic resizing via width/height parameters for Supabase assets.
  */
 export const resolveImageUrl = (url: string | null | undefined, width?: number, height?: number) => {
-  if (!url) return require('../../assets/hero-hotel.png'); // Default fallback
+  if (!url) return require('../../assets/herohotel.jpg'); // Default fallback
 
   // 1. Handle bundle assets (if starting with /assets/ or a relative path we recognize)
-  if (url.startsWith('assets/') || url.includes('/assets/')) {
+  if (typeof url === 'string' && (url.startsWith('assets/') || url.includes('/assets/'))) {
     // Map known web-app placeholders to mobile assets
-    if (url.includes('activities')) return require('../../assets/categories/activities.png');
-    if (url.includes('day-packages')) return require('../../assets/categories/day-packages.png');
-    if (url.includes('cruises')) return require('../../assets/categories/cruises.png');
-    if (url.includes('rodrigues')) return require('../../assets/categories/rodrigues.png');
+    if (url.includes('activities')) return require('../../assets/categories/activities.jpg');
+    if (url.includes('day-packages')) return require('../../assets/categories/day-packages.jpg');
+    if (url.includes('cruises')) return require('../../assets/categories/cruises.jpg');
+    if (url.includes('rodrigues')) return require('../../assets/categories/rodrigues.jpg');
+    if (url.includes('hotels')) return require('../../assets/categories/hotels.jpg');
+    if (url.includes('flights')) return require('../../assets/categories/flights.jpg');
     
     // Generic placeholder fallback for other asset paths
-    return require('../../assets/hero-hotel.png');
+    return require('../../assets/herohotel.jpg');
   }
 
   // 2. Handle Absolute URLs (external or already resolved)
-  if (url.startsWith('http')) {
+  if (typeof url === 'string' && url.startsWith('http')) {
     let finalUrl = url;
     // Add Supabase resizing parameters if it's a Supabase storage URL
     if (url.includes('supabase.co/storage/v1/render/image/public') || url.includes('supabase.co/storage/v1/object/public')) {
@@ -39,7 +41,7 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
 
   // 3. Handle Relative Supabase Paths (assumed to be in 'services' bucket by default)
   const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-  if (!supabaseUrl) return { uri: url }; // Fallback to raw string if no env
+  if (!supabaseUrl || typeof url !== 'string') return { uri: url || '' }; // Fallback to raw string if no env or not a string
 
   if (width || height) {
     // Supabase Image Transformation URL format
