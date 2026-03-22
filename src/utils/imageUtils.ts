@@ -4,10 +4,10 @@ const SUPABASE_STORAGE_URL = 'https://tbyudagfjspedeqtlgjv.supabase.co/storage/v
 
 // Mapping for web-app local assets that are referenced in the database but not in storage
 const LOCAL_PLACEHOLDERS: Record<string, any> = {
-  '/hero-hotel.png': require('../../assets/hero-hotel.jpg'),
-  '/hero-adventure.png': require('../../assets/hero-adventure.jpg'),
-  '/hero-flight.png': require('../../assets/hero-flight.jpg'),
-  '/hero-cruise.png': require('../../assets/hero-cruise.jpg'),
+  '/hero-hotel.png': require('../../assets/herohotel.jpg'),
+  '/hero-adventure.png': require('../../assets/heroadventure.jpg'),
+  '/hero-flight.png': require('../../assets/heroflight.jpg'),
+  '/hero-cruise.png': require('../../assets/herocruise.jpg'),
   '/placeholders/hotel_main.png': require('../../assets/placeholders/hotel_main.jpg'),
   '/placeholders/activity_main.png': require('../../assets/placeholders/activity_main.jpg'),
   '/placeholders/flight_main.png': require('../../assets/placeholders/flight_main.jpg'),
