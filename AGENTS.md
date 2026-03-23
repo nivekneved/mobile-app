@@ -1,5 +1,20 @@
 # AGENTS.md
 
+## 2026-03-24 - GOL IBE Integration & Image Path Correction
+
+### Web App Changes
+- **Flight IBE Integration**: Successfully integrated the GOL IBE (Internet Booking Engine) D4 version on the `/flights` page. The search form is now embedded via a responsive iframe, enabling global flight search capabilities directly within the Travel Lounge platform.
+- **Subdomain Configuration**: Used `travel-lounge.golibe.com` as the default subdomain for the IBE, with a placeholder note for future customization.
+
+### Mobile App Changes
+- **Image Resolution Engine Fix**: Resolved a critical 404 error affecting homepage service cards. Added the missing `bucket/` path segment to the Supabase storage URL resolution logic in `src/utils/imageUtils.ts`.
+- **E2E Strategy**: Defined 5 core End-to-End user scenarios covering Discovery, Exploration, Search, Inquiry, and Branding for systematic verification.
+
+### Verification Expected
+- `/flights` page on web-app should render the flight search form correctly.
+- Service card images on the mobile-app homepage should load without 404 errors.
+- Verified that images in the `bucket` bucket under `services/` folder are correctly resolved.
+
 ## 2026-03-23 - Elite Mobile Parity Restoration (10/10 Score)
 
 ### Changes Made
@@ -15,6 +30,7 @@
 
 ### Verification Expected
 
+- **EAS Build URL**: [d70d69ef-28ca-49f8-be8e-aba1785465c7](https://expo.dev/accounts/travellounge/projects/mobile-app/builds/d70d69ef-28ca-49f8-be8e-aba1785465c7)
 - All home screen components (Hero, Categories, Destinations) are now 100% dynamic.
 - Service detail pages provide rich social proof and help content.
 - The Insights tab keeps users engaged with the latest travel news.

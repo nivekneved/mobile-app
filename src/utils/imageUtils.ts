@@ -45,7 +45,8 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
 
   if (width || height) {
     // Supabase Image Transformation URL format
-    const renderUrl = `${supabaseUrl}/storage/v1/render/image/public/services/${url}`;
+    // Updated to include 'bucket/' before 'services/' as per actual database paths
+    const renderUrl = `${supabaseUrl}/storage/v1/render/image/public/bucket/services/${url}`;
     const separator = '?';
     let transform = '';
     if (width) transform += `width=${width}`;
@@ -53,6 +54,7 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
     return { uri: `${renderUrl}${separator}${transform}&quality=80&resize=contain` };
   }
 
-  const storageUrl = `${supabaseUrl}/storage/v1/object/public/services/`;
+  // Updated to include 'bucket/' before 'services/' as per actual database paths
+  const storageUrl = `${supabaseUrl}/storage/v1/object/public/bucket/services/`;
   return { uri: `${storageUrl}${url}` };
 };
