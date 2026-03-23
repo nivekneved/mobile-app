@@ -18,7 +18,7 @@ interface GeneralConfig {
   facebookUrl?: string;
   instagramUrl?: string;
   whatsappNumber1?: string;
-  showFooter?: boolean;
+  showFooterMobile?: boolean;
 }
 
 const Footer = () => {
@@ -72,7 +72,7 @@ const Footer = () => {
     );
   }
 
-  if (settings?.showFooter === false) return null;
+  if (settings?.showFooterMobile === false) return null;
 
   return (
     <View style={styles.container}>
