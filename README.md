@@ -1,38 +1,62 @@
 # Travel Lounge: Elite Mobile Application
 
-The high-engagement mobile interface for the Travel Lounge ecosystem, built with Expo and React Native.
+A High-Engagement Concierge Interface for the Travel Lounge ecosystem, built with Expo and React Native.
 
 ---
 
-## 🏗️ Elite Design Philosophy (10/10 Score)
-- **Typography**: Outfit Google Font (Black 900 for headers, 500 Medium for body).
-- **HD Palette**: High-contrast Slate-300 borders and Slate-900 text.
+## 🏗️ Technical Stack
+
+- **Framework**: Expo SDK 52 (React Native).
+- **Styling**: Nativewind (Tailwind for Native).
+- **Components**: React Native Paper, Premium Custom Carousels.
+- **Backend**: Supabase (PostgreSQL, Real-time, Auth).
+
+---
+
+## 💎 Elite Standards (11/10 Goal)
+
+- **Typography & Branding**: Standardized on **Outfit Black (900)** and **Slate-300** high-definition palette.
+- **Visual Parity**: Shared asset directory and standardized UI components across all platforms.
 - **Extreme Rounding**: 32px-40px rounding on all cards, buttons, and headers.
-- **Visual Parity**: 1:1 asset synchronization with the premium travel-lounge-web experience.
+- **Conversion Focus**: 1-tap WhatsApp/Email concierge paths.
 
 ---
 
-## 📁 Repository Structure (Production Standard)
+## 🛠️ Functional Capabilities
+
+- **Universal Search**: Discover Hotels, Flights, and Activities.
+- **Itinerary Management**: 100% dynamic data from Supabase.
+- **Insights (News)**: Integrated editorial module for travel trends.
+
+---
+
+## 📁 Repository Structure
+
 - **app/**: Expo Router based screens and navigation.
 - **src/components/**: Elite modular UI components (ServiceCard, CategoryCard).
 - **src/theme/**: Centralized design tokens (colors, typography).
-- **docs/**: Consolidate documentation, audit reports, and archives.
-- **scripts/**: Production-ready utility and inspection tools.
+- **docs/**: Project documentation and archives.
+- **scripts/**: Utility and inspection tools.
 - **tests/**: Unit and integration testing suites.
-- **supabase/**: Production-ready SQL and migration scripts.
 
 ---
 
-## 🚀 Development & Production
-1. **Config**: Ensure `.env` is configured with Supabase and API credentials.
-2. **Launch**: `npm dev` to start the Expo server.
-3. **Build**: Use `eas build` for production-ready Android/iOS bundles.
+## 📖 Global Documentation
+
+- [AGENTS.md](file:///c:/Users/deven/Desktop/mobile-app/AGENTS.md): Full development log and audit trail.
+- [PROJECT_RULES.md](file:///c:/Users/deven/Desktop/mobile-app/PROJECT_RULES.md): Mandatory architectural and code standards.
 
 ---
 
-## 📖 Global Alignment
-For ecosystem documentation, refer to:
-- [web-app/README.md](../web-app/README.md)
-- [admin-app/README.md](../admin-app/README.md)
-- [AGENTS.md](./AGENTS.md) - Full development log.
-- [GEMINI.md](./GEMINI.md) - Memory and persistent context.
+## 🚀 Setup & Launch
+
+1. **Clone the repository**.
+2. **Environment Specs**: Configure `.env` with Supabase keys.
+3. **Build APK**:
+   ```bash
+   npx eas build --profile preview --platform android
+   ```
+4. **Development**:
+   ```bash
+   npx expo start
+   ```

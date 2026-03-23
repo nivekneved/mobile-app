@@ -1,23 +1,78 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, Dimensions } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, Dimensions, ActivityIndicator } from 'react-native';
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, MessageCircle } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
+import { supabase } from '../lib/supabase';
 
 const { width } = Dimensions.get('window');
 
+interface GeneralConfig {
+  siteTitle?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  office1Title?: string;
+  office1Address?: string;
+  office2Title?: string;
+  office2Address?: string;
+  workingHours?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  whatsappNumber1?: string;
+  showFooter?: boolean;
+}
+
 const Footer = () => {
-  const contactEmail = 'reservation@travellounge.mu';
-  const contactPhone = '+230 5940 7701';
-  const whatsappNumber = '23059407701';
-  const facebookUrl = 'https://www.facebook.com/travellounge.mu';
-  const instagramUrl = 'https://www.instagram.com/travellounge_ltd?igsh=MWljeWRiNG43aDN0OQ==';
+  const [settings, setSettings] = useState<GeneralConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchSettings = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'general_config')
+        .single();
+
+      if (error) throw error;
+      if (data?.value) {
+        setSettings(data.value as GeneralConfig);
+      }
+    } catch (err) {
+      console.error('Mobile Footer: Error fetching settings:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
+
+  const contactEmail = settings?.contactEmail || 'reservation@travellounge.mu';
+  const contactPhone = settings?.contactPhone || '+230 5940 7701';
+  const whatsappNumber = settings?.whatsappNumber1 || '23059407701';
+  const workingHours = settings?.workingHours || 'Mon - Fri: 08:30 - 17:00';
+  const facebookUrl = settings?.facebookUrl || 'https://www.facebook.com/travellounge.mu';
+  const instagramUrl = settings?.instagramUrl || 'https://www.instagram.com/travellounge_ltd?igsh=MWljeWRiNG43aDN0OQ==';
   
-  const office1Address = '1st Floor, Travel Lounge Building, Sir William Newton Street, Port Louis';
-  const office2Address = 'Unit G04, Ground Floor, Ebene Junction, Ebene';
+  const office1Title = settings?.office1Title || 'PORT LOUIS';
+  const office1Address = settings?.office1Address || '1st Floor, Travel Lounge Building, Sir William Newton Street, Port Louis';
+  const office2Title = settings?.office2Title || 'EBENE';
+  const office2Address = settings?.office2Address || 'Unit G04, Ground Floor, Ebene Junction, Ebene';
 
   const handlePress = (url: string) => {
     Linking.openURL(url);
   };
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator color={Colors.primary} size="large" />
+      </View>
+    );
+  }
+
+  if (settings?.showFooter === false) return null;
 
   return (
     <View style={styles.container}>
@@ -40,7 +95,7 @@ const Footer = () => {
             <Instagram size={20} color={Colors.white} />
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={() => handlePress(`whatsapp://send?phone=${whatsappNumber}`)} 
+            onPress={() => handlePress(`whatsapp://send?phone=${whatsappNumber.replace(/\s+/g, '').replace('+', '')}`)} 
             style={[styles.socialIcon, { backgroundColor: '#25D366' }]}
           >
             <MessageCircle size={20} color={Colors.white} />
@@ -52,35 +107,39 @@ const Footer = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>VISIT US</Text>
         
-        <View style={styles.locationBlock}>
-          <View style={styles.locationHeader}>
-            <View style={styles.redDot} />
-            <Text style={styles.locationName}>PORT LOUIS</Text>
+        {office1Address && (
+          <View style={styles.locationBlock}>
+            <View style={styles.locationHeader}>
+              <View style={styles.redDot} />
+              <Text style={styles.locationName}>{office1Title.toUpperCase()}</Text>
+            </View>
+            <Text style={styles.addressText}>{office1Address}</Text>
+            <TouchableOpacity 
+              style={styles.directionsBtn}
+              onPress={() => handlePress(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(office1Address)}`)}
+            >
+              <MapPin size={12} color={Colors.primary} />
+              <Text style={styles.directionsText}>DIRECTIONS</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.addressText}>{office1Address}</Text>
-          <TouchableOpacity 
-            style={styles.directionsBtn}
-            onPress={() => handlePress(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(office1Address)}`)}
-          >
-            <MapPin size={12} color={Colors.primary} />
-            <Text style={styles.directionsText}>DIRECTIONS</Text>
-          </TouchableOpacity>
-        </View>
+        )}
 
-        <View style={styles.locationBlock}>
-          <View style={styles.locationHeader}>
-            <View style={styles.redDot} />
-            <Text style={styles.locationName}>EBENE</Text>
+        {office2Address && (
+          <View style={styles.locationBlock}>
+            <View style={styles.locationHeader}>
+              <View style={styles.redDot} />
+              <Text style={styles.locationName}>{office2Title.toUpperCase()}</Text>
+            </View>
+            <Text style={styles.addressText}>{office2Address}</Text>
+            <TouchableOpacity 
+              style={styles.directionsBtn}
+              onPress={() => handlePress(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(office2Address)}`)}
+            >
+              <MapPin size={12} color={Colors.primary} />
+              <Text style={styles.directionsText}>DIRECTIONS</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.addressText}>{office2Address}</Text>
-          <TouchableOpacity 
-            style={styles.directionsBtn}
-            onPress={() => handlePress(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(office2Address)}`)}
-          >
-            <MapPin size={12} color={Colors.primary} />
-            <Text style={styles.directionsText}>DIRECTIONS</Text>
-          </TouchableOpacity>
-        </View>
+        )}
       </View>
 
       {/* Contact Info */}
@@ -107,7 +166,7 @@ const Footer = () => {
           </View>
           <View>
             <Text style={[styles.contactLabel, { marginBottom: 2 }]}>Working Hours</Text>
-            <Text style={styles.workingHoursSub}>Mon - Fri: 08:30 - 17:00</Text>
+            <Text style={styles.workingHoursSub}>{workingHours}</Text>
           </View>
         </View>
       </View>
@@ -116,7 +175,7 @@ const Footer = () => {
       <View style={styles.copyrightBorder} />
       <View style={styles.copyrightSection}>
         <Text style={styles.copyrightText}>
-          © {new Date().getFullYear()} Travel Lounge. All rights reserved.
+          © {new Date().getFullYear()} {settings?.siteTitle || 'Travel Lounge'}. All rights reserved.
         </Text>
       </View>
     </View>
@@ -129,6 +188,11 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 40,
     paddingHorizontal: 24,
+  },
+  loadingContainer: {
+    minHeight: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   brandingSection: {
     marginBottom: 48,

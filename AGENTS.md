@@ -1,18 +1,22 @@
 # AGENTS.md
 
-## 2026-03-24 - GOL IBE Integration & Image Path Correction
+## 2026-03-24 - GOL IBE Finalization, Image Fixes & Mobile Build
 
 ### Web App Changes
-
-- **Flight IBE Integration**: Successfully integrated the GOL IBE (Internet Booking Engine) D4 version on the `/flights` page.
-- **Iframe Hardening**: Implemented `sandbox` attributes to prevent top-level redirection, ensuring search results stay within the Travel Lounge platform.
-- **Dynamic Height**: Added a `postMessage` listener to support automatic iframe stretching (compatible with GOL IBE's height-resize messages).
-- **Subdomain Configuration**: Updated to `travellounge.golibe.com` for the IBE integration.
+- **Flight IBE Integration**: Successfully integrated GOL IBE D4 on the `/flights` page.
+- **New Tab Results**: Configured search results to open in a new tab via `target=_blank` to bypass restrictive top-level navigation blocks (Hardened Iframe).
+- **Dynamic Height**: Implemented a `postMessage` listener for automatic iframe stretching to fit the form content.
+- **Environment Parity**: Updated to `travellounge.golibe.com` subdomain for production-ready integration.
 
 ### Mobile App Changes
+- **Image Resolution Engine Fix**: Resolved critical 404 errors on homepage service cards by correcting the Supabase storage path resolution in `src/utils/imageUtils.ts` (added `bucket/` segment).
+- **Version 1.0.1 (APK Build)**: Incremented to `versionCode: 3` and version `1.0.1`. Successfully authenticated as `travellounge` and triggered the queued cloud build for the Android APK.
+- **E2E Strategy**: Defined 5 core End-to-End user scenarios for systematic UI verification.
 
-- **Image Resolution Engine Fix**: Resolved a critical 404 error affecting homepage service cards. Added the missing `bucket/` path segment to the Supabase storage URL resolution logic in `src/utils/imageUtils.ts`.
-- **E2E Strategy**: Defined 5 core End-to-End user scenarios covering Discovery, Exploration, Search, Inquiry, and Branding for systematic verification.
+### Verification Expected (2026-03-24)
+- `/flights` page search results open correctly in a new window/tab.
+- Service card images on mobile homepage load without 404 errors.
+- EAS Build v1.0.1 dashboard shows a successful or running build status.
 
 ### Verification Expected (2026-03-24)
 

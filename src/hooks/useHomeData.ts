@@ -105,10 +105,8 @@ export const useHomeData = () => {
           const mappedDestinations = uniqueRegions.slice(0, 5).map(region => ({
             name: region.toUpperCase(),
             query: region,
-            // Fallback images for regions since they aren't in a separate table yet
-            image: region.toLowerCase().includes('mauritius') ? require('../../assets/paris_card.png') :
-                   region.toLowerCase().includes('rodrigues') ? require('../../assets/london_card.png') :
-                   require('../../assets/dubai_card.png')
+            // Use a consistent placeholder for regions without dedicated cover images
+            image: "https://api.placeholder.com/600/400?text=" + encodeURIComponent(region)
           }));
           setDestinations(mappedDestinations);
         }
