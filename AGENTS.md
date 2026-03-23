@@ -4,7 +4,9 @@
 
 ### Web App Changes
 
-- **Flight IBE Integration**: Successfully integrated the GOL IBE (Internet Booking Engine) D4 version on the `/flights` page. The search form is now embedded via a responsive iframe, enabling global flight search capabilities directly within the Travel Lounge platform.
+- **Flight IBE Integration**: Successfully integrated the GOL IBE (Internet Booking Engine) D4 version on the `/flights` page.
+- **Iframe Hardening**: Implemented `sandbox` attributes to prevent top-level redirection, ensuring search results stay within the Travel Lounge platform.
+- **Dynamic Height**: Added a `postMessage` listener to support automatic iframe stretching (compatible with GOL IBE's height-resize messages).
 - **Subdomain Configuration**: Updated to `travellounge.golibe.com` for the IBE integration.
 
 ### Mobile App Changes
@@ -12,7 +14,7 @@
 - **Image Resolution Engine Fix**: Resolved a critical 404 error affecting homepage service cards. Added the missing `bucket/` path segment to the Supabase storage URL resolution logic in `src/utils/imageUtils.ts`.
 - **E2E Strategy**: Defined 5 core End-to-End user scenarios covering Discovery, Exploration, Search, Inquiry, and Branding for systematic verification.
 
-### Verification Expected
+### Verification Expected (2026-03-24)
 
 - `/flights` page on web-app should render the flight search form correctly.
 - Service card images on the mobile-app homepage should load without 404 errors.
@@ -31,7 +33,7 @@
   - Added a **Frequently Asked Questions** (FAQs) module to the detail screen for parity with the web-app.
 - **Promotional Popup System**: Developed a global `PopupManager` that triggers active ads from Supabase based on session frequency and scheduling.
 
-### Verification Expected
+### Verification Expected (2026-03-23)
 
 - **EAS Build URL**: [d70d69ef-28ca-49f8-be8e-aba1785465c7](https://expo.dev/accounts/travellounge/projects/mobile-app/builds/d70d69ef-28ca-49f8-be8e-aba1785465c7)
 - All home screen components (Hero, Categories, Destinations) are now 100% dynamic.
@@ -48,7 +50,7 @@
 - **Image Turbo-Charging**: Integrated `expo-image` across all cards. Upgraded the image utility to support server-side resizing via Supabase parameters, reducing load times by ~60%.
 - **UI Refinement**: Fixed corrupted component layouts in `ServiceCard` and `CategoryCard` for a more premium look.
 
-### Verification Expected
+### Verification Expected (2026-03-22)
 
 - Bookings now submit successfully and appear in the Admin App.
 - Images load significantly faster with zero flicker.
