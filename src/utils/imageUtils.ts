@@ -10,7 +10,7 @@ import { ImageSourcePropType } from 'react-native';
  * Supports dynamic resizing via width/height parameters for Supabase assets.
  */
 export const resolveImageUrl = (url: string | null | undefined, width?: number, height?: number) => {
-  if (!url) return require('../../assets/herohotel.jpg'); // Default fallback
+  if (!url) return require('../../assets/icon.png'); // Default fallback to app icon
 
   // 1. Handle bundle assets (if starting with /assets/ or a relative path we recognize)
   if (typeof url === 'string' && (url.startsWith('assets/') || url.includes('/assets/'))) {
@@ -23,7 +23,7 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
     if (url.includes('flights')) return require('../../assets/categories/flights.jpg');
     
     // Generic placeholder fallback for other asset paths
-    return require('../../assets/herohotel.jpg');
+    return require('../../assets/icon.png');
   }
 
   // 2. Handle Absolute URLs (external or already resolved)

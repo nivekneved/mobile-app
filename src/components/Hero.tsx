@@ -3,6 +3,7 @@ import { StyleSheet, View, Image, Dimensions, ScrollView, NativeSyntheticEvent, 
 import { Text, Button, ActivityIndicator, useTheme } from 'react-native-paper';
 import { supabase } from '../lib/supabase';
 import { HeroSlide } from '../hooks/useHomeData';
+import { resolveImageUrl } from '../utils/imageUtils';
 
 const { width } = Dimensions.get('window');
 
@@ -58,7 +59,7 @@ export default function Hero() {
         {slides.map((slide) => (
           <View key={slide.id} style={styles.slide}>
             <Image
-              source={{ uri: slide.image_url }}
+              source={resolveImageUrl(slide.image_url)}
               style={styles.image}
               resizeMode="cover"
             />
