@@ -27,7 +27,8 @@ export default function BookingsScreen() {
     >
       <Surface style={styles.bookingCard} elevation={1}>
         <Image 
-          source={{ uri: item.services.image_url || 'https://via.placeholder.com/150' }} 
+          source={{ uri: item.services.image_url || undefined }} 
+          defaultSource={require('../../assets/icon.png')}
           style={styles.thumbnail} 
         />
         <View style={styles.cardContent}>
@@ -56,7 +57,7 @@ export default function BookingsScreen() {
             </View>
             <View style={styles.priceContainer}>
               <Text style={styles.priceLabel}>Total</Text>
-              <Text style={styles.price}>Rs {item.services.price.toLocaleString()}</Text>
+              <Text style={styles.price}>Rs {(item.services.base_price ?? 0).toLocaleString()}</Text>
             </View>
           </View>
         </View>

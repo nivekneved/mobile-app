@@ -129,8 +129,7 @@ function RootLayoutNav() {
           }}
         >
           <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
-          <Stack.Screen 
-            name="faq" 
+          <Stack.Screen name="faq" 
             options={{ 
               headerShown: true,
               title: 'FAQ',
@@ -143,17 +142,8 @@ function RootLayoutNav() {
               },
             }} 
           />
-          <Stack.Screen 
-            name="news" 
-            options={{ 
-              headerShown: true,
-              title: 'LATEST NEWS',
-              headerTitleStyle: {
-                fontFamily: 'Outfit_900Black',
-                fontSize: 14,
-              }
-            }} 
-          />
+          {/* NOTE: 'news' is a tab route (tabs)/_layout.tsx, not a stack route. */}
+          {/* Registering it here as a Stack.Screen causes navigation hierarchy conflicts. Removed. */}
         </Stack>
       </PaperProvider>
     </View>
@@ -194,9 +184,9 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 export default function RootLayout() {
   useEffect(() => {
     // TOP-LEVEL Failsafe: Hide splash screen after 5 seconds even if providers hang
-    console.log('[RootLayout] Global startup timer started...');
+    if (__DEV__) console.log('[RootLayout] Global startup timer started...');
     const timer = setTimeout(async () => {
-      console.log('[RootLayout] Failsafe: Hiding splash screen manually...');
+      if (__DEV__) console.log('[RootLayout] Failsafe: Hiding splash screen manually...');
       await SplashScreen.hideAsync().catch(() => {});
     }, 5000);
 

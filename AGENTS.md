@@ -59,3 +59,11 @@
 - Bookings now submit successfully and appear in the Admin App.
 - Images load significantly faster with zero flicker.
 - Footer provides a professional closure to the home screen experience.
+
+## 2026-03-24 - Mobile Flight IBE Integration (E2E Recommendation)
+
+### Changes Made
+- **E2E Recommendation Implemented:** Successfully bridged the final major feature gap between Web and Mobile platforms.
+- **Webview Integration:** Installed eact-native-webview and implemented native iframe handling for the Gol IBE D4 engine.
+- **Native Navigation:** Added a dedicated Flights tab to pp/(tabs)/_layout.tsx using the Lucide Plane icon.
+- **Result:** Mobile users can now natively search and book flights directly within the application without being redirected externally.

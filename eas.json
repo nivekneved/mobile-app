@@ -19,7 +19,12 @@
         "EXPO_PUBLIC_API_URL": "http://10.0.2.2:5000/api"
       }
     },
-    "production": {}
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://tbyudagfjspedeqtlgjv.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_R0eiOHYXN90Jq6NuYBeTQA_hRpJ42UL"
+      }
+    }
   },
   "submit": {
     "production": {}

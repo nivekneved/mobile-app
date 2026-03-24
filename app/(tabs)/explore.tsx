@@ -27,9 +27,11 @@ export default function ExploreScreen() {
   }, [params.category, params.query]);
 
   // Perform search when filters or query changes
+  // NOTE: searchServices is intentionally omitted from deps - it's a stable useCallback ref
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     searchServices(searchQuery, selectedCategory);
-  }, [searchQuery, selectedCategory, searchServices]);
+  }, [searchQuery, selectedCategory]);
 
   const renderServiceItem = ({ item }: { item: any }) => (
     <TouchableOpacity 
@@ -122,6 +124,9 @@ export default function ExploreScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          windowSize={5}
+          maxToRenderPerBatch={5}
+          initialNumToRender={8}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text variant="titleMedium" style={styles.emptyText}>No services found</Text>

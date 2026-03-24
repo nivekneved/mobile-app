@@ -12,7 +12,7 @@ export type Booking = {
     name: string;
     image_url: string;
     location: string;
-    price: number;
+    base_price: number; // Actual column name is base_price, not price
     category: string;
   };
 };
@@ -45,7 +45,7 @@ export const useCustomerBookings = () => {
               name,
               image_url,
               location,
-              price,
+              base_price,
               category
             )
           `)

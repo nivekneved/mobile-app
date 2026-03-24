@@ -32,6 +32,7 @@ export default function NewsScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPosts();
@@ -50,8 +51,10 @@ export default function NewsScreen() {
 
       if (error) throw error;
       setPosts(data || []);
-    } catch (err) {
+      setError(null);
+    } catch (err: any) {
       console.error('Error fetching news:', err);
+      setError(err?.message || 'Failed to load articles. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -93,6 +96,15 @@ export default function NewsScreen() {
     return (
       <View style={styles.center}>
         <ActivityIndicator color="#DC2626" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>⚠️ {error}</Text>
+        <Text style={styles.emptyText} onPress={fetchPosts}>Tap to retry</Text>
       </View>
     );
   }
@@ -193,5 +205,14 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#94A3B8',
     fontSize: 14,
+    marginTop: 8,
+    textDecorationLine: 'underline',
+  },
+  errorText: {
+    color: '#DC2626',
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'center',
+    paddingHorizontal: 24,
   },
 });

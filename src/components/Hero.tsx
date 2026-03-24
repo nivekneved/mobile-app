@@ -66,8 +66,8 @@ export default function Hero() {
             <View style={styles.overlay} />
             
             <View style={styles.content}>
-              <Text style={styles.tag}>TRAVEL DEALS</Text>
-              <Text style={styles.title}>{slide.title}</Text>
+              <Text style={styles.tag} accessibilityRole="header">TRAVEL DEALS</Text>
+              <Text style={styles.title} accessibilityRole="header">{slide.title}</Text>
               <Text style={styles.subtitle}>{slide.subtitle}</Text>
               
               <View style={styles.buttonRow}>
@@ -76,6 +76,8 @@ export default function Hero() {
                   style={styles.button}
                   contentStyle={styles.buttonContent}
                   labelStyle={styles.buttonLabel}
+                  accessibilityLabel={`Discover more about ${slide.title}`}
+                  accessibilityRole="button"
                 >
                   DISCOVER MORE
                 </Button>
@@ -85,13 +87,13 @@ export default function Hero() {
         ))}
       </ScrollView>
 
-      <View style={styles.pagination}>
+      <View style={styles.pagination} importantForAccessibility="no-hide-descendants">
         {slides.map((_, i) => (
           <View
             key={i}
             style={[
               styles.dot,
-              { backgroundColor: i === activeSlide ? theme.colors.primary : 'rgba(255,255,255,0.3)' },
+              { backgroundColor: i === activeSlide ? theme.colors.primary : 'rgba(255,255,255,0.4)' },
               i === activeSlide && styles.activeDot
             ]}
           />
@@ -103,8 +105,8 @@ export default function Hero() {
 
 const styles = StyleSheet.create({
   container: {
-    height: 450,
-    backgroundColor: '#1E293B',
+    height: 500, // Increased height for better spacing
+    backgroundColor: '#0F172A',
   },
   center: {
     justifyContent: 'center',
@@ -112,14 +114,14 @@ const styles = StyleSheet.create({
   },
   slide: {
     width,
-    height: 450,
+    height: 500,
   },
   image: {
     ...StyleSheet.absoluteFillObject,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.4)',
+    backgroundColor: 'rgba(0, 0, 0, 0.55)', // Darker for better contrast
   },
   content: {
     flex: 1,
@@ -130,44 +132,45 @@ const styles = StyleSheet.create({
   },
   tag: {
     color: '#FFFFFF',
-    fontSize: 10,
+    fontSize: 12, // Increased
     fontWeight: '900',
-    letterSpacing: 4,
-    marginBottom: 16,
-    opacity: 0.8,
+    letterSpacing: 5,
+    marginBottom: 20,
+    textTransform: 'uppercase',
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 36,
+    fontSize: 42, // Increased
     fontWeight: '900',
     textAlign: 'center',
-    lineHeight: 40,
+    lineHeight: 48,
     letterSpacing: -1,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 15,
+    color: '#F8FAFC', // Near white for high contrast
+    fontSize: 18, // Increased
+    fontWeight: '600', // Increased
     textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 30,
-    maxWidth: 280,
+    lineHeight: 26,
+    marginBottom: 36,
+    maxWidth: 320,
   },
   buttonRow: {
     flexDirection: 'row',
   },
   button: {
     borderRadius: 100,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#DC2626', // Use Brand Red for visibility
+    minWidth: 200, // Ensure good touch target width
+    elevation: 4,
   },
   buttonContent: {
-    paddingVertical: 8,
-    paddingHorizontal: 20,
+    paddingVertical: 12, // Larger touch target
+    paddingHorizontal: 24,
   },
   buttonLabel: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '900',
     letterSpacing: 2,
     color: '#FFFFFF',

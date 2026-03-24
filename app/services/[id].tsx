@@ -16,6 +16,8 @@ import { PremiumCarousel } from '../../src/components/PremiumCarousel';
 import { useServiceAddons } from '../../src/hooks/useServiceAddons';
 import { StarRating } from '../../src/components/StarRating';
 import { User } from 'lucide-react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useWishlist } from '../../src/context/WishlistContext';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 450;
@@ -27,6 +29,7 @@ export default function ServiceDetailScreen() {
   const { service, isLoading, error } = useServiceDetails(id);
   const { roomTypes: hookRoomTypes } = useRoomTypes(id as string);
   const { reviews, faqs } = useServiceAddons(id as string);
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const roomTypes = React.useMemo(() => {
     // 1. Check for JSONB room_types in the service object first (from services table)
@@ -91,7 +94,32 @@ export default function ServiceDetailScreen() {
           <View style={styles.overlay} />
           <View style={styles.topControls}>
             <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}><ArrowLeft color={Colors.white} size={22} /></TouchableOpacity>
-            <TouchableOpacity onPress={() => Share.share({ message: `Check out ${service.name} on Travel Lounge` })} style={styles.iconButton}><Share2 color={Colors.white} size={22} /></TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => {
+                if (service) {
+                  Share.share({ message: `Check out ${service.name} on Travel Lounge` });
+                }
+              }} 
+              style={styles.iconButton}
+            >
+              <Share2 color={Colors.white} size={22} />
+            </TouchableOpacity>
+            
+            {/* Added Wishlist Button for full parity */}
+            <TouchableOpacity 
+              onPress={() => {
+                if (service) {
+                  toggleWishlist(service as any);
+                }
+              }} 
+              style={styles.iconButton}
+            >
+              <MaterialCommunityIcons 
+                name={isInWishlist(service?.id || '') ? "heart" : "heart-outline"} 
+                color={isInWishlist(service?.id || '') ? "#DC2626" : Colors.white} 
+                size={22} 
+              />
+            </TouchableOpacity>
           </View>
           <View style={styles.titleOverlay}>
             <View style={styles.categoryBadge}><Text style={styles.categoryText}>{service.category || 'Experience'}</Text></View>

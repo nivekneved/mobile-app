@@ -13,7 +13,7 @@ export const useSearchServices = () => {
     try {
       let supabaseQuery = supabase
         .from('services')
-        .select('*, service_categories!inner(categories!inner(id, name, slug))')
+        .select('*, service_categories(categories(id, name, slug))')
         .order('priority', { ascending: false })
         .order('created_at', { ascending: false });
 

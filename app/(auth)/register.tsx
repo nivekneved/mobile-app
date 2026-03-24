@@ -1,3 +1,5 @@
+// Converted from register.js → register.tsx (CRITICAL-6 fix)
+// Added TypeScript types and safe error handling
 import React, { useState } from 'react';
 import {
   View,
@@ -8,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, TextInput, Title, HelperText } from 'react-native-paper';
+import { Button, TextInput, HelperText } from 'react-native-paper';
 import { useAuth } from '../../src/context/AuthContext';
 
 export default function RegisterScreen() {
@@ -27,26 +29,9 @@ export default function RegisterScreen() {
   const validateInputs = () => {
     let isValid = true;
     
-    if (!name.trim()) {
-      setNameError(true);
-      isValid = false;
-    } else {
-      setNameError(false);
-    }
-    
-    if (!email.trim()) {
-      setEmailError(true);
-      isValid = false;
-    } else {
-      setEmailError(false);
-    }
-    
-    if (!password) {
-      setPasswordError(true);
-      isValid = false;
-    } else {
-      setPasswordError(false);
-    }
+    if (!name.trim()) { setNameError(true); isValid = false; } else { setNameError(false); }
+    if (!email.trim()) { setEmailError(true); isValid = false; } else { setEmailError(false); }
+    if (!password) { setPasswordError(true); isValid = false; } else { setPasswordError(false); }
     
     if (!confirmPassword) {
       setConfirmPasswordError(true);
@@ -70,17 +55,11 @@ export default function RegisterScreen() {
       Alert.alert(
         'Registration Successful',
         'Your account has been created successfully!',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              router.replace('(tabs)/index');
-            },
-          },
-        ]
+        [{ text: 'OK', onPress: () => router.replace('(tabs)/index') }]
       );
-    } catch (error) {
-      Alert.alert('Registration Error', error.message || 'An error occurred during registration');
+    } catch (error: any) {
+      // CRITICAL-6 fix: used (error: any) with safe ?. access to prevent secondary throw on iOS
+      Alert.alert('Registration Error', error?.message || 'An error occurred during registration');
     } finally {
       setLoading(false);
     }
@@ -92,7 +71,7 @@ export default function RegisterScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.innerContainer}>
-        <Title style={styles.title}>Create Account</Title>
+        <Text style={styles.title}>Create Account</Text>
         
         <TextInput
           label="Full Name"
@@ -101,9 +80,7 @@ export default function RegisterScreen() {
           style={styles.input}
           error={nameError}
         />
-        {nameError && (
-          <HelperText type="error">Name is required</HelperText>
-        )}
+        {nameError && <HelperText type="error">Name is required</HelperText>}
         
         <TextInput
           label="Email"
@@ -114,9 +91,7 @@ export default function RegisterScreen() {
           keyboardType="email-address"
           error={emailError}
         />
-        {emailError && (
-          <HelperText type="error">Email is required</HelperText>
-        )}
+        {emailError && <HelperText type="error">Email is required</HelperText>}
         
         <TextInput
           label="Password"
@@ -126,9 +101,7 @@ export default function RegisterScreen() {
           secureTextEntry
           error={passwordError}
         />
-        {passwordError && (
-          <HelperText type="error">Password is required</HelperText>
-        )}
+        {passwordError && <HelperText type="error">Password is required</HelperText>}
         
         <TextInput
           label="Confirm Password"
@@ -167,29 +140,10 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  innerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    textAlign: 'center',
-  },
-  input: {
-    marginBottom: 15,
-  },
-  button: {
-    marginTop: 10,
-    marginBottom: 15,
-  },
-  linkButton: {
-    marginTop: 10,
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  innerContainer: { flex: 1, justifyContent: 'center', padding: 20 },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 30, textAlign: 'center' },
+  input: { marginBottom: 15 },
+  button: { marginTop: 10, marginBottom: 15 },
+  linkButton: { marginTop: 10 },
 });

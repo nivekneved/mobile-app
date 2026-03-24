@@ -20,7 +20,14 @@ interface ServiceCardProps {
 
 export const ServiceCard = ({ name, image_url, price, category, location, onPress }: ServiceCardProps) => {
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.9}>
+    <TouchableOpacity 
+      style={styles.container} 
+      onPress={onPress} 
+      activeOpacity={0.9}
+      accessibilityRole="button"
+      accessibilityLabel={`View details for ${name}, located in ${location || 'Mauritius'}. Price starts from Rs ${price?.toLocaleString() || '0'}.`}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+    >
       <Surface style={styles.card} elevation={0}>
         <View style={styles.imageContainer}>
           <ExpoImage 
@@ -29,6 +36,7 @@ export const ServiceCard = ({ name, image_url, price, category, location, onPres
             contentFit="cover"
             transition={300}
             cachePolicy="disk"
+            accessibilityLabel={`Photo of ${name}`}
           />
           <View style={styles.priceTag}>
             <Text style={styles.priceLabel}>FROM</Text>
@@ -40,9 +48,9 @@ export const ServiceCard = ({ name, image_url, price, category, location, onPres
 
         <View style={styles.content}>
           <View style={styles.headerRow}>
-            <Text style={styles.category}>{category || 'Experience'}</Text>
+            <Text style={styles.category} accessibilityRole="header">{category || 'Experience'}</Text>
             <View style={styles.benefitBadge}>
-              <Sparkles size={10} color="#D97706" />
+              <Sparkles size={10} color="#92400E" />
               <Text style={styles.benefitText}>ELITE CHOICE</Text>
             </View>
           </View>
@@ -51,7 +59,7 @@ export const ServiceCard = ({ name, image_url, price, category, location, onPres
           
           <View style={styles.footer}>
             <View style={styles.locationRow}>
-              <MapPin size={12} color={Colors.slate[400]} />
+              <MapPin size={12} color={Colors.slate[600]} />
               <Text style={styles.location} numberOfLines={1}>{location || 'Mauritius'}</Text>
             </View>
             <View style={styles.bookAction}>

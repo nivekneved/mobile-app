@@ -48,65 +48,44 @@ export const useHomeData = () => {
       try {
         setIsLoading(true);
         
-        // Fetch Hero Slides
-        const { data: slides, error: slidesError } = await supabase
-          .from('hero_slides')
-          .select('*')
-          .order('order_index', { ascending: true });
+        // PERF-3 fix: Run all 4 queries in parallel (was sequential — 4 round-trips → 1)
+        const [
+          { data: slides, error: slidesError },
+          { data: cats, error: catsError },
+          { data: services, error: servicesError },
+          { data: regionData, error: regionError }
+        ] = await Promise.all([
+          supabase.from('hero_slides').select('*').order('order_index', { ascending: true }),
+          supabase.from('categories').select('*').order('display_order', { ascending: true, nullsFirst: false }),
+          supabase.from('services').select('*, service_categories(categories(name))').order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(10),
+          supabase.from('services').select('region').not('region', 'is', null)
+        ]);
         
         if (slidesError) {
           console.error('Supabase error (hero_slides):', slidesError);
           throw slidesError;
         }
-
-        // Fetch Categories
-        const { data: cats, error: catsError } = await supabase
-          .from('categories')
-          .select('*')
-          .order('display_order', { ascending: true, nullsFirst: false });
-
         if (catsError) {
           console.error('Supabase error (categories):', catsError);
           throw catsError;
         }
-
-        // Fetch Featured Services
-        const { data: services, error: servicesError } = await supabase
-          .from('services')
-          .select('*, service_categories(categories(name))')
-          .order('priority', { ascending: false })
-          .order('created_at', { ascending: false })
-          .limit(10);
-
         if (servicesError) {
           console.error('Supabase error (services):', servicesError);
           throw servicesError;
         }
 
         const mappedServices = (services || []).map((s: any) => {
-          // Extract category name from the join if available
           const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
-          
-          return {
-            ...s,
-            price: s.base_price || 0,
-            category: categoryName
-          };
+          return { ...s, price: s.base_price || 0, category: categoryName };
         });
-
-        // Fetch Unique Regions for "Elite Collections"
-        const { data: regionData, error: regionError } = await supabase
-          .from('services')
-          .select('region')
-          .not('region', 'is', null);
 
         if (!regionError && regionData) {
           const uniqueRegions = [...new Set((regionData as {region: string}[]).map(r => r.region))];
           const mappedDestinations = uniqueRegions.slice(0, 5).map(region => ({
             name: region.toUpperCase(),
             query: region,
-            // Use a consistent placeholder for regions without dedicated cover images
-            image: "https://api.placeholder.com/600/400?text=" + encodeURIComponent(region)
+            // Use local app icon as fallback — api.placeholder.com is an invalid/dead URL
+            image: require('../../assets/icon.png')
           }));
           setDestinations(mappedDestinations);
         }

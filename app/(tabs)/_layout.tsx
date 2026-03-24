@@ -1,11 +1,11 @@
 import { Tabs } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
-import { Home, Search, Calendar, User, Newspaper } from 'lucide-react-native';
+import { Home, Search, Calendar, User, Newspaper, Plane } from 'lucide-react-native';
 import { TouchableOpacity, Alert } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 
 export default function TabLayout() {
-  const { signOut } = useAuth();
+  const { } = useAuth(); // signOut removed — handleLogout was commented out and is not in use
 
   /*
   const handleLogout = () => {
@@ -55,6 +55,13 @@ export default function TabLayout() {
         options={{
           title: 'Explore',
           tabBarIcon: ({ color }) => <Search size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="flights"
+        options={{
+          title: 'Flights',
+          tabBarIcon: ({ color }) => <Plane size={24} color={color} />,
         }}
       />
       <Tabs.Screen
