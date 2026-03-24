@@ -1,5 +1,18 @@
 # AGENTS.md
 
+## 2026-03-24 - Zero-Regression Database Schema Parity
+
+### Admin App Changes
+- **Database Refactor Integration**: Replaced legacy `bookings` table queries (`activity_name`, `activity_type`, `total_amount`) with their new UI-driven counterparts (`service_name`, `service_type`, `total_price`) across all files (`Bookings.jsx`, `CreateBooking.jsx`, `Dashboard.jsx`, `ViewCustomer.jsx`, `Reports.jsx`).
+- **Migration Execution**: Executed Supabase SQL migration (e.g. `start_date` -> `check_in_date`) to force the backend database perfectly into alignment with the frontend naming structures.
+
+### Web App Changes
+- **Booking Checkout Sync**: Overhauled the structural payload in `lib/bookingService.ts` to transmit the new database keys, and seamlessly recreated the `create_booking_v1` secure RPC without regression.
+
+### Mobile App Changes
+- **Bookings Hook Fix**: Finalized flattening of the nested `booking_items` interface in `useCustomerBookings.ts` to surface `service_name`, `service_type`, and `total_price` independently of `uid` crashes.
+- **UI Restoration**: Safe refactor of `bookings.tsx` to present user history pulling directly from the newly updated bookings view.
+
 ## 2026-03-24 - GOL IBE Finalization, Image Fixes & Mobile Build
 
 ### Web App Changes

@@ -27,14 +27,14 @@ export default function BookingsScreen() {
     >
       <Surface style={styles.bookingCard} elevation={1}>
         <Image 
-          source={{ uri: item.services.image_url || undefined }} 
+          source={{ uri: item.image_url || undefined }} 
           defaultSource={require('../../assets/icon.png')}
           style={styles.thumbnail} 
         />
         <View style={styles.cardContent}>
           <View style={styles.cardHeader}>
             <Text variant="titleMedium" style={styles.serviceName} numberOfLines={1}>
-              {item.services.name}
+              {item.service_name || item.service_type}
             </Text>
             <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '15' }]}>
               <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>
@@ -45,7 +45,7 @@ export default function BookingsScreen() {
 
           <View style={styles.infoRow}>
             <MapPin size={12} color={Colors.textSecondary} />
-            <Text style={styles.infoText}>{item.services.location}</Text>
+            <Text style={styles.infoText}>{item.location}</Text>
           </View>
 
           <View style={styles.footer}>
@@ -57,7 +57,7 @@ export default function BookingsScreen() {
             </View>
             <View style={styles.priceContainer}>
               <Text style={styles.priceLabel}>Total</Text>
-              <Text style={styles.price}>Rs {(item.services.base_price ?? 0).toLocaleString()}</Text>
+              <Text style={styles.price}>Rs {(item.total_price ?? 0).toLocaleString()}</Text>
             </View>
           </View>
         </View>
