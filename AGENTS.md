@@ -1,5 +1,14 @@
 # AGENTS.md
 
+## 2026-03-25 - Thematic Category Image Integration
+
+### Mobile App Changes
+- **Thematic Synchronization**: Integrated the new 8k thematic category images from the web ecosystem into the mobile asset bundle.
+- **Visual Excellence**: Replaced low-resolution placeholders with professional-grade photography for all categories.
+
+### Web App Changes
+- **Conceptual Alignment**: Ensured category cards match their titles with relevant, high-definition imagery.
+
 ## 2026-03-25 - Thematic Hero Banner Integration
 
 ### Mobile App Changes
