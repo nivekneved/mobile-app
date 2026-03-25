@@ -1,5 +1,15 @@
 # AGENTS.md
 
+## 2026-03-25 - Thematic Hero Banner Integration
+
+### Mobile App Changes
+- **Thematic Banners**: Synchronized high-quality thematic hero banners for Flights, Cruises, Hotels, and About from the web ecosystem.
+- **Visual Parity**: Replaced generic placeholders with professional 8k photography in `assets/placeholders/`.
+- **Resolution Verification**: Confirmed `resolveImageUrl` correctly maps the updated `hero_slides` database paths to the new local assets.
+
+### Web App Changes
+- **Concept Alignment**: Leveraged custom-generated imagery to ensure every page hero matches its title and travel concept.
+
 ## 2026-03-25 - Branding Integration & Asset Resolution
 
 ### Mobile App Changes
