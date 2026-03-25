@@ -1,5 +1,18 @@
 # AGENTS.md
 
+## 2026-03-25 - Branding Integration & Asset Resolution
+
+### Mobile App Changes
+- **Asset Portability**: Synchronized local assets to ensure icons and placeholders match the web/admin ecosystems.
+- **Image Resolution**: Verified that `resolveImageUrl` in `imageUtils.ts` correctly handles the latest storage patterns and local fallbacks.
+
+### Admin App Changes
+- **Dynamic Branding**: Enabled granular control over site-wide branding (logo, dimensions) which serves as the source of truth for all platforms.
+
+### Verification Expected
+- Mobile UI maintains visual parity with web/admin using the synchronized asset set.
+- No 404 errors for local assets in the mobile build.
+
 ## 2026-03-24 - Zero-Regression Database Schema Parity
 
 ### Admin App Changes

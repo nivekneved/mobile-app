@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, Dimensions, A
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, MessageCircle } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
+import { resolveImageUrl } from '../utils/imageUtils';
 
 const { width } = Dimensions.get('window');
 
@@ -19,6 +20,7 @@ interface GeneralConfig {
   instagramUrl?: string;
   whatsappNumber1?: string;
   showFooterMobile?: boolean;
+  logoUrl?: string;
 }
 
 const Footer = () => {
@@ -79,7 +81,7 @@ const Footer = () => {
       {/* Footer Top - Branding */}
       <View style={styles.brandingSection}>
         <Image 
-          source={require('../../assets/logo-white.png')} 
+          source={resolveImageUrl(settings?.logoUrl || '/assets/logo-white.png')} 
           style={styles.logo}
           resizeMode="contain"
         />

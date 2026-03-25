@@ -16,6 +16,9 @@ interface GeneralConfig {
   whatsappNumber2?: string;
   facebookUrl?: string;
   instagramUrl?: string;
+  logoUrl?: string;
+  logoHeight?: string;
+  logoWidth?: string;
 }
 
 interface SettingsContextType {

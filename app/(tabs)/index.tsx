@@ -14,6 +14,7 @@ import { PremiumCarousel } from '../../src/components/PremiumCarousel';
 import { PartnerSlider } from '../../src/components/PartnerSlider';
 import Footer from '../../src/components/Footer';
 import { useSettings } from '../../src/context/SettingsContext';
+import { resolveImageUrl } from '../../src/utils/imageUtils';
 import * as Linking from 'expo-linking';
 import Animated, { useAnimatedStyle, interpolate, Extrapolate, SharedValue } from 'react-native-reanimated';
 
@@ -68,7 +69,15 @@ export default function HomeScreen() {
       
       {/* Executive Header */}
       <View style={styles.header}>
-        <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+        <Image 
+          source={resolveImageUrl(generalConfig?.logoUrl || '/assets/logo.png')} 
+          style={[
+            styles.logo, 
+            generalConfig?.logoHeight ? { height: parseInt(generalConfig.logoHeight) } : null,
+            generalConfig?.logoWidth && generalConfig.logoWidth !== 'auto' ? { width: parseInt(generalConfig.logoWidth) } : null
+          ]} 
+          resizeMode="contain" 
+        />
         <View style={styles.headerActions}>
            <TouchableOpacity style={styles.actionBtn} onPress={() => handleInquiry('whatsapp')}>
               <MessageCircle size={18} color={Colors.charcoal} />

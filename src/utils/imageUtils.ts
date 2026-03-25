@@ -39,22 +39,27 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
     return { uri: finalUrl };
   }
 
-  // 3. Handle Relative Supabase Paths (assumed to be in 'services' bucket by default)
-  const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-  if (!supabaseUrl || typeof url !== 'string') return { uri: url || '' }; // Fallback to raw string if no env or not a string
+  // 3. Handle Relative Supabase Paths
+  const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://tbyudagfjspedeqtlgjv.supabase.co';
+  if (!supabaseUrl || typeof url !== 'string') return { uri: url || '' };
 
-  if (width || height) {
-    // Supabase Image Transformation URL format
-    // Updated to include 'bucket/' before 'services/' as per actual database paths
-    const renderUrl = `${supabaseUrl}/storage/v1/render/image/public/bucket/services/${url}`;
-    const separator = '?';
-    let transform = '';
-    if (width) transform += `width=${width}`;
-    if (height) transform += `${transform ? '&' : ''}height=${height}`;
-    return { uri: `${renderUrl}${separator}${transform}&quality=80&resize=contain` };
+  let filePath = url;
+  let finalBucket = 'bucket';
+
+  // If the path already contains the bucket (e.g., 'bucket/branding/logo.png')
+  if (url.startsWith('bucket/')) {
+    filePath = url.replace('bucket/', '');
   }
 
-  // Updated to include 'bucket/' before 'services/' as per actual database paths
-  const storageUrl = `${supabaseUrl}/storage/v1/object/public/bucket/services/`;
-  return { uri: `${storageUrl}${url}` };
+  const baseUrl = `${supabaseUrl}/storage/v1/object/public/${finalBucket}/${filePath}`;
+  
+  if (width || height) {
+    const renderUrl = `${supabaseUrl}/storage/v1/render/image/public/${finalBucket}/${filePath}`;
+    let transform = '?';
+    if (width) transform += `width=${width}`;
+    if (height) transform += `${transform.length > 1 ? '&' : ''}height=${height}`;
+    return { uri: `${renderUrl}${transform}&quality=80&resize=contain` };
+  }
+
+  return { uri: baseUrl };
 };
