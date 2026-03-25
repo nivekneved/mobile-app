@@ -21,6 +21,12 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
     if (url.includes('rodrigues')) return require('../../assets/categories/rodrigues.jpg');
     if (url.includes('hotels')) return require('../../assets/categories/hotels.jpg');
     if (url.includes('flights')) return require('../../assets/categories/flights.jpg');
+
+    // Hero Slider Placeholders (New)
+    if (url.includes('hero-flight')) return require('../../assets/placeholders/hero-flight.png');
+    if (url.includes('hero-cruise')) return require('../../assets/placeholders/hero-cruise.png');
+    if (url.includes('hero-hotel')) return require('../../assets/placeholders/hero-hotel.png');
+    if (url.includes('hero-adventure')) return require('../../assets/placeholders/hero-adventure.png');
     
     // Generic placeholder fallback for other asset paths
     return require('../../assets/icon.png');
