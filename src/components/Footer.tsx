@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontFamily: 'Outfit_900Black',
     fontSize: 10,
-    letterSpacing: 1,
+    letterSpacing: 3,
   },
   contactRow: {
     flexDirection: 'row',
