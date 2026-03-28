@@ -1,5 +1,26 @@
 # AGENTS.md
 
+## 2026-03-28 - EAS Account Migration & Android Build Fix
+
+### Mobile App Changes
+
+- **Account Migration**: Migrated the EAS build project from `travellounge` to the `devenweb` account to bypass free-tier build limits.
+- **Project Re-initialization**: 
+  - Updated `app.json` with `owner: "devenweb"`.
+  - Re-linked the project using `eas init`.
+- **AAPT Compilation Fix**:
+  - Identified 11 thematic assets (`hero-adventure`, `group-tours`, etc.) that were JPEGs mislabeled as `.png`, causing Android build failures.
+  - Renamed all problematic assets from `.png` to `.jpg`.
+  - Updated `src/utils/imageUtils.ts` to correctly `require` the `.jpg` variants.
+- **Build Automation**: Successfully triggered a new Android APK (`preview`) build on the new account.
+
+### Verification Expected
+
+- Android APK build completes successfully without "AAPT compilation" errors.
+- All local thematic category and hero images render correctly in the mobile app.
+- Build status and download link available on the `devenweb` EAS dashboard.
+
+
 ## 2026-03-25 - Thematic Category Image Integration
 
 ### Mobile App Changes

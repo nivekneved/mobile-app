@@ -15,19 +15,19 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
   // 1. Handle bundle assets (if starting with /assets/ or a relative path we recognize)
   if (typeof url === 'string' && (url.startsWith('assets/') || url.includes('/assets/'))) {
     // Map known web-app placeholders to mobile assets
-    if (url.includes('activities')) return require('../../assets/categories/activities.png');
-    if (url.includes('day-packages')) return require('../../assets/categories/day-packages.png');
-    if (url.includes('cruises')) return require('../../assets/categories/cruises.png');
-    if (url.includes('group-tours') || url.includes('group_tours')) return require('../../assets/categories/group-tours.png');
-    if (url.includes('rodrigues')) return require('../../assets/categories/rodrigues.png');
-    if (url.includes('hotels')) return require('../../assets/categories/hotels.png');
-    if (url.includes('flights')) return require('../../assets/categories/flights.png');
-
+    if (url.includes('activities')) return require('../../assets/categories/activities.jpg');
+    if (url.includes('day-packages')) return require('../../assets/categories/day-packages.jpg');
+    if (url.includes('cruises')) return require('../../assets/categories/cruises.jpg');
+    if (url.includes('group-tours') || url.includes('group_tours')) return require('../../assets/categories/group-tours.jpg');
+    if (url.includes('rodrigues')) return require('../../assets/categories/rodrigues.jpg');
+    if (url.includes('hotels')) return require('../../assets/categories/hotels.jpg');
+    if (url.includes('flights')) return require('../../assets/categories/flights.jpg');
+ 
     // Hero Slider Placeholders (New)
-    if (url.includes('hero-flight')) return require('../../assets/placeholders/hero-flight.png');
-    if (url.includes('hero-cruise')) return require('../../assets/placeholders/hero-cruise.png');
-    if (url.includes('hero-hotel')) return require('../../assets/placeholders/hero-hotel.png');
-    if (url.includes('hero-adventure')) return require('../../assets/placeholders/hero-adventure.png');
+    if (url.includes('hero-flight')) return require('../../assets/placeholders/hero-flight.jpg');
+    if (url.includes('hero-cruise')) return require('../../assets/placeholders/hero-cruise.jpg');
+    if (url.includes('hero-hotel')) return require('../../assets/placeholders/hero-hotel.jpg');
+    if (url.includes('hero-adventure')) return require('../../assets/placeholders/hero-adventure.jpg');
     
     // Generic placeholder fallback for other asset paths
     return require('../../assets/icon.png');
