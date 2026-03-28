@@ -1,0 +1,26 @@
+# 02 Architecture & Flow
+
+## Repository Structure
+The **Mobile App** leverages a modern Expo Router architecture for seamless navigation and modularity.
+
+- **`app/`**: Expo Router-based screens, tabs, and layout configurations.
+- **`src/components/`**: Elite modular UI components (e.g., `ServiceCard`, `CategoryCard`, `PremiumCarousel`).
+- **`src/hooks/`**: Custom React hooks for data fetching (e.g., `useCustomerBookings`).
+- **`src/utils/`**: Core utilities including the `imageUtils.ts` resolution engine.
+- **`src/theme/`**: Centralized design tokens (colors, typography).
+- **`assets/`**: Standardized thematic images (JPEG) and icons.
+
+---
+
+## Component Logic Flow
+1. **Dynamic Initialization**: On launch, the app fetches site settings and promotional popup ads from Supabase.
+2. **Image Resolution Engine**: `imageUtils.ts` maps database paths to local fallback assets or Supabase storage buckets, handling format normalization (e.g., JPEG vs PNG).
+3. **Flight Booking Flow**: Integrated via `react-native-webview` to render the GOL IBE D4 engine natively within the app.
+
+---
+
+## Elite Design Standards (11/10)
+- **Typography**: **Outfit Black (900)** for impactful headers.
+- **Palette**: **Slate-300** high-definition borders on executive backgrounds.
+- **Geometry**: Extreme 32px-40px rounding on all interactive elements.
+- **Performance**: Zero-flicker image loading with server-side optimization.

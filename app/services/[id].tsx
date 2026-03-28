@@ -155,7 +155,7 @@ export default function ServiceDetailScreen() {
           <View style={styles.valuationHeader}>
             <View>
               <Text style={styles.valuationLabel}>EXECUTIVE PRICE</Text>
-              <Text style={styles.valuationValue}>Rs {service.price.toLocaleString()}</Text>
+              <Text style={styles.valuationValue}>Rs {(service.price ?? 0).toLocaleString()}</Text>
             </View>
             <View style={styles.benefitBadge}>
                <Sparkles size={14} color="#D97706" />
@@ -289,11 +289,12 @@ export default function ServiceDetailScreen() {
             const bookingPayload = {
               customer_id: customerId,
               start_date: data.date.toISOString(),
-              end_date: data.date.toISOString(), // Standardizing for transactions
+              // H-03 FIX: Use checkout date for multi-day services, otherwise same as start
+              end_date: (data as Record<string, unknown>).checkoutDate ? ((data as Record<string, unknown>).checkoutDate as Date).toISOString() : data.date.toISOString(),
               status: 'pending', // Lowercase per web-app standards
               pax_adults: data.paxAdults,
               pax_children: data.paxChildren,
-              amount: service.price,
+              amount: service.price ?? 0,
               tax_amount: 0,
               activity_type: service.category || 'General',
               activity_name: service.name,

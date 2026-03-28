@@ -48,7 +48,7 @@ const DestinationCard = ({ item, index, scrollX, onPress }: {
 export default function HomeScreen() {
   const { heroSlides, categories, destinations, featuredServices, isLoading, error } = useHomeData();
   const { session } = useAuth();
-  const { mobileConfig, generalConfig } = useSettings();
+  const { mobileConfig, generalConfig, contentBlocks } = useSettings();
   const router = useRouter();
 
   const handleInquiry = (method: 'whatsapp' | 'email' | 'call') => {
@@ -145,8 +145,12 @@ export default function HomeScreen() {
         <View style={styles.discoverySection}>
           <View style={styles.sectionHeader}>
             <View>
-              <Text style={styles.labelTitle}>FE EL THE LUXURY</Text>
-              <Text style={styles.sectionTitle}>Elite Collections</Text>
+              <Text style={styles.labelTitle}>
+                {contentBlocks.luxury?.label || 'FEEL THE LUXURY'}
+              </Text>
+              <Text style={styles.sectionTitle}>
+                {contentBlocks.luxury?.title || 'Elite Collections'}
+              </Text>
             </View>
           </View>
           <PremiumCarousel
@@ -165,10 +169,18 @@ export default function HomeScreen() {
         <View style={[styles.section, styles.featuredSection]}>
           <View style={styles.sectionHeader}>
             <View>
-              <Text style={styles.labelTitle}>EXCLUSIVE OFFERS</Text>
-              <Text style={styles.sectionTitle}>Seasonal Deals</Text>
+              <Text style={styles.labelTitle}>
+                {contentBlocks.offers?.label || 'EXCLUSIVE OFFERS'}
+              </Text>
+              <Text style={styles.sectionTitle}>
+                {contentBlocks.offers?.title || 'Seasonal Deals'}
+              </Text>
             </View>
-            <TouchableOpacity onPress={() => router.push('/explore')}><Text style={styles.viewAll}>VIEW ALL</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/explore')}>
+                <Text style={styles.viewAll}>
+                    {contentBlocks.offers?.view_all || 'VIEW ALL'}
+                </Text>
+            </TouchableOpacity>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuredList}>
             {featuredServices?.map((service) => service && (
@@ -186,18 +198,28 @@ export default function HomeScreen() {
         <View style={styles.conversionCta}>
             <View style={styles.ctaCard}>
                 <View style={styles.ctaContent}>
-                    <Text style={styles.labelTitleWhite}>24/7 SUPPORT</Text>
-                    <Text style={styles.ctaTitle}>Tailor Your Journey</Text>
-                    <Text style={styles.ctaText}>Book your services directly or chat with our travel designers.</Text>
+                    <Text style={styles.labelTitleWhite}>
+                        {contentBlocks.support?.label || '24/7 SUPPORT'}
+                    </Text>
+                    <Text style={styles.ctaTitle}>
+                        {contentBlocks.support?.title || 'Tailor Your Journey'}
+                    </Text>
+                    <Text style={styles.ctaText}>
+                        {contentBlocks.support?.description || 'Book your services directly or chat with our travel designers.'}
+                    </Text>
                 </View>
                 <View style={styles.ctaActions}>
                     <TouchableOpacity style={styles.primaryCta} onPress={() => handleInquiry('whatsapp')}>
                         <MessageCircle size={20} color={Colors.white} />
-                        <Text style={styles.primaryCtaText}>WHATSAPP</Text>
+                        <Text style={styles.primaryCtaText}>
+                            {contentBlocks.support?.whatsapp || 'WHATSAPP'}
+                        </Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.secondaryCta} onPress={() => handleInquiry('email')}>
                          <Mail size={18} color={Colors.charcoal} />
-                         <Text style={styles.secondaryCtaText}>EMAIL US</Text>
+                         <Text style={styles.secondaryCtaText}>
+                            {contentBlocks.support?.email || 'EMAIL US'}
+                         </Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -207,7 +229,9 @@ export default function HomeScreen() {
         <View style={styles.partnersSection}>
            <View style={styles.partnerHeader}>
               <View style={styles.partnerLine} />
-              <Text style={styles.partnerLabel}>OUR GLOBAL PARTNERS</Text>
+              <Text style={styles.partnerLabel}>
+                {contentBlocks.partners?.label || 'OUR GLOBAL PARTNERS'}
+              </Text>
               <View style={styles.partnerLine} />
            </View>
            <PartnerSlider />

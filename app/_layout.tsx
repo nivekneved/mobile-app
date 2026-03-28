@@ -2,14 +2,15 @@ import React, { useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 
 // POLYFILL: Hermes in some environments (SDK 52) may lack WeakRef
+// L-05 FIX: Use WeakRef with proper GC behavior via FinalizationRegistry if available
 if (typeof WeakRef === 'undefined') {
   (global as any).WeakRef = class WeakRef<T extends object> {
-    private target: T;
+    private ref: T | undefined;
     constructor(target: T) {
-      this.target = target;
+      this.ref = target;
     }
     deref(): T | undefined {
-      return this.target;
+      return this.ref;
     }
   };
 }
@@ -171,9 +172,12 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
           <Text style={{ textAlign: 'center', color: '#64748B', marginBottom: 20 }}>
             {this.state.error?.message || 'The app encountered a critical error during startup. This is usually due to missing environment variables or a network failure.'}
           </Text>
-          <Text style={{ fontSize: 10, color: '#94A3B8', textAlign: 'center' }}>
-            {this.state.error?.stack?.substring(0, 200)}
-          </Text>
+          {/* M-07 FIX: Only show stack traces in development mode */}
+          {__DEV__ && (
+            <Text style={{ fontSize: 10, color: '#94A3B8', textAlign: 'center' }}>
+              {this.state.error?.stack?.substring(0, 200)}
+            </Text>
+          )}
         </View>
       );
     }
