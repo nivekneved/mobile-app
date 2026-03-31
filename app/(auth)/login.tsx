@@ -1,31 +1,42 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import { Text, TextInput, Button } from 'react-native-paper';
+import { Text, TextInput, Button, HelperText } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Input Error', 'Please enter both email and password');
-      return;
+  
+  const { 
+    control, 
+    handleSubmit, 
+    formState: { errors, isSubmitting } 
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
     }
+  });
 
-    setLoading(true);
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(email, password);
+      await login(data.email, data.password);
       router.replace('(tabs)');
     } catch (error: any) {
       Alert.alert('Login Error', error.message || 'An error occurred during login');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -37,32 +48,64 @@ export default function LoginScreen() {
       </View>
 
       <View style={styles.form}>
-        <TextInput
-          label="Email Identity"
-          mode="outlined"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          outlineStyle={styles.inputOutline}
-          disabled={loading}
-        />
-        <TextInput
-          label="Password"
-          mode="outlined"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-          style={styles.input}
-          outlineStyle={styles.inputOutline}
-          disabled={loading}
-        />
+        <View>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Email Identity"
+                mode="outlined"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={styles.input}
+                outlineStyle={styles.inputOutline}
+                error={!!errors.email}
+                disabled={isSubmitting}
+              />
+            )}
+          />
+          {errors.email && (
+            <HelperText type="error" visible={true}>
+              {errors.email.message}
+            </HelperText>
+          )}
+        </View>
+
+        <View>
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Password"
+                mode="outlined"
+                secureTextEntry
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={styles.input}
+                outlineStyle={styles.inputOutline}
+                error={!!errors.password}
+                disabled={isSubmitting}
+              />
+            )}
+          />
+          {errors.password && (
+            <HelperText type="error" visible={true}>
+              {errors.password.message}
+            </HelperText>
+          )}
+        </View>
+
         <Button 
           mode="contained" 
-          onPress={handleLogin}
-          loading={loading}
-          disabled={loading}
+          onPress={handleSubmit(onSubmit)}
+          loading={isSubmitting}
+          disabled={isSubmitting}
           style={styles.loginButton}
           contentStyle={styles.buttonContent}
         >
@@ -72,7 +115,7 @@ export default function LoginScreen() {
           mode="text" 
           onPress={() => router.push('/(auth)/register')}
           textColor={Colors.textSecondary}
-          disabled={loading}
+          disabled={isSubmitting}
         >
           New here? Create account
         </Button>
@@ -102,7 +145,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   form: {
-    gap: 16,
+    gap: 8,
   },
   input: {
     backgroundColor: Colors.white,

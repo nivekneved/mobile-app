@@ -1,6 +1,4 @@
-// Converted from register.js → register.tsx (CRITICAL-6 fix)
-// Added TypeScript types and safe error handling
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -12,56 +10,50 @@ import {
 import { useRouter } from 'expo-router';
 import { Button, TextInput, HelperText } from 'react-native-paper';
 import { useAuth } from '../../src/context/AuthContext';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const registerSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string().min(6, 'Please confirm your password'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { register } = useAuth();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [nameError, setNameError] = useState(false);
-  const [emailError, setEmailError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
-  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
-
-  const validateInputs = () => {
-    let isValid = true;
-    
-    if (!name.trim()) { setNameError(true); isValid = false; } else { setNameError(false); }
-    if (!email.trim()) { setEmailError(true); isValid = false; } else { setEmailError(false); }
-    if (!password) { setPasswordError(true); isValid = false; } else { setPasswordError(false); }
-    
-    if (!confirmPassword) {
-      setConfirmPasswordError(true);
-      isValid = false;
-    } else if (password !== confirmPassword) {
-      setConfirmPasswordError(true);
-      isValid = false;
-    } else {
-      setConfirmPasswordError(false);
+  const { register: authRegister } = useAuth();
+  
+  const { 
+    control, 
+    handleSubmit, 
+    formState: { errors, isSubmitting } 
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
     }
-    
-    return isValid;
-  };
+  });
 
-  const handleRegister = async () => {
-    if (!validateInputs()) return;
-    
-    setLoading(true);
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      await register(email, password, name);
+      await authRegister(data.email, data.password, data.name);
       Alert.alert(
         'Registration Successful',
         'Your account has been created successfully!',
         [{ text: 'OK', onPress: () => router.replace('(tabs)/index') }]
       );
     } catch (error: any) {
-      // CRITICAL-6 fix: used (error: any) with safe ?. access to prevent secondary throw on iOS
       Alert.alert('Registration Error', error?.message || 'An error occurred during registration');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -73,55 +65,95 @@ export default function RegisterScreen() {
       <View style={styles.innerContainer}>
         <Text style={styles.title}>Create Account</Text>
         
-        <TextInput
-          label="Full Name"
-          value={name}
-          onChangeText={setName}
-          style={styles.input}
-          error={nameError}
-        />
-        {nameError && <HelperText type="error">Name is required</HelperText>}
+        <View style={styles.inputContainer}>
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Full Name"
+                mode="outlined"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={styles.input}
+                error={!!errors.name}
+                disabled={isSubmitting}
+              />
+            )}
+          />
+          {errors.name && <HelperText type="error">{errors.name.message}</HelperText>}
+        </View>
         
-        <TextInput
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          error={emailError}
-        />
-        {emailError && <HelperText type="error">Email is required</HelperText>}
+        <View style={styles.inputContainer}>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Email"
+                mode="outlined"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={styles.input}
+                error={!!errors.email}
+                disabled={isSubmitting}
+              />
+            )}
+          />
+          {errors.email && <HelperText type="error">{errors.email.message}</HelperText>}
+        </View>
         
-        <TextInput
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          style={styles.input}
-          secureTextEntry
-          error={passwordError}
-        />
-        {passwordError && <HelperText type="error">Password is required</HelperText>}
+        <View style={styles.inputContainer}>
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Password"
+                mode="outlined"
+                secureTextEntry
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={styles.input}
+                error={!!errors.password}
+                disabled={isSubmitting}
+              />
+            )}
+          />
+          {errors.password && <HelperText type="error">{errors.password.message}</HelperText>}
+        </View>
         
-        <TextInput
-          label="Confirm Password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          style={styles.input}
-          secureTextEntry
-          error={confirmPasswordError}
-        />
-        {confirmPasswordError && (
-          <HelperText type="error">
-            {password !== confirmPassword ? 'Passwords do not match' : 'Please confirm password'}
-          </HelperText>
-        )}
+        <View style={styles.inputContainer}>
+          <Controller
+            control={control}
+            name="confirmPassword"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Confirm Password"
+                mode="outlined"
+                secureTextEntry
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={styles.input}
+                error={!!errors.confirmPassword}
+                disabled={isSubmitting}
+              />
+            )}
+          />
+          {errors.confirmPassword && <HelperText type="error">{errors.confirmPassword.message}</HelperText>}
+        </View>
         
         <Button
           mode="contained"
-          onPress={handleRegister}
-          loading={loading}
-          disabled={loading}
+          onPress={handleSubmit(onSubmit)}
+          loading={isSubmitting}
+          disabled={isSubmitting}
           style={styles.button}
         >
           Register
@@ -131,6 +163,7 @@ export default function RegisterScreen() {
           mode="text"
           onPress={() => router.push('/(auth)/login')}
           style={styles.linkButton}
+          disabled={isSubmitting}
         >
           Already have an account? Log In
         </Button>
@@ -143,7 +176,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   innerContainer: { flex: 1, justifyContent: 'center', padding: 20 },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 30, textAlign: 'center' },
-  input: { marginBottom: 15 },
+  inputContainer: { marginBottom: 8 },
+  input: { },
   button: { marginTop: 10, marginBottom: 15 },
   linkButton: { marginTop: 10 },
 });
