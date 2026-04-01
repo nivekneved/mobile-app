@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Alert, Dimensions, Image, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
+import React from 'react';
+import { Dimensions, Image, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
 import { useHomeData } from '../../src/hooks/useHomeData';
@@ -8,8 +8,7 @@ import { CategoryCard } from '../../src/components/CategoryCard';
 import { ServiceCard } from '../../src/components/ServiceCard';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { Search, Filter, Plane, Bed, Sparkles, Percent, MessageCircle, Mail, Phone, Heart } from 'lucide-react-native';
-import { useAuth } from '../../src/context/AuthContext';
+import { Search, Filter, Plane, Sparkles, Percent, MessageCircle, Mail } from 'lucide-react-native';
 import { PremiumCarousel } from '../../src/components/PremiumCarousel';
 import { PartnerSlider } from '../../src/components/PartnerSlider';
 import Footer from '../../src/components/Footer';
@@ -46,8 +45,7 @@ const DestinationCard = ({ item, index, scrollX, onPress }: {
 };
 
 export default function HomeScreen() {
-  const { heroSlides, categories, destinations, featuredServices, isLoading, error } = useHomeData();
-  const { session } = useAuth();
+  const { heroSlides, categories, destinations, featuredServices, isLoading } = useHomeData();
   const { mobileConfig, generalConfig, contentBlocks } = useSettings();
   const router = useRouter();
 
@@ -119,7 +117,10 @@ export default function HomeScreen() {
                     name={cat.name} 
                     slug={cat.slug}
                     image_url={cat.image_url} 
-                    onPress={() => router.push(`/explore?category=${cat.slug}`)} 
+                    onPress={() => router.push({
+                      pathname: '/(tabs)/explore',
+                      params: { category: cat.slug }
+                    })} 
                   />
                 )) : [1,2,3,4].map(k => <View key={k} style={[styles.categorySkeleton, {width: 156, height: 240}]} />)}
               </ScrollView>

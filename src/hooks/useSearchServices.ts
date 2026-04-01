@@ -11,9 +11,16 @@ export const useSearchServices = () => {
     setIsLoading(true);
     setError(null);
     try {
+      let selectString = '*, service_categories(categories(id, name, slug))';
+      
+      // Use !inner joins when filtering by category to ensure the main records are filtered
+      if (categorySlug && categorySlug !== 'all') {
+        selectString = '*, service_categories!inner(categories!inner(id, name, slug))';
+      }
+
       let supabaseQuery = supabase
         .from('services')
-        .select('*, service_categories(categories(id, name, slug))')
+        .select(selectString)
         .order('priority', { ascending: false })
         .order('created_at', { ascending: false });
 
@@ -21,7 +28,6 @@ export const useSearchServices = () => {
         supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
       }
 
-      // Filter by category slug via the join table
       if (categorySlug && categorySlug !== 'all') {
         supabaseQuery = supabaseQuery.eq('service_categories.categories.slug', categorySlug);
       }

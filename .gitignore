@@ -57,3 +57,4 @@ coverage/
 *.key
 *.mobileprovision
 *.com.apple.InterfaceBuilder.v3.plist
+eas-build-err.txt
