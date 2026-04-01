@@ -288,16 +288,18 @@ export default function ServiceDetailScreen() {
             // 2. Prepare payload for the transactional booking RPC (Web-App Parity)
             const bookingPayload = {
               customer_id: customerId,
-              start_date: data.date.toISOString(),
-              // H-03 FIX: Use checkout date for multi-day services, otherwise same as start
-              end_date: (data as Record<string, unknown>).checkoutDate ? ((data as Record<string, unknown>).checkoutDate as Date).toISOString() : data.date.toISOString(),
+              check_in_date: data.date.toISOString(),
+              // H-03 FIX: Use checkout date for multi-day services, otherwise same as check_in
+              check_out_date: (data as Record<string, unknown>).checkoutDate 
+                ? ((data as Record<string, unknown>).checkoutDate as Date).toISOString() 
+                : data.date.toISOString(),
               status: 'pending', // Lowercase per web-app standards
               pax_adults: data.paxAdults,
               pax_children: data.paxChildren,
               amount: service.price ?? 0,
               tax_amount: 0,
-              activity_type: service.category || 'General',
-              activity_name: service.name,
+              service_type: service.category || 'General',
+              service_name: service.name,
               description: data.roomType 
                 ? `Booking for ${service.name}. Room: ${data.roomType}. Special: ${data.specialRequirements || 'None'}`
                 : `Booking for ${service.name}. Special: ${data.specialRequirements || 'None'}`,
