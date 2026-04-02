@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    marginHorizontal: 16,
+    marginHorizontal: 24,
     marginBottom: 24,
   },
   cardImage: {
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   cardContent: {
-    paddingTop: 16,
+    padding: 24,
   },
   metaRow: {
     flexDirection: 'row',

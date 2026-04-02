@@ -70,13 +70,10 @@ export default function ProfileScreen() {
                 </View>
             </View>
             <View style={styles.userInfo}>
-              <Text style={styles.userName}>{session?.user?.email?.split('@')[0].toUpperCase() || 'MEMBER'}</Text>
-              <Text style={styles.userEmail}>{session?.user?.email}</Text>
-              <View style={styles.membershipBadge}>
-                <Shield size={10} color={Colors.white} />
-                <Text style={styles.membershipText}>EXECUTIVE MEMBER</Text>
-              </View>
+              <Text style={styles.userName}>GUEST MEMBER</Text>
+              <Text style={styles.userEmail}>Access to all premium features</Text>
             </View>
+
           </View>
         </Surface>
 
@@ -131,17 +128,11 @@ export default function ProfileScreen() {
               title="Notifications" 
               subtitle="Flight alerts & premium deals"
               onPress={() => {}}
-            />
-            <ProfileItem 
-              icon={LogOut} 
-              title="Sign Out" 
-              subtitle="Safely exit the executive lounge"
-              onPress={handleLogout}
-              destructive={true}
               showDivider={false}
             />
           </Surface>
         </View>
+
 
         <View style={styles.footerInfoSection}>
            <Text style={styles.versionText}>

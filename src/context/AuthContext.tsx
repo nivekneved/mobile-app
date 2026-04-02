@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { Session, AuthChangeEvent } from '@supabase/supabase-js';
 
 type AuthContextType = {
-  session: Session | null;
+  session: any | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<any>;
   register: (email: string, password: string, name: string) => Promise<any>;
@@ -24,75 +22,33 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Mock session for guest access
+  const [session, setSession] = useState<any | null>({
+    user: {
+      id: 'mock-user-id',
+      email: 'guest@example.com',
+      user_metadata: { name: 'Guest' }
+    }
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Get initial session
-    getInitialSession();
-    
-    // Listen for auth changes
-    // The Supabase client now handles SecureStore persistence automatically
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, newSession: Session | null) => {
-        setSession(newSession);
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    // No-op - immediately ready with guest session
+    setLoading(false);
   }, []);
 
-  const getInitialSession = async () => {
-    try {
-      const { data } = await supabase.auth.getSession();
-      setSession(data?.session || null);
-    } catch (error) {
-      console.error('Error getting initial session:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const login = async (email: string, password: string) => {
-    const { error, data } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    if (error) throw error;
-    
-    setSession(data.session);
-    return data;
+    console.log('Login called - bypassing in auth-free mode');
+    return { success: true };
   };
 
   const register = async (email: string, password: string, name: string) => {
-    const { error, data } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
-        },
-      },
-    });
-    
-    if (error) throw error;
-    
-    if (data.session) {
-      setSession(data.session);
-    }
-    
-    return data;
+    console.log('Register called - bypassing in auth-free mode');
+    return { success: true };
   };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
-    }
-    setSession(null);
+    console.log('Logout called - bypassing in auth-free mode');
   };
 
   const signOut = logout;
@@ -110,3 +66,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+

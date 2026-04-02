@@ -1,6 +1,14 @@
 # 05 History & Agent Progress
 
-## 2026-03-28 - EAS Account Migration & Android Build Fix
+## 2026-04-02 - Ecosystem Auth Removal & Guest Transition
+- **Auth Screen Decommissioning**: Deleted the `app/(auth)` directory, removing all login and registration screens. (M-01)
+- **Guest-Only Session Injection**: Refactored `src/context/AuthContext.tsx` to provide a stable, persistent mock session by default. (M-02)
+- **Profile UI Simplification**: Removed the "Sign Out" button and executive status indicators from `profile.tsx` for a guest-first UX. (M-03)
+- **Supabase Client Hardening**: Disabled `persistSession` and `autoRefreshToken` in `src/lib/supabase.ts`, removing `SecureStore` dependencies. (M-04)
+- **Navigation Verification**: Verified that news, bookings, and explore tabs remain 100% accessible without a backend session. (M-05)
+
+---
+
 - **Account Migration**: Migrated the EAS build project from `travellounge` to the `devenweb` account to bypass free-tier build limits.
 - **Project Re-initialization**: Updated `app.json` with `owner: "devenweb"` and updated `eas init`.
 - **AAPT Compilation Fix**: Renamed 11 thematic assets (JPEGs mislabeled as `.png`) to `.jpg` to prevent Android resource merging errors. Updated `imageUtils.ts` accordingly.
