@@ -267,7 +267,9 @@ export default function ServiceDetailScreen() {
           id: service.id, 
           name: service.name, 
           price: service.price, 
-          category: service.category
+          childPrice: (service as any).child_price,
+          category: service.category,
+          meal_plans: (service as any).meal_plans
         }}
         onSubmit={async (data) => {
           try {
@@ -289,14 +291,15 @@ export default function ServiceDetailScreen() {
             const bookingPayload = {
               customer_id: customerId,
               check_in_date: data.date.toISOString(),
-              // H-03 FIX: Use checkout date for multi-day services, otherwise same as check_in
-              check_out_date: (data as Record<string, unknown>).checkoutDate 
-                ? ((data as Record<string, unknown>).checkoutDate as Date).toISOString() 
+              check_out_date: (data as any).checkoutDate 
+                ? ((data as any).checkoutDate as Date).toISOString() 
                 : data.date.toISOString(),
-              status: 'pending', // Lowercase per web-app standards
+              status: 'pending',
               pax_adults: data.paxAdults,
+              pax_infants: data.paxInfants,
               pax_children: data.paxChildren,
-              amount: service.price ?? 0,
+              pax_teens: data.paxTeens,
+              amount: data.totalAmount, // Use calculated total from modal
               tax_amount: 0,
               service_type: service.category || 'General',
               service_name: service.name,
@@ -310,7 +313,7 @@ export default function ServiceDetailScreen() {
               service_id: service.id,
               service_name: service.name,
               service_category: service.category || 'General',
-              amount: service.price
+              amount: data.totalAmount // Use calculated total from modal
             }];
 
             // 3. Execute transactional insert via RPC

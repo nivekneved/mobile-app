@@ -15,7 +15,9 @@ const bookingSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().min(8, 'Valid phone number is required'),
   paxAdults: z.number().min(1, 'At least 1 adult is required'),
-  paxChildren: z.number().min(0),
+  paxInfants: z.number().min(0).default(0),
+  paxChildren: z.number().min(0).default(0),
+  paxTeens: z.number().min(0).default(0),
   roomType: z.string().optional(),
   specialRequirements: z.string().optional(),
 });
@@ -29,9 +31,11 @@ interface BookingModalProps {
     id: string;
     name: string;
     price: number;
+    childPrice?: number;
     category?: string;
+    meal_plans?: { id: string; label: string; price: number }[];
   };
-  onSubmit: (data: BookingFormData & { date: Date }) => Promise<void>;
+  onSubmit: (data: BookingFormData & { date: Date, totalAmount: number }) => Promise<void>;
 }
 
 interface RoomType {
@@ -64,25 +68,47 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
     return hookRoomTypes;
   }, [(service as any).room_types, hookRoomTypes]);
 
-  const { control, handleSubmit, formState: { errors }, reset } = useForm<BookingFormData>({
+  const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
       email: '',
       phone: '',
-      paxAdults: 1,
+      paxAdults: 2,
+      paxInfants: 0,
       paxChildren: 0,
+      paxTeens: 0,
       roomType: '',
       specialRequirements: '',
     },
   });
 
+  const watchAllFields = watch();
+
+  const calculateTotal = () => {
+    const adults = watchAllFields.paxAdults || 0;
+    const teens = watchAllFields.paxTeens || 0;
+    const children = watchAllFields.paxChildren || 0;
+    const infants = watchAllFields.paxInfants || 0;
+    
+    // Detailed calculation assuming childPrice applies to kids/teens, infants usually free or low cost
+    const basePrice = service.price || 0;
+    const childPrice = service.childPrice || basePrice;
+    
+    let total = (adults * basePrice) + (teens * childPrice) + (children * childPrice);
+    
+    // Add meal plan costs if applicable
+    const totalPax = adults + teens + children + infants;
+    // For now mobile app doesn't have meal selection in UI, but we'll leave logic for parity if added
+    
+    return total;
+  };
 
   const handleFormSubmit = async (data: BookingFormData) => {
     setIsSubmitting(true);
     try {
-      await onSubmit({ ...data, date });
+      await onSubmit({ ...data, date, totalAmount: calculateTotal() });
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
@@ -127,6 +153,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
         </Surface>
 
         <ScrollView style={styles.form} showsVerticalScrollIndicator={false}>
+          {/* ... existing form fields ... */}
+          {/* (I'll keep the middle part the same) */}
           <View style={styles.row}>
             <View style={styles.col}>
               <Controller
@@ -218,40 +246,71 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
             onPressIn={() => Alert.alert('Pick Date', 'Please type the date for now or use the standard format.')}
           />
 
-          <View style={styles.row}>
-            <View style={styles.col}>
+          <View style={styles.guestGrid}>
+            <View style={styles.guestCol}>
               <Controller
                 control={control}
                 name="paxAdults"
                 render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    label="Adults"
-                    value={value.toString()}
-                    onChangeText={(val) => onChange(parseInt(val) || 0)}
-                    mode="outlined"
-                    keyboardType="numeric"
-                    error={!!errors.paxAdults}
-                    activeOutlineColor={Colors.primary}
-                    style={styles.input}
-                  />
+                  <View style={styles.guestInputWrapper}>
+                    <Text style={styles.guestLabel}>Adults (18+)</Text>
+                    <View style={styles.counterRow}>
+                      <IconButton icon="minus-circle-outline" size={24} iconColor={Colors.primary} disabled={value <= 1} onPress={() => onChange(Math.max(1, value - 1))} />
+                      <Text style={styles.counterText}>{value}</Text>
+                      <IconButton icon="plus-circle-outline" size={24} iconColor={Colors.primary} onPress={() => onChange(value + 1)} />
+                    </View>
+                  </View>
                 )}
               />
-              {errors.paxAdults && <Text style={styles.error}>{errors.paxAdults.message}</Text>}
             </View>
-            <View style={styles.col}>
+            <View style={styles.guestCol}>
+               <Controller
+                control={control}
+                name="paxTeens"
+                render={({ field: { onChange, value } }) => (
+                  <View style={styles.guestInputWrapper}>
+                    <Text style={styles.guestLabel}>Teens (12-17)</Text>
+                    <View style={styles.counterRow}>
+                      <IconButton icon="minus-circle-outline" size={24} iconColor={Colors.primary} disabled={value <= 0} onPress={() => onChange(Math.max(0, value - 1))} />
+                      <Text style={styles.counterText}>{value}</Text>
+                      <IconButton icon="plus-circle-outline" size={24} iconColor={Colors.primary} onPress={() => onChange(value + 1)} />
+                    </View>
+                  </View>
+                )}
+              />
+            </View>
+          </View>
+
+          <View style={styles.guestGrid}>
+            <View style={styles.guestCol}>
               <Controller
                 control={control}
                 name="paxChildren"
                 render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    label="Children"
-                    value={value.toString()}
-                    onChangeText={(val) => onChange(parseInt(val) || 0)}
-                    mode="outlined"
-                    keyboardType="numeric"
-                    activeOutlineColor={Colors.primary}
-                    style={styles.input}
-                  />
+                  <View style={styles.guestInputWrapper}>
+                    <Text style={styles.guestLabel}>Child (3-11)</Text>
+                    <View style={styles.counterRow}>
+                      <IconButton icon="minus-circle-outline" size={24} iconColor={Colors.primary} disabled={value <= 0} onPress={() => onChange(Math.max(0, value - 1))} />
+                      <Text style={styles.counterText}>{value}</Text>
+                      <IconButton icon="plus-circle-outline" size={24} iconColor={Colors.primary} onPress={() => onChange(value + 1)} />
+                    </View>
+                  </View>
+                )}
+              />
+            </View>
+            <View style={styles.guestCol}>
+               <Controller
+                control={control}
+                name="paxInfants"
+                render={({ field: { onChange, value } }) => (
+                  <View style={styles.guestInputWrapper}>
+                    <Text style={styles.guestLabel}>Infants (0-2)</Text>
+                    <View style={styles.counterRow}>
+                      <IconButton icon="minus-circle-outline" size={24} iconColor={Colors.primary} disabled={value <= 0} onPress={() => onChange(Math.max(0, value - 1))} />
+                      <Text style={styles.counterText}>{value}</Text>
+                      <IconButton icon="plus-circle-outline" size={24} iconColor={Colors.primary} onPress={() => onChange(value + 1)} />
+                    </View>
+                  </View>
                 )}
               />
             </View>
@@ -342,8 +401,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
 
         <View style={styles.footer}>
           <View style={styles.totalSection}>
-            <Text style={styles.totalLabel}>Total Price From</Text>
-            <Text style={styles.totalValue}>Rs {service.price.toLocaleString()}</Text>
+            <Text style={styles.totalLabel}>ESTIMATED TOTAL</Text>
+            <Text style={styles.totalValue}>Rs {calculateTotal().toLocaleString()}</Text>
           </View>
           <Button
             mode="contained"
@@ -352,8 +411,9 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
             disabled={isSubmitting}
             style={styles.submitButton}
             contentStyle={styles.submitButtonContent}
+            labelStyle={styles.submitButtonLabel}
           >
-            Confirm Booking
+            REQUEST A QUOTE
           </Button>
         </View>
       </Modal>
@@ -393,6 +453,39 @@ const styles = StyleSheet.create({
   },
   col: {
     flex: 1,
+  },
+  guestGrid: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 8,
+  },
+  guestCol: {
+    flex: 1,
+  },
+  guestInputWrapper: {
+    backgroundColor: Colors.slate[50],
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  guestLabel: {
+    fontSize: 10,
+    fontFamily: 'Outfit_900Black',
+    color: Colors.slate[400],
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  counterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  counterText: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 16,
+    color: Colors.charcoal,
   },
   fieldLabel: {
     fontSize: 12,
@@ -541,7 +634,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   submitButtonContent: {
-    height: 50,
+    height: 60,
+  },
+  submitButtonLabel: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 12,
+    letterSpacing: 2,
   },
   successContainer: {
     backgroundColor: Colors.white,

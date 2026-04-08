@@ -8,7 +8,7 @@ import { CategoryCard } from '../../src/components/CategoryCard';
 import { ServiceCard } from '../../src/components/ServiceCard';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { Search, Filter, Plane, Sparkles, Percent, MessageCircle, Mail } from 'lucide-react-native';
+import { Search, Filter, Plane, Sparkles, Percent, MessageCircle, Mail, MapPin, Calendar as CalendarIcon, Users } from 'lucide-react-native';
 import { PremiumCarousel } from '../../src/components/PremiumCarousel';
 import { PartnerSlider } from '../../src/components/PartnerSlider';
 import Footer from '../../src/components/Footer';
@@ -93,11 +93,31 @@ export default function HomeScreen() {
 
         {/* Core Logic 1: Find Value (Prices/Benefits) */}
         <View style={styles.valuationSection}>
-           <TouchableOpacity style={styles.searchBar} onPress={() => router.push('/explore')}>
-             <Search size={20} color={Colors.slate[400]} />
-             <Text style={styles.searchPlaceholder}>Search Prices & Benefits...</Text>
-             <Filter size={18} color={Colors.primary} />
-           </TouchableOpacity>
+           <View style={styles.searchBarWrapper}>
+             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
+               <MapPin size={18} color={Colors.primary} />
+               <View>
+                 <Text style={styles.searchLabel}>Where to?</Text>
+                 <Text style={styles.searchValue}>Anywhere</Text>
+               </View>
+             </TouchableOpacity>
+             <View style={styles.searchDivider} />
+             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
+               <CalendarIcon size={18} color={Colors.primary} />
+               <View>
+                 <Text style={styles.searchLabel}>When?</Text>
+                 <Text style={styles.searchValue}>Select Date</Text>
+               </View>
+             </TouchableOpacity>
+             <View style={styles.searchDivider} />
+             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
+               <Users size={18} color={Colors.primary} />
+               <View>
+                 <Text style={styles.searchLabel}>Guests</Text>
+                 <Text style={styles.searchValue}>Add</Text>
+               </View>
+             </TouchableOpacity>
+           </View>
 
            <View style={styles.servicesHeader}>
               <Text style={styles.labelTitle}>OUR SERVICES</Text>
@@ -210,16 +230,16 @@ export default function HomeScreen() {
                     </Text>
                 </View>
                 <View style={styles.ctaActions}>
-                    <TouchableOpacity style={styles.primaryCta} onPress={() => handleInquiry('whatsapp')}>
-                        <MessageCircle size={20} color={Colors.white} />
+                    <TouchableOpacity style={styles.primaryCta} onPress={() => router.push('/tailormade')}>
+                        <Sparkles size={20} color={Colors.white} />
                         <Text style={styles.primaryCtaText}>
-                            {contentBlocks.support?.whatsapp || 'WHATSAPP'}
+                            {contentBlocks.support?.cta || 'START PLANNING'}
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.secondaryCta} onPress={() => handleInquiry('email')}>
-                         <Mail size={18} color={Colors.charcoal} />
+                    <TouchableOpacity style={styles.secondaryCta} onPress={() => handleInquiry('whatsapp')}>
+                         <MessageCircle size={18} color={Colors.charcoal} />
                          <Text style={styles.secondaryCtaText}>
-                            {contentBlocks.support?.email || 'EMAIL US'}
+                            {contentBlocks.support?.whatsapp || 'WHATSAPP'}
                          </Text>
                     </TouchableOpacity>
                 </View>
@@ -259,9 +279,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: Colors.border,
   },
   valuationSection: { padding: 24, backgroundColor: Colors.white },
-  searchBar: {
-    flexDirection: 'row', alignItems: 'center', height: 60, backgroundColor: Colors.surface,
-    borderRadius: 20, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: 20, gap: 16,
+  searchBarWrapper: {
+    flexDirection: 'row',
+    height: 74,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 5,
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  searchSegment: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 8,
+  },
+  searchLabel: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 8,
+    color: Colors.slate[400],
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  searchValue: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 11,
+    color: Colors.charcoal,
+  },
+  searchDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: Colors.border,
   },
   searchPlaceholder: { flex: 1, fontFamily: 'Outfit_600SemiBold', fontSize: 14, color: Colors.slate[400] },
   categoriesWrapper: { marginTop: 24, marginBottom: 24 },

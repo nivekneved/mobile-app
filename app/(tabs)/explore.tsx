@@ -1,23 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { Text, ActivityIndicator, Surface, Chip } from 'react-native-paper';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, StyleSheet, FlatList, TextInput, TouchableOpacity, ScrollView, Image, Dimensions } from 'react-native';
+import { Text, ActivityIndicator, Surface, Chip, Button } from 'react-native-paper';
 import { useSearchServices } from '../../src/hooks/useSearchServices';
 import { Colors } from '../../src/theme/colors';
-import { Search, MapPin, Star, Filter, X } from 'lucide-react-native';
+import { Search, MapPin, Star, Sliders, X } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useHomeData } from '../../src/hooks/useHomeData';
 import { StatusBar } from 'expo-status-bar';
 import { resolveImageUrl } from '../../src/utils/imageUtils';
+import { FilterModal } from '../../src/components/FilterModal';
+
+const { width } = Dimensions.get('window');
 
 export default function ExploreScreen() {
   const params = useLocalSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
-  const { categories, isLoading: categoriesLoading } = useHomeData();
-  const { services, isLoading, error, searchServices } = useSearchServices();
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [filters, setFilters] = useState({
+    adults: 2,
+    teenagers: 0,
+    children: 0,
+    infants: 0,
+    date: null,
+    priceRange: [0, 200000],
+  });
+
+  const { categories } = useHomeData();
+  const { services, isLoading, searchServices } = useSearchServices();
   const router = useRouter();
 
-  // Sync state with URL parameters from Home screen or direct navigation
   useEffect(() => {
     if (params.category) {
       setSelectedCategory(params.category as string);
@@ -26,12 +38,33 @@ export default function ExploreScreen() {
     }
   }, [params.category, params.query]);
 
-  // Perform search when filters or query changes
-  // NOTE: searchServices is intentionally omitted from deps - it's a stable useCallback ref
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     searchServices(searchQuery, selectedCategory);
   }, [searchQuery, selectedCategory]);
+
+  const processedServices = useMemo(() => {
+    let result = [...services];
+
+    const totalGuests = filters.adults + filters.teenagers + filters.children + filters.infants;
+    if (totalGuests > 0) {
+      result = result.filter(s => {
+         if (s.max_group_size && totalGuests > s.max_group_size) return false;
+         if (s.max_adults && filters.adults > s.max_adults) return false;
+         return true;
+      });
+    }
+
+    if (filters.priceRange[1] < 200000) {
+      result = result.filter(s => (s.price ?? 0) <= filters.priceRange[1]);
+    }
+
+    return result;
+  }, [services, filters]);
+
+  const handleApplyFilters = (newFilters: any) => {
+    setFilters(newFilters);
+    setIsFilterVisible(false);
+  };
 
   const renderServiceItem = ({ item }: { item: any }) => (
     <TouchableOpacity 
@@ -81,11 +114,9 @@ export default function ExploreScreen() {
             onChangeText={setSearchQuery}
             placeholderTextColor={Colors.textSecondary}
           />
-          {searchQuery !== '' && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <X size={18} color={Colors.textSecondary} />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity style={styles.filterBtn} onPress={() => setIsFilterVisible(true)}>
+            <Sliders size={20} color={Colors.primary} />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -119,22 +150,27 @@ export default function ExploreScreen() {
         </View>
       ) : (
         <FlatList
-          data={services}
+          data={processedServices}
           renderItem={renderServiceItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          windowSize={5}
-          maxToRenderPerBatch={5}
-          initialNumToRender={8}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text variant="titleMedium" style={styles.emptyText}>No services found</Text>
               <Text style={styles.emptySubtext}>Try adjusting your search or filters</Text>
+              <Button mode="text" onPress={() => setFilters({ adults: 2, teenagers: 0, children: 0, infants: 0, date: null, priceRange: [0, 200000] })}>Reset Filters</Button>
             </View>
           }
         />
       )}
+
+      <FilterModal 
+        visible={isFilterVisible} 
+        onClose={() => setIsFilterVisible(false)} 
+        filters={filters} 
+        onApply={handleApplyFilters} 
+      />
     </View>
   );
 }
@@ -174,6 +210,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     color: Colors.charcoal,
+  },
+  filterBtn: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: Colors.white,
+    marginLeft: 8,
   },
   filterSection: {
     paddingVertical: 16,
