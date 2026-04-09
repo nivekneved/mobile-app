@@ -31,23 +31,27 @@ export const useServiceAddons = (serviceId: string | undefined) => {
       try {
         setIsLoading(true);
 
-        // Fetch Reviews
-        const { data: reviewData, error: reviewError } = await supabase
-          .from('reviews')
-          .select('id, customer_name, rating, comment, created_at, status')
-          .eq('service_id', serviceId)
-          .eq('status', 'approved')
-          .order('created_at', { ascending: false })
-          .limit(5);
+        // FIX-5: Run reviews + FAQs in parallel AND scope FAQs to this service
+        // (was sequential + FAQs were fetching the entire table)
+        const [
+          { data: reviewData, error: reviewError },
+          { data: faqData, error: faqError }
+        ] = await Promise.all([
+          supabase
+            .from('reviews')
+            .select('id, customer_name, rating, comment, created_at, status')
+            .eq('service_id', serviceId)
+            .eq('status', 'approved')
+            .order('created_at', { ascending: false })
+            .limit(5),
+          supabase
+            .from('faqs')
+            .select('id, question, answer, category, display_order')
+            .eq('service_id', serviceId)
+            .order('display_order', { ascending: true }),
+        ]);
 
         if (reviewError) throw reviewError;
-
-        // Fetch FAQs
-        const { data: faqData, error: faqError } = await supabase
-          .from('faqs')
-          .select('id, question, answer, category, display_order')
-          .order('display_order', { ascending: true });
-
         if (faqError) throw faqError;
 
         setReviews(reviewData || []);

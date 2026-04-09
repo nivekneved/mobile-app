@@ -27,7 +27,9 @@ export default function ServiceDetailScreen() {
   const router = useRouter();
   const { mobileConfig, generalConfig } = useSettings();
   const { service, isLoading, error } = useServiceDetails(id);
-  const { roomTypes: hookRoomTypes } = useRoomTypes(id as string);
+  // FIX-4: Skip room_types table fetch when service already has JSONB room_types populated
+  const hasJsonRooms = Array.isArray(service?.room_types) && service.room_types.length > 0;
+  const { roomTypes: hookRoomTypes } = useRoomTypes(id as string, hasJsonRooms);
   const { reviews, faqs } = useServiceAddons(id as string);
   const { toggleWishlist, isInWishlist } = useWishlist();
 

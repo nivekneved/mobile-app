@@ -40,12 +40,17 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const fetchSettings = async () => {
     setIsLoading(true);
     try {
-      // Fetch Site Settings
-      const { data: settings, error: settingsError } = await supabase
-        .from('site_settings')
-        .select('key, value');
+      // FIX-1: Run both queries in parallel (was sequential — 2 round-trips → 1)
+      const [
+        { data: settings, error: settingsError },
+        { data: blocks, error: blocksError }
+      ] = await Promise.all([
+        supabase.from('site_settings').select('key, value'),
+        supabase.from('content_blocks').select('section_key, content').eq('page_slug', 'mobile-home')
+      ]);
 
       if (settingsError) throw settingsError;
+      if (blocksError) throw blocksError;
 
       if (settings) {
         settings.forEach((item: any) => {
@@ -57,17 +62,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         });
       }
 
-      // Fetch Content Blocks for Mobile
-      const { data: blocks, error: blocksError } = await supabase
-        .from('content_blocks')
-        .select('section_key, content')
-        .eq('page_slug', 'mobile-home');
-
-      if (blocksError) throw blocksError;
-
       if (blocks) {
         const blockMap: Record<string, any> = {};
-        blocks.forEach(b => {
+        blocks.forEach((b: any) => {
           blockMap[b.section_key] = b.content;
         });
         setContentBlocks(blockMap);

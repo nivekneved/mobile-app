@@ -10,13 +10,14 @@ export interface RoomType {
   amenities?: string[];
 }
 
-export const useRoomTypes = (serviceId: string | undefined) => {
+export const useRoomTypes = (serviceId: string | undefined, skip = false) => {
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!serviceId) return;
+    // FIX-4: Skip DB call if caller signals rooms are already available (JSONB column)
+    if (!serviceId || skip) return;
 
     const fetchRoomTypes = async () => {
       try {
@@ -37,7 +38,8 @@ export const useRoomTypes = (serviceId: string | undefined) => {
     };
 
     fetchRoomTypes();
-  }, [serviceId]);
+  }, [serviceId, skip]);
 
   return { roomTypes, loading, error };
 };
+
