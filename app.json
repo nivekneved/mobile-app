@@ -13,7 +13,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.travellounge.mobile"
+      "bundleIdentifier": "com.travellounge.mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "versionCode": 3,
@@ -43,9 +46,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "e6043329-3edf-47c6-b21e-055c2a4ba4c6"
+        "projectId": "66687993-0165-43df-8d28-8d43701b3d56"
       }
     },
-    "owner": "devenweb"
+    "owner": "travellounge"
   }
 }
