@@ -2,14 +2,14 @@ import React, { createContext, useContext } from 'react';
 
 // Authentication has been removed as per guest-only requirement
 type AuthContextType = {
-  session: null;
+  session: { user: { id: string, email?: string } } | null;
   loading: boolean;
   login: () => Promise<any>;
   register: () => Promise<any>;
   logout: () => Promise<void>;
   signOut: () => Promise<void>;
-  userId: undefined;
-  userEmail: undefined;
+  userId: string | undefined;
+  userEmail: string | undefined;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

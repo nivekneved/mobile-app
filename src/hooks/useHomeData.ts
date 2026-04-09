@@ -33,6 +33,8 @@ export type Service = {
   itinerary?: { time: string; title: string; description: string }[];
   gallery_images?: string[];
   room_types?: any[]; // JSON column
+  max_group_size?: number;
+  max_adults?: number;
 };
 
 export const useHomeData = () => {

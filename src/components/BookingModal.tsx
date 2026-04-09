@@ -15,9 +15,9 @@ const bookingSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().min(8, 'Valid phone number is required'),
   paxAdults: z.number().min(1, 'At least 1 adult is required'),
-  paxInfants: z.number().min(0).default(0),
-  paxChildren: z.number().min(0).default(0),
-  paxTeens: z.number().min(0).default(0),
+  paxTeens: z.number().min(0),
+  paxChildren: z.number().min(0),
+  paxInfants: z.number().min(0),
   roomType: z.string().optional(),
   specialRequirements: z.string().optional(),
 });

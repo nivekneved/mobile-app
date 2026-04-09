@@ -140,7 +140,7 @@ Marketing Opt-in: ${formData.marketingOptIn ? 'Yes' : 'No'}
       <Stack.Screen options={{ 
         headerShown: true,
         headerTitle: "Tailor-Made Package",
-        headerTitleStyle: { fontFamily: 'Outfit_900Black', fontSize: 16, textTransform: 'uppercase' },
+        headerTitleStyle: { fontFamily: 'Outfit_900Black', fontSize: 16 },
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 8 }}>
             <ArrowLeft size={24} color={Colors.charcoal} />
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 12, marginBottom: 16 },
   col: { flex: 1 },
   fieldGroup: { marginBottom: 16 },
-  inputLabel: { fontSize: 10, fontFamily: 'Outfit_900Black', color: Colors.slate[400], uppercase: true, letterSpacing: 1.5, marginBottom: 8, paddingLeft: 4 },
+  inputLabel: { fontSize: 10, fontFamily: 'Outfit_900Black', color: Colors.slate[400], textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, paddingLeft: 4 },
   nativeInput: { 
     backgroundColor: '#F1F5F9', 
     borderRadius: 16, 
