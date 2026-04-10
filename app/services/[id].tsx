@@ -255,7 +255,7 @@ export default function ServiceDetailScreen() {
       <Surface style={styles.footerBar} elevation={5}>
          <View style={styles.footerInfo}>
              <Text style={styles.footerPriceLabel}>TOTAL FROM</Text>
-             <Text style={styles.footerPriceVal}>Rs {service.price.toLocaleString()}</Text>
+             <Text style={styles.footerPriceVal}>Rs {(service.price ?? 0).toLocaleString()}</Text>
          </View>
          <TouchableOpacity style={styles.footerCta} onPress={() => setBookingVisible(true)}>
              <Text style={styles.footerCtaText}>CONTINUE BOOKING</Text>
@@ -268,9 +268,9 @@ export default function ServiceDetailScreen() {
         service={{ 
           id: service.id, 
           name: service.name, 
-          price: service.price, 
+          price: service.price ?? 0, 
           childPrice: (service as any).child_price,
-          category: service.category,
+          category: service.category ?? 'General',
           meal_plans: (service as any).meal_plans
         }}
         onSubmit={async (data) => {

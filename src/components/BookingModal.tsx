@@ -8,6 +8,7 @@ import { Colors } from '../theme/colors';
 import { Calendar, Users, X, CheckCircle, Moon, Clock } from 'lucide-react-native';
 import { supabase } from '../lib/supabase';
 import { useRoomTypes } from '../hooks/useRoomTypes';
+import { ServiceRegistry } from '@travel-lounge/core';
 
 const bookingSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -92,17 +93,24 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
     const children = watchAllFields.paxChildren || 0;
     const infants = watchAllFields.paxInfants || 0;
     
-    // Detailed calculation assuming childPrice applies to kids/teens, infants usually free or low cost
+    /* 
+    // OLD LOGIC PRE-CORE-INTEGRATION
     const basePrice = service.price || 0;
     const childPrice = service.childPrice || basePrice;
-    
     let total = (adults * basePrice) + (teens * childPrice) + (children * childPrice);
-    
-    // Add meal plan costs if applicable
-    const totalPax = adults + teens + children + infants;
-    // For now mobile app doesn't have meal selection in UI, but we'll leave logic for parity if added
-    
     return total;
+    */
+    
+    return ServiceRegistry.get(service.category || 'default').calculateBookingTotal({
+      service: service as any,
+      adults,
+      teens,
+      children,
+      infants,
+      servicePrice: service.price || 0,
+      childPrice: service.childPrice || service.price || 0,
+      selectedMealPrice: 0 // Mobile doesn't have meal selection yet
+    });
   };
 
   const handleFormSubmit = async (data: BookingFormData) => {

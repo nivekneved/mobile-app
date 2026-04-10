@@ -4,7 +4,8 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@travel-lounge/core": ["../web-app/packages/core/dist"]
     }
   },
   "include": [

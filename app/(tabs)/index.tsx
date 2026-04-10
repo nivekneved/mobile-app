@@ -207,8 +207,8 @@ export default function HomeScreen() {
             {featuredServices?.map((service) => service && (
                 <ServiceCard 
                   key={service.id} name={service.name} 
-                  image_url={service.image_url} price={service.price}
-                  category={service.category} location={service.location}
+                  image_url={service.image_url} price={service.price ?? 0}
+                  category={service.category ?? 'Experience'} location={service.location}
                   onPress={() => router.push(`/services/${service.id}`)}
                 />
               )) || <ActivityIndicator style={{marginLeft: 24}} />}

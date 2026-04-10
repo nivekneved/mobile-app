@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { ServiceRegistry } from '@travel-lounge/core';
 
 interface MobileConfig {
   supportPhone?: string;
@@ -58,6 +59,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             setMobileConfig(item.value);
           } else if (item.key === 'general_config') {
             setGeneralConfig(item.value);
+          } else if (item.key === 'services_config') {
+            ServiceRegistry.setConfiguration(item.value as any);
           }
         });
       }

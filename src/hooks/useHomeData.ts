@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { Service } from '@travel-lounge/core';
+export type { Service };
 
 export type HeroSlide = {
   id: string;
@@ -17,24 +19,6 @@ export type Category = {
   slug: string;
   image_url: string;
   link: string;
-};
-
-export type Service = {
-  id: string;
-  name: string;
-  description: string;
-  base_price: number; // Actual column name
-  price: number;      // mapped for UI
-  image_url: string;
-  service_type: string; // Actual column name
-  category: string;     // mapped for UI
-  location?: string;
-  amenities?: string[];
-  itinerary?: { time: string; title: string; description: string }[];
-  gallery_images?: string[];
-  room_types?: any[]; // JSON column
-  max_group_size?: number;
-  max_adults?: number;
 };
 
 export const useHomeData = () => {
