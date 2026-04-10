@@ -1,5 +1,10 @@
 # 05 History & Agent Progress
 
+## 2026-04-10 - Architecture Transition: Monorepo Dissolution
+- **Architectural Reversion**: Restored the mobile application as a standalone Expo project, removing all monorepo workspace configurations.
+- **Dependency Normalization**: Localized all shared logic and ensured the project builds independently using local `node_modules`.
+- **Git Synchronization**: Pushed the standalone project to the independent mobile repository.
+
 ## 2026-04-02 - Ecosystem-Wide Auth Removal & Pure Guest Experience
 - **Total Auth Stripping**: Rewrote `AuthContext.tsx` to provide no session and no user identity, effectively disabling all authentication logic. (M-01)
 - **Account Context Purge**: Permanently removed "Personal Information", "Preferences", and "Sign Out" sections from `profile.tsx`. (M-02)
