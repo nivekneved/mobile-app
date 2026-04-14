@@ -28,34 +28,41 @@ export default function ServiceDetailScreen() {
   const { mobileConfig, generalConfig } = useSettings();
   const { service, isLoading, error } = useServiceDetails(id);
   // FIX-4: Skip room_types table fetch when service already has JSONB room_types populated
-  const hasJsonRooms = Array.isArray(service?.room_types) && service.room_types.length > 0;
-  const { roomTypes: hookRoomTypes } = useRoomTypes(id as string, hasJsonRooms);
-  const { reviews, faqs } = useServiceAddons(id as string);
-  const { toggleWishlist, isInWishlist } = useWishlist();
+  const { roomTypes: hookRoomTypes } = useRoomTypes(id as string, false); // Always fetch from table for parity with web
 
   const roomTypes = React.useMemo(() => {
-    // 1. Check for JSONB room_types in the service object first (from services table)
-    if (service?.room_types && Array.isArray(service.room_types) && service.room_types.length > 0) {
-      return service.room_types.map((room: any, index: number) => {
-        // Handle both string and number for prices
-        const weekday = typeof room.prices?.mon === 'string' ? parseFloat(room.prices.mon) : (room.prices?.mon || 0);
-        const weekend = typeof room.prices?.sat === 'string' ? parseFloat(room.prices.sat) : (room.prices?.sat || 0);
-        
-        return {
-          id: `json-${index}`,
-          name: room.type || room.name || 'Standard Room',
-          weekday_price: weekday,
-          weekend_price: weekend,
-          min_stay: parseInt(room.min_stay) || 1,
-          image_url: room.image_url || room.image,
-          amenities: Array.isArray(room.features) ? room.features : 
-                     (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
-        };
-      });
-    }
-    // 2. Fallback to separate room_types table if the JSON column is empty
-    return hookRoomTypes || [];
-  }, [service?.room_types, hookRoomTypes]);
+    // 1. Process JSONB room_types from the service object
+    const jsonRooms = (service as any)?.room_types && Array.isArray((service as any).room_types)
+      ? (service as any).room_types.map((room: any, index: number) => {
+          // Normalize price mapping (JSON schema can vary)
+          const weekday = typeof room.prices?.mon === 'string' ? parseFloat(room.prices.mon) : (room.prices?.mon || room.price_per_night || 0);
+          const weekend = typeof room.prices?.sat === 'string' ? parseFloat(room.prices.sat) : (room.prices?.sat || room.price_per_night || 0);
+          
+          return {
+            id: `json-${index}-${room.type || 'room'}`,
+            name: room.type || room.name || 'Standard Room',
+            weekday_price: weekday,
+            weekend_price: weekend,
+            min_stay: parseInt(room.min_stay) || 1,
+            image_url: room.image_url,
+            amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
+          };
+        })
+      : [];
+
+    // 2. Combine with hookRoomTypes (from the dedicated table)
+    // Preference: If a room with same name exists in Table, it likely has better pricing data
+    const combined = [...hookRoomTypes];
+    
+    jsonRooms.forEach(jr => {
+      const exists = combined.some(cr => cr.name.toLowerCase() === jr.name.toLowerCase());
+      if (!exists) {
+        combined.push(jr);
+      }
+    });
+
+    return combined;
+  }, [(service as any)?.room_types, hookRoomTypes]);
 
   const [bookingVisible, setBookingVisible] = React.useState(false);
 
@@ -170,9 +177,9 @@ export default function ServiceDetailScreen() {
             <Text style={styles.description}>{service.description || "Discover the beauty and luxury of this carefully curated experience by Travel Lounge."}</Text>
           </View>
 
-          {/* Accommodation for Hotels */}
-          {service.category?.toLowerCase() === 'hotel' && roomTypes.length > 0 && (
-            <View style={styles.section}>
+          {/* FIX-1: Inclusive category check for hotels (plural/singular) */}
+          {(service.category?.toLowerCase() === 'hotel' || service.category?.toLowerCase() === 'hotels') && roomTypes.length > 0 && (
+            <View style={styles.section} id="room-selection-section">
               <Text style={styles.sectionTitle}>Elite Accommodation</Text>
               {roomTypes.map((room) => (
                 <Surface key={room.id} style={styles.roomCard} elevation={0}>

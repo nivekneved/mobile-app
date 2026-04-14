@@ -52,20 +52,36 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
   const [isSuccess, setIsSuccess] = useState(false);
   const { roomTypes: hookRoomTypes, loading: fetchingRooms } = useRoomTypes(service.id);
 
-  // Prioritize JSON room types if passed via service prop
   const roomTypes = React.useMemo(() => {
-    if ((service as any).room_types && Array.isArray((service as any).room_types) && (service as any).room_types.length > 0) {
-      return (service as any).room_types.map((room: any, index: number) => ({
-        id: `json-${index}`,
-        name: room.type || 'Standard Room',
-        weekday_price: parseInt(room.prices?.mon) || 0,
-        weekend_price: parseInt(room.prices?.sat) || 0,
-        min_stay: parseInt(room.min_stay) || 1,
-        image_url: room.image_url,
-        amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
-      }));
-    }
-    return hookRoomTypes;
+    // 1. Process JSONB room_types from the service object
+    const jsonRooms = (service as any).room_types && Array.isArray((service as any).room_types)
+      ? (service as any).room_types.map((room: any, index: number) => {
+          const weekday = typeof room.prices?.mon === 'string' ? parseFloat(room.prices.mon) : (room.prices?.mon || room.price_per_night || 0);
+          const weekend = typeof room.prices?.sat === 'string' ? parseFloat(room.prices.sat) : (room.prices?.sat || room.price_per_night || 0);
+          
+          return {
+            id: `json-${index}-${room.type || 'room'}`,
+            name: room.type || room.name || 'Standard Room',
+            weekday_price: weekday,
+            weekend_price: weekend,
+            min_stay: parseInt(room.min_stay) || 1,
+            image_url: room.image_url,
+            amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
+          };
+        })
+      : [];
+
+    // 2. Combine with hookRoomTypes (from the dedicated table)
+    const combined = [...hookRoomTypes];
+    
+    jsonRooms.forEach(jr => {
+      const exists = combined.some(cr => cr.name.toLowerCase() === jr.name.toLowerCase());
+      if (!exists) {
+        combined.push(jr);
+      }
+    });
+
+    return combined;
   }, [(service as any).room_types, hookRoomTypes]);
 
   const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<BookingFormData>({
@@ -316,7 +332,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
             </View>
           </View>
 
-          {service.category?.toLowerCase() === 'hotel' && (
+          {/* FIX-1: Inclusive category check */}
+          {(service.category?.toLowerCase() === 'hotel' || service.category?.toLowerCase() === 'hotels') && (
             <View style={styles.roomTypeSection}>
               <Text style={styles.fieldLabel}>Select Room Type</Text>
               {fetchingRooms ? (
