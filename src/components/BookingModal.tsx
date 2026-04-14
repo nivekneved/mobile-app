@@ -144,6 +144,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
         total += meal.price * totalPax * Math.max(1, pricing.nights);
       }
     }
+    return total;
+  };
 
   const handleFormSubmit = async (data: BookingFormData) => {
     setIsSubmitting(true);
