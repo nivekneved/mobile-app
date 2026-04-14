@@ -101,6 +101,8 @@ export default function ServiceDetailScreen() {
   }, [id]);
 
   const { isInWishlist, toggleWishlist } = useWishlist();
+
+  const handleInquiry = (method: 'whatsapp' | 'email') => {
     const contact = {
       phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5940 7701',
       email: generalConfig?.contactEmail || 'office@travel-lounge.com'
