@@ -64,6 +64,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Plane size={24} color={color} />,
         }}
       />
+      {/* 
       <Tabs.Screen
         name="bookings"
         options={{
@@ -78,6 +79,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <User size={24} color={color} />,
         }}
       />
+      */}
       <Tabs.Screen
         name="news"
         options={{
