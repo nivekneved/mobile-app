@@ -64,22 +64,18 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Plane size={24} color={color} />,
         }}
       />
-      {/* 
       <Tabs.Screen
         name="bookings"
         options={{
-          title: 'Bookings',
-          tabBarIcon: ({ color }) => <Calendar size={24} color={color} />,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <User size={24} color={color} />,
+          href: null,
         }}
       />
-      */}
       <Tabs.Screen
         name="news"
         options={{
