@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
 import { useServiceDetails } from '../../src/hooks/useServiceDetails';
 import { useRoomTypes } from '../../src/hooks/useRoomTypes';
-import { MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, Calendar as CalendarIcon, Tag, Moon, MessageCircle, Phone, Sparkles } from 'lucide-react-native';
+import { MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, Calendar as CalendarIcon, Tag, Moon, MessageCircle, Phone, Sparkles, CheckCircle } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
 import { BookingModal } from '../../src/components/BookingModal';
@@ -18,6 +18,7 @@ import { StarRating } from '../../src/components/StarRating';
 import { User } from 'lucide-react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useWishlist } from '../../src/context/WishlistContext';
+import { useServicePricing } from '../../src/hooks/useServicePricing';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 450;
@@ -65,8 +66,41 @@ export default function ServiceDetailScreen() {
   }, [(service as any)?.room_types, hookRoomTypes]);
 
   const [bookingVisible, setBookingVisible] = React.useState(false);
+  const [reviews, setReviews] = React.useState<any[]>([]);
+  const [faqs, setFaqs] = React.useState<any[]>([]);
+  const [pax, setPax] = React.useState({ adults: 2, teens: 0, children: 0, infants: 0 });
+  const [dates, setDates] = React.useState({
+    checkIn: new Date().toISOString().split('T')[0],
+    checkOut: new Date(Date.now() + 86400000).toISOString().split('T')[0]
+  });
+  const [selectedRoom, setSelectedRoom] = React.useState<string | null>(null);
 
-  const handleInquiry = (method: 'whatsapp' | 'email') => {
+  const { pricing } = useServicePricing({
+    serviceId: service?.id || '',
+    variantId: selectedRoom || 'default',
+    startDate: dates.checkIn,
+    endDate: dates.checkOut,
+    participants: pax,
+    baseRates: {
+      adult: service?.price || 0,
+      teen: (service as any)?.teen_price || (service as any)?.child_price || service?.price || 0,
+      child: (service as any)?.childPrice || 0,
+      infant: (service as any)?.infant_price || 0
+    }
+  });
+
+  React.useEffect(() => {
+    if (id) {
+      // Fetch Reviews
+      supabase.from('reviews').select('*').eq('service_id', id).eq('status', 'published')
+        .then(({ data }) => data && setReviews(data));
+      // Fetch FAQs
+      supabase.from('faqs').select('*').eq('service_id', id)
+        .then(({ data }) => data && setFaqs(data));
+    }
+  }, [id]);
+
+  const { isInWishlist, toggleWishlist } = useWishlist();
     const contact = {
       phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5940 7701',
       email: generalConfig?.contactEmail || 'office@travel-lounge.com'
@@ -164,7 +198,11 @@ export default function ServiceDetailScreen() {
           <View style={styles.valuationHeader}>
             <View>
               <Text style={styles.valuationLabel}>EXECUTIVE PRICE</Text>
-              <Text style={styles.valuationValue}>Rs {(service.price ?? 0).toLocaleString()}</Text>
+              <Text style={styles.valuationValue}>Rs {(pricing?.total ?? service?.price ?? 0).toLocaleString()}</Text>
+            </View>
+            <View style={styles.nightsBadge}>
+               <Moon size={14} color={Colors.primary} />
+               <Text style={styles.nightsBadgeText}>{pricing?.nights || 1} NIGHTS</Text>
             </View>
             <View style={styles.benefitBadge}>
                <Sparkles size={14} color="#D97706" />
@@ -182,16 +220,34 @@ export default function ServiceDetailScreen() {
             <View style={styles.section} id="room-selection-section">
               <Text style={styles.sectionTitle}>Elite Accommodation</Text>
               {roomTypes.map((room) => (
-                <Surface key={room.id} style={styles.roomCard} elevation={0}>
-                  <Image source={resolveImageUrl(room.image_url)} style={styles.roomImage} />
-                  <View style={styles.roomContent}>
-                    <Text style={styles.roomName}>{room.name}</Text>
-                    <View style={styles.priceGrid}>
-                        <View style={styles.priceCell}><Text style={styles.priceCellTitle}>WEEKDAY</Text><Text style={styles.priceCellVal}>Rs {room.weekday_price.toLocaleString()}</Text></View>
-                        <View style={styles.priceCell}><Text style={[styles.priceCellTitle, {color: Colors.primary}]}>WEEKEND</Text><Text style={[styles.priceCellVal, {color: Colors.primary}]}>Rs {room.weekend_price.toLocaleString()}</Text></View>
+                <TouchableOpacity 
+                  key={room.id} 
+                  onPress={() => setSelectedRoom(room.id)}
+                  activeOpacity={0.9}
+                >
+                  <Surface style={[styles.roomCard, selectedRoom === room.id && styles.roomCardSelected]} elevation={selectedRoom === room.id ? 4 : 0}>
+                    <Image source={resolveImageUrl(room.image_url)} style={styles.roomImage} />
+                    <View style={styles.roomContent}>
+                      <View style={styles.roomHeaderRow}>
+                        <Text style={styles.roomName}>{room.name}</Text>
+                        {selectedRoom === room.id && <CheckCircle size={20} color={Colors.primary} />}
+                      </View>
+                      <View style={styles.priceGrid}>
+                          <View style={styles.priceCell}><Text style={styles.priceCellTitle}>WEEKDAY</Text><Text style={styles.priceCellVal}>Rs {room.weekday_price.toLocaleString()}</Text></View>
+                          <View style={styles.priceCell}><Text style={[styles.priceCellTitle, {color: Colors.primary}]}>WEEKEND</Text><Text style={[styles.priceCellVal, {color: Colors.primary}]}>Rs {room.weekend_price.toLocaleString()}</Text></View>
+                      </View>
+                      <TouchableOpacity 
+                        style={styles.roomBookButton} 
+                        onPress={() => {
+                          setSelectedRoom(room.id);
+                          setBookingVisible(true);
+                        }}
+                      >
+                        <Text style={styles.roomBookButtonText}>BOOK ROOM</Text>
+                      </TouchableOpacity>
                     </View>
-                  </View>
-                </Surface>
+                  </Surface>
+                </TouchableOpacity>
               ))}
             </View>
           )}
@@ -261,8 +317,8 @@ export default function ServiceDetailScreen() {
       {/* Elite Sticky Footer Conversion */}
       <Surface style={styles.footerBar} elevation={5}>
          <View style={styles.footerInfo}>
-             <Text style={styles.footerPriceLabel}>TOTAL FROM</Text>
-             <Text style={styles.footerPriceVal}>Rs {service.price.toLocaleString()}</Text>
+             <Text style={styles.footerPriceLabel}>ESTIMATED TOTAL</Text>
+             <Text style={styles.footerPriceVal}>Rs {(pricing?.total ?? service.price).toLocaleString()}</Text>
          </View>
          <TouchableOpacity style={styles.footerCta} onPress={() => setBookingVisible(true)}>
              <Text style={styles.footerCtaText}>CONTINUE BOOKING</Text>
@@ -279,6 +335,15 @@ export default function ServiceDetailScreen() {
           childPrice: (service as any).child_price,
           category: service.category,
           meal_plans: (service as any).meal_plans
+        }}
+        initialData={{
+          checkIn: dates.checkIn,
+          checkOut: dates.checkOut,
+          paxAdults: pax.adults,
+          paxTeens: pax.teens,
+          paxChildren: pax.children,
+          paxInfants: pax.infants,
+          roomType: roomTypes.find(r => r.id === selectedRoom)?.name || ''
         }}
         onSubmit={async (data) => {
           try {
@@ -299,10 +364,8 @@ export default function ServiceDetailScreen() {
             // 2. Prepare payload for the transactional booking RPC (Web-App Parity)
             const bookingPayload = {
               customer_id: customerId,
-              check_in_date: data.date.toISOString(),
-              check_out_date: (data as any).checkoutDate 
-                ? ((data as any).checkoutDate as Date).toISOString() 
-                : data.date.toISOString(),
+              check_in_date: new Date(data.checkIn).toISOString(),
+              check_out_date: new Date(data.checkOut).toISOString(),
               status: 'pending',
               pax_adults: data.paxAdults,
               pax_infants: data.paxInfants,
@@ -391,11 +454,17 @@ const styles = StyleSheet.create({
   roomCard: { borderRadius: 32, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden', marginBottom: 20 },
   roomImage: { width: '100%', height: 200 },
   roomContent: { padding: 24 },
-  roomName: { fontFamily: 'Outfit_900Black', fontSize: 20, color: Colors.charcoal, marginBottom: 16 },
+  roomName: { fontFamily: 'Outfit_900Black', fontSize: 20, color: Colors.charcoal },
+  roomHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  roomCardSelected: { borderColor: Colors.primary, borderWidth: 2 },
+  nightsBadge: { backgroundColor: Colors.slate[50], paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 6 },
+  nightsBadgeText: { color: Colors.primary, fontFamily: 'Outfit_900Black', fontSize: 10 },
   priceGrid: { flexDirection: 'row', gap: 20, backgroundColor: Colors.slate[50], padding: 16, borderRadius: 20 },
   priceCell: { flex: 1 },
   priceCellTitle: { fontFamily: 'Outfit_900Black', fontSize: 9, letterSpacing: 1, color: Colors.slate[400], marginBottom: 4 },
   priceCellVal: { fontFamily: 'Outfit_900Black', fontSize: 14, color: Colors.charcoal },
+  roomBookButton: { marginTop: 16, backgroundColor: Colors.slate[100], paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
+  roomBookButtonText: { fontFamily: 'Outfit_900Black', fontSize: 10, color: Colors.charcoal, letterSpacing: 1 },
   journeyItem: { flexDirection: 'row', minHeight: 100 },
   journeyLineWrapper: { width: 30, alignItems: 'center' },
   journeyDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.primary, zIndex: 10 },

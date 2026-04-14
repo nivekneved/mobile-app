@@ -5,9 +5,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Colors } from '../theme/colors';
-import { Calendar, Users, X, CheckCircle, Moon, Clock } from 'lucide-react-native';
+import { Calendar, Users, X, CheckCircle, Moon, Clock, Utensils } from 'lucide-react-native';
 import { supabase } from '../lib/supabase';
 import { useRoomTypes } from '../hooks/useRoomTypes';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useServicePricing } from '../hooks/useServicePricing';
 
 const bookingSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -18,7 +20,10 @@ const bookingSchema = z.object({
   paxTeens: z.number().min(0),
   paxChildren: z.number().min(0),
   paxInfants: z.number().min(0),
+  checkIn: z.string().min(1, 'Check-in date is required'),
+  checkOut: z.string().min(1, 'Check-out date is required'),
   roomType: z.string().optional(),
+  mealPreference: z.string().optional(),
   specialRequirements: z.string().optional(),
 });
 
@@ -35,7 +40,8 @@ interface BookingModalProps {
     category?: string;
     meal_plans?: { id: string; label: string; price: number }[];
   };
-  onSubmit: (data: BookingFormData & { date: Date, totalAmount: number }) => Promise<void>;
+  onSubmit: (data: BookingFormData & { totalAmount: number }) => Promise<void>;
+  initialData?: Partial<BookingFormData>;
 }
 
 interface RoomType {
@@ -46,8 +52,9 @@ interface RoomType {
   min_stay?: number;
 }
 
-export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingModalProps) => {
-  const [date, setDate] = useState(new Date());
+export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialData }: BookingModalProps) => {
+  const [showCheckInPicker, setShowCheckInPicker] = useState(false);
+  const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { roomTypes: hookRoomTypes, loading: fetchingRooms } = useRoomTypes(service.id);
@@ -84,47 +91,64 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
     return combined;
   }, [(service as any).room_types, hookRoomTypes]);
 
-  const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<BookingFormData>({
+  const { control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      paxAdults: 2,
-      paxInfants: 0,
-      paxChildren: 0,
-      paxTeens: 0,
-      roomType: '',
+      firstName: initialData?.firstName || '',
+      lastName: initialData?.lastName || '',
+      email: initialData?.email || '',
+      phone: initialData?.phone || '',
+      paxAdults: initialData?.paxAdults || 2,
+      paxInfants: initialData?.paxInfants || 0,
+      paxChildren: initialData?.paxChildren || 0,
+      paxTeens: initialData?.paxTeens || 0,
+      checkIn: initialData?.checkIn || new Date().toISOString().split('T')[0],
+      checkOut: initialData?.checkOut || new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      roomType: initialData?.roomType || '',
+      mealPreference: initialData?.mealPreference || 'none',
       specialRequirements: '',
     },
   });
 
   const watchAllFields = watch();
 
+  const { pricing, loading: calculatingPrice } = useServicePricing({
+    serviceId: service.id,
+    variantId: roomTypes.find(r => r.name === watchAllFields.roomType || r.type === watchAllFields.roomType)?.id || 'default',
+    startDate: watchAllFields.checkIn,
+    endDate: watchAllFields.checkOut,
+    participants: {
+      adults: watchAllFields.paxAdults,
+      teens: watchAllFields.paxTeens,
+      children: watchAllFields.paxChildren,
+      infants: watchAllFields.paxInfants
+    },
+    baseRates: {
+      adult: service.price || 0,
+      teen: (service as any).teen_price || (service as any).child_price || service.price || 0,
+      child: service.childPrice || 0,
+      infant: (service as any).infant_price || 0
+    }
+  });
+
   const calculateTotal = () => {
-    const adults = watchAllFields.paxAdults || 0;
-    const teens = watchAllFields.paxTeens || 0;
-    const children = watchAllFields.paxChildren || 0;
-    const infants = watchAllFields.paxInfants || 0;
+    if (!pricing) return 0;
     
-    // Detailed calculation assuming childPrice applies to kids/teens, infants usually free or low cost
-    const basePrice = service.price || 0;
-    const childPrice = service.childPrice || basePrice;
+    let total = pricing.total;
     
-    let total = (adults * basePrice) + (teens * childPrice) + (children * childPrice);
-    
-    // Add meal plan costs if applicable
-    const totalPax = adults + teens + children + infants;
-    // For now mobile app doesn't have meal selection in UI, but we'll leave logic for parity if added
-    
-    return total;
-  };
+    // Add meal plan costs
+    if (watchAllFields.mealPreference && watchAllFields.mealPreference !== 'none') {
+      const meal = service.meal_plans?.find(m => m.id === watchAllFields.mealPreference);
+      if (meal) {
+        const totalPax = (watchAllFields.paxAdults || 0) + (watchAllFields.paxTeens || 0) + (watchAllFields.paxChildren || 0) + (watchAllFields.paxInfants || 0);
+        total += meal.price * totalPax * Math.max(1, pricing.nights);
+      }
+    }
 
   const handleFormSubmit = async (data: BookingFormData) => {
     setIsSubmitting(true);
     try {
-      await onSubmit({ ...data, date, totalAmount: calculateTotal() });
+      await onSubmit({ ...data, totalAmount: calculateTotal() });
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
@@ -251,16 +275,63 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
             <Text style={styles.sectionTitle}>Booking Details</Text>
           </View>
 
-          <TextInput
-            label="Preferred Date (DD/MM/YYYY)"
-            value={date.toLocaleDateString()}
-            mode="outlined"
-            activeOutlineColor={Colors.primary}
-            style={styles.input}
-            left={<TextInput.Icon icon={() => <Calendar size={20} color={Colors.primary} />} />}
-            editable={false}
-            onPressIn={() => Alert.alert('Pick Date', 'Please type the date for now or use the standard format.')}
-          />
+          <View style={styles.row}>
+            <View style={styles.col}>
+              <Text style={styles.fieldLabel}>Check-in</Text>
+              <TouchableOpacity 
+                style={styles.dateSelector} 
+                onPress={() => setShowCheckInPicker(true)}
+              >
+                <Calendar size={20} color={Colors.primary} />
+                <Text style={styles.dateValue}>{watchAllFields.checkIn}</Text>
+              </TouchableOpacity>
+              {showCheckInPicker && (
+                <DateTimePicker
+                  value={new Date(watchAllFields.checkIn)}
+                  mode="date"
+                  display="default"
+                  minimumDate={new Date()}
+                  onChange={(event, selectedDate) => {
+                    setShowCheckInPicker(false);
+                    if (selectedDate) {
+                      setValue('checkIn', selectedDate.toISOString().split('T')[0]);
+                      // Ensure check-out is after check-in
+                      const checkout = new Date(watchAllFields.checkOut);
+                      if (checkout <= selectedDate) {
+                        const nextDay = new Date(selectedDate);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        setValue('checkOut', nextDay.toISOString().split('T')[0]);
+                      }
+                    }
+                  }}
+                />
+              )}
+            </View>
+            <View style={styles.col}>
+              <Text style={styles.fieldLabel}>Check-out</Text>
+              <TouchableOpacity 
+                style={styles.dateSelector} 
+                onPress={() => setShowCheckOutPicker(true)}
+              >
+                <Calendar size={20} color={Colors.primary} />
+                <Text style={styles.dateValue}>{watchAllFields.checkOut}</Text>
+              </TouchableOpacity>
+              {showCheckOutPicker && (
+                <DateTimePicker
+                  value={new Date(watchAllFields.checkOut)}
+                  mode="date"
+                  display="default"
+                  minimumDate={new Date(new Date(watchAllFields.checkIn).getTime() + 86400000)}
+                  onChange={(event, selectedDate) => {
+                    setShowCheckOutPicker(false);
+                    if (selectedDate) {
+                      setValue('checkOut', selectedDate.toISOString().split('T')[0]);
+                    }
+                  }}
+                />
+              )}
+            </View>
+          </View>
 
           <View style={styles.guestGrid}>
             <View style={styles.guestCol}>
@@ -398,6 +469,55 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
             </View>
           )}
 
+          {service.meal_plans && service.meal_plans.length > 0 && (
+            <View style={styles.roomTypeSection}>
+              <Text style={styles.fieldLabel}>Select Meal Plan</Text>
+              <Controller
+                control={control}
+                name="mealPreference"
+                render={({ field: { onChange, value } }) => (
+                  <View style={styles.roomTypeList}>
+                    <TouchableOpacity
+                      onPress={() => onChange('none')}
+                      style={[
+                        styles.roomTypeCard,
+                        value === 'none' && styles.roomTypeCardSelected
+                      ]}
+                    >
+                      <View style={styles.roomTypeInfo}>
+                        <Text style={[styles.roomTypeName, value === 'none' && styles.roomTypeTextSelected]}>No Preference</Text>
+                        <Text style={[styles.roomTypePrice, value === 'none' && styles.roomTypeTextSelected]}>Included or pay on site</Text>
+                      </View>
+                      {value === 'none' && <CheckCircle size={20} color={Colors.white} />}
+                    </TouchableOpacity>
+
+                    {service.meal_plans?.map((meal) => (
+                      <TouchableOpacity
+                        key={meal.id}
+                        onPress={() => onChange(meal.id)}
+                        style={[
+                          styles.roomTypeCard,
+                          value === meal.id && styles.roomTypeCardSelected
+                        ]}
+                      >
+                        <View style={styles.roomTypeInfo}>
+                          <Text style={[styles.roomTypeName, value === meal.id && styles.roomTypeTextSelected]}>{meal.label}</Text>
+                          <View style={styles.miniPriceBadge}>
+                             <Utensils size={12} color={value === meal.id ? Colors.white : Colors.textSecondary} />
+                             <Text style={[styles.roomTypePrice, value === meal.id && styles.roomTypeTextSelected]}>
+                                +Rs {meal.price.toLocaleString()} per pax/night
+                             </Text>
+                          </View>
+                        </View>
+                        {value === meal.id && <CheckCircle size={20} color={Colors.white} />}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              />
+            </View>
+          )}
+
           <Controller
             control={control}
             name="specialRequirements"
@@ -418,8 +538,12 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit }: BookingM
 
         <View style={styles.footer}>
           <View style={styles.totalSection}>
-            <Text style={styles.totalLabel}>ESTIMATED TOTAL</Text>
-            <Text style={styles.totalValue}>Rs {calculateTotal().toLocaleString()}</Text>
+            <Text style={styles.totalLabel}>ESTIMATED TOTAL ({pricing?.nights || 0} Nights)</Text>
+            {calculatingPrice ? (
+              <ActivityIndicator size="small" color={Colors.primary} />
+            ) : (
+              <Text style={styles.totalValue}>Rs {calculateTotal().toLocaleString()}</Text>
+            )}
           </View>
           <Button
             mode="contained"
