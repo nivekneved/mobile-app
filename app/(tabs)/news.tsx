@@ -6,7 +6,9 @@ import {
   SafeAreaView,
   Image,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { 
   ActivityIndicator, 
   Text, 
@@ -29,6 +31,7 @@ type Post = {
 };
 
 export default function NewsScreen() {
+  const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -67,29 +70,34 @@ export default function NewsScreen() {
   };
 
   const renderPostItem = useCallback(({ item }: { item: Post }) => (
-    <PremiumCard style={styles.card}>
-      {item.featured_image && (
-        <Image source={resolveImageUrl(item.featured_image)} style={styles.cardImage} />
-      )}
-      <View style={styles.cardContent}>
-        <View style={styles.metaRow}>
-          <Text style={styles.metaText}>
-            {new Date(item.published_at).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
-            })}
-          </Text>
-          {item.admins?.name && (
-            <Text style={styles.metaText}>By {item.admins.name}</Text>
-          )}
+    <TouchableOpacity 
+      activeOpacity={0.9} 
+      onPress={() => router.push(`/news/${item.id}`)}
+    >
+      <PremiumCard style={styles.card}>
+        {item.featured_image && (
+          <Image source={resolveImageUrl(item.featured_image)} style={styles.cardImage} />
+        )}
+        <View style={styles.cardContent}>
+          <View style={styles.metaRow}>
+            <Text style={styles.metaText}>
+              {new Date(item.published_at).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })}
+            </Text>
+            {item.admins?.name && (
+              <Text style={styles.metaText}>By {item.admins.name}</Text>
+            )}
+          </View>
+          <Title style={styles.cardTitle}>{item.title}</Title>
+          <Paragraph numberOfLines={3} style={styles.cardPara}>
+            {item.excerpt}
+          </Paragraph>
         </View>
-        <Title style={styles.cardTitle}>{item.title}</Title>
-        <Paragraph numberOfLines={3} style={styles.cardPara}>
-          {item.excerpt}
-        </Paragraph>
-      </View>
-    </PremiumCard>
+      </PremiumCard>
+    </TouchableOpacity>
   ), []);
 
   if (loading) {

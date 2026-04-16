@@ -292,10 +292,8 @@ export default function ServiceDetailScreen() {
             // 2. Prepare payload for the transactional booking RPC (Web-App Parity)
             const bookingPayload = {
               customer_id: customerId,
-              check_in_date: data.date.toISOString(),
-              check_out_date: (data as any).checkoutDate 
-                ? ((data as any).checkoutDate as Date).toISOString() 
-                : data.date.toISOString(),
+              check_in_date: new Date(data.checkIn).toISOString(),
+              check_out_date: new Date(data.checkOut).toISOString(),
               status: 'pending',
               pax_adults: data.paxAdults,
               pax_infants: data.paxInfants,

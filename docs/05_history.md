@@ -1,5 +1,11 @@
 # 05 History & Agent Progress
 
+## 2026-04-16 - Git Branch Reorganization & Environment Reversion
+- **Branch Strategy Adjustment**: Executed a global branch reorganization across the `admin-app`, `mobile-app`, and `web-app` repositories to transition to a more stable development baseline.
+- **Main Branch Archive**: Renamed the existing `main` branch to `main2` in all workspaces, preserving the latest experimental features for future reference.
+- **Restoration of Verified Baseline**: Re-initialized the `main` branch from the `backup` branch across all three repositories, effectively reverting the primary production line to the last fully verified and stable system state.
+- **PTG & PTV**: Confirmed local branch integrity and successfully synchronized the new branch structure across the local development environment.
+
 ## 2026-04-02 - Ecosystem-Wide Auth Removal & Pure Guest Experience
 - **Total Auth Stripping**: Rewrote `AuthContext.tsx` to provide no session and no user identity, effectively disabling all authentication logic. (M-01)
 - **Account Context Purge**: Permanently removed "Personal Information", "Preferences", and "Sign Out" sections from `profile.tsx`. (M-02)

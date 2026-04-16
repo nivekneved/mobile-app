@@ -9,7 +9,8 @@
     "web": "npx expo start --web",
     "dev": "npx expo start",
     "lint": "eslint .",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@expo-google-fonts/outfit": "^0.4.3",
@@ -54,6 +55,8 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "patch-package": "^8.0.1",
+    "postinstall-postinstall": "^2.1.0",
     "typescript": "~5.3.3",
     "typescript-eslint": "^8.57.1"
   },
