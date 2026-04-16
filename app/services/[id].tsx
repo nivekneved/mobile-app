@@ -55,7 +55,7 @@ export default function ServiceDetailScreen() {
     // Preference: If a room with same name exists in Table, it likely has better pricing data
     const combined = [...hookRoomTypes];
     
-    jsonRooms.forEach(jr => {
+    jsonRooms.forEach((jr: any) => {
       const exists = combined.some(cr => cr.name.toLowerCase() === jr.name.toLowerCase());
       if (!exists) {
         combined.push(jr);

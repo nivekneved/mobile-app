@@ -81,7 +81,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
     // 2. Combine with hookRoomTypes (from the dedicated table)
     const combined = [...hookRoomTypes];
     
-    jsonRooms.forEach(jr => {
+    jsonRooms.forEach((jr: any) => {
       const exists = combined.some(cr => cr.name.toLowerCase() === jr.name.toLowerCase());
       if (!exists) {
         combined.push(jr);
@@ -114,7 +114,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
 
   const { pricing, loading: calculatingPrice } = useServicePricing({
     serviceId: service.id,
-    variantId: roomTypes.find(r => r.name === watchAllFields.roomType || r.type === watchAllFields.roomType)?.id || 'default',
+    variantId: roomTypes.find(r => r.name === watchAllFields.roomType || (r as any).type === watchAllFields.roomType)?.id || 'default',
     startDate: watchAllFields.checkIn,
     endDate: watchAllFields.checkOut,
     participants: {

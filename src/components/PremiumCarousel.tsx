@@ -5,7 +5,8 @@ import Animated, {
   useAnimatedScrollHandler, 
   useAnimatedStyle, 
   interpolate, 
-  Extrapolate 
+  Extrapolate,
+  SharedValue
 } from 'react-native-reanimated';
 import { Colors } from '../theme/colors';
 
@@ -14,7 +15,7 @@ const { width } = Dimensions.get('window');
 interface IndicatorProps {
   index: number;
   itemWidth: number;
-  scrollX: Animated.SharedValue<number>;
+  scrollX: SharedValue<number>;
   indicatorColor: string;
 }
 
@@ -39,7 +40,7 @@ const RenderIndicator = ({ index, itemWidth, scrollX, indicatorColor }: Indicato
 
 interface PremiumCarouselProps<T> {
   data: T[];
-  renderItem: (info: { item: T; index: number; scrollX: Animated.SharedValue<number> }) => React.ReactElement;
+  renderItem: (info: { item: T; index: number; scrollX: SharedValue<number> }) => React.ReactElement;
   itemWidth?: number;
   gap?: number;
   showIndicators?: boolean;
