@@ -77,7 +77,7 @@ index 9005280..19d29d5 100644
  
  export default codegenNativeComponent<NativeProps>('RNSModalScreen', {
 diff --git a/node_modules/react-native-screens/src/fabric/ScreenNativeComponent.ts b/node_modules/react-native-screens/src/fabric/ScreenNativeComponent.ts
-index 7d9e251..cd9c3f7 100644
+index 257e9e4..070b309 100644
 --- a/node_modules/react-native-screens/src/fabric/ScreenNativeComponent.ts
 +++ b/node_modules/react-native-screens/src/fabric/ScreenNativeComponent.ts
 @@ -75,22 +75,22 @@ export interface NativeProps extends ViewProps {
@@ -115,7 +115,7 @@ index 7d9e251..cd9c3f7 100644
    statusBarColor?: ColorValue;
    statusBarHidden?: boolean;
    screenOrientation?: string;
-@@ -98,23 +98,23 @@ export interface NativeProps extends ViewProps {
+@@ -98,27 +98,27 @@ export interface NativeProps extends ViewProps {
    statusBarStyle?: string;
    statusBarTranslucent?: boolean;
    gestureResponseDistance?: GestureResponseDistanceType;
@@ -151,6 +151,11 @@ index 7d9e251..cd9c3f7 100644
      boolean,
      true
    >;
+-  ios26AllowInteractionsDuringTransition?: CT.WithDefault<boolean, true>;
++  ios26AllowInteractionsDuringTransition: CT.WithDefault<boolean, true>;
+ }
+ 
+ export default codegenNativeComponent<NativeProps>('RNSScreen', {
 diff --git a/node_modules/react-native-screens/src/fabric/ScreenStackHeaderConfigNativeComponent.ts b/node_modules/react-native-screens/src/fabric/ScreenStackHeaderConfigNativeComponent.ts
 index fcbb268..5464b99 100644
 --- a/node_modules/react-native-screens/src/fabric/ScreenStackHeaderConfigNativeComponent.ts
@@ -209,15 +214,15 @@ index 61da7f7..a5f7198 100644
  
  export default codegenNativeComponent<NativeProps>(
 diff --git a/node_modules/react-native-screens/src/fabric/ScreenStackNativeComponent.ts b/node_modules/react-native-screens/src/fabric/ScreenStackNativeComponent.ts
-index b556934..0757fc0 100644
+index b6e1a34..4e52178 100644
 --- a/node_modules/react-native-screens/src/fabric/ScreenStackNativeComponent.ts
 +++ b/node_modules/react-native-screens/src/fabric/ScreenStackNativeComponent.ts
 @@ -7,7 +7,7 @@ import type { CodegenTypes as CT, ViewProps } from 'react-native';
  type FinishTransitioningEvent = Readonly<{}>;
  
  export interface NativeProps extends ViewProps {
--  iosPreventReattachmentOfDismissedScreens?: CT.WithDefault<boolean, false>;
-+  iosPreventReattachmentOfDismissedScreens: CT.WithDefault<boolean, false>;
+-  iosPreventReattachmentOfDismissedScreens?: CT.WithDefault<boolean, true>;
++  iosPreventReattachmentOfDismissedScreens: CT.WithDefault<boolean, true>;
  
    onFinishTransitioning?: CT.DirectEventHandler<FinishTransitioningEvent>;
  }
@@ -263,10 +268,134 @@ index df774b9..740abfa 100644
  }
  
  type ComponentType = HostComponent<NativeProps>;
-diff --git a/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsAccessoryContentNativeComponent.ts b/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsAccessoryContentNativeComponent.ts
-index a77f0e2..1c53bab 100644
---- a/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsAccessoryContentNativeComponent.ts
-+++ b/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsAccessoryContentNativeComponent.ts
+diff --git a/node_modules/react-native-screens/src/fabric/gamma/SplitViewHostNativeComponent.ts b/node_modules/react-native-screens/src/fabric/gamma/SplitViewHostNativeComponent.ts
+index 25e6a31..f851236 100644
+--- a/node_modules/react-native-screens/src/fabric/gamma/SplitViewHostNativeComponent.ts
++++ b/node_modules/react-native-screens/src/fabric/gamma/SplitViewHostNativeComponent.ts
+@@ -50,50 +50,50 @@ type SplitViewTopColumnForCollapsing =
+   | 'secondary';
+ 
+ interface ColumnMetrics {
+-  minimumPrimaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
+-  maximumPrimaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
+-  preferredPrimaryColumnWidthOrFraction?: CT.WithDefault<CT.Float, -1.0>;
+-  minimumSupplementaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
+-  maximumSupplementaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
+-  preferredSupplementaryColumnWidthOrFraction?: CT.WithDefault<CT.Float, -1.0>;
++  minimumPrimaryColumnWidth: CT.WithDefault<CT.Float, -1.0>;
++  maximumPrimaryColumnWidth: CT.WithDefault<CT.Float, -1.0>;
++  preferredPrimaryColumnWidthOrFraction: CT.WithDefault<CT.Float, -1.0>;
++  minimumSupplementaryColumnWidth: CT.WithDefault<CT.Float, -1.0>;
++  maximumSupplementaryColumnWidth: CT.WithDefault<CT.Float, -1.0>;
++  preferredSupplementaryColumnWidthOrFraction: CT.WithDefault<CT.Float, -1.0>;
+ 
+   // iOS 26 only
+-  minimumSecondaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
+-  preferredSecondaryColumnWidthOrFraction?: CT.WithDefault<CT.Float, -1.0>;
+-  minimumInspectorColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
+-  maximumInspectorColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
+-  preferredInspectorColumnWidthOrFraction?: CT.WithDefault<CT.Float, -1.0>;
++  minimumSecondaryColumnWidth: CT.WithDefault<CT.Float, -1.0>;
++  preferredSecondaryColumnWidthOrFraction: CT.WithDefault<CT.Float, -1.0>;
++  minimumInspectorColumnWidth: CT.WithDefault<CT.Float, -1.0>;
++  maximumInspectorColumnWidth: CT.WithDefault<CT.Float, -1.0>;
++  preferredInspectorColumnWidthOrFraction: CT.WithDefault<CT.Float, -1.0>;
+ }
+ 
+ interface NativeProps extends ViewProps {
+   // Appearance
+ 
+-  preferredDisplayMode?: CT.WithDefault<SplitViewDisplayMode, 'automatic'>;
+-  preferredSplitBehavior?: CT.WithDefault<SplitViewSplitBehavior, 'automatic'>;
+-  primaryEdge?: CT.WithDefault<SplitViewPrimaryEdge, 'leading'>;
+-  showSecondaryToggleButton?: CT.WithDefault<boolean, false>;
+-  displayModeButtonVisibility?: CT.WithDefault<
++  preferredDisplayMode: CT.WithDefault<SplitViewDisplayMode, 'automatic'>;
++  preferredSplitBehavior: CT.WithDefault<SplitViewSplitBehavior, 'automatic'>;
++  primaryEdge: CT.WithDefault<SplitViewPrimaryEdge, 'leading'>;
++  showSecondaryToggleButton: CT.WithDefault<boolean, false>;
++  displayModeButtonVisibility: CT.WithDefault<
+     SplitViewDisplayModeButtonVisibility,
+     'automatic'
+   >;
+   columnMetrics?: ColumnMetrics;
+-  orientation?: CT.WithDefault<SplitViewOrientation, 'inherit'>;
+-  primaryBackgroundStyle?: CT.WithDefault<
++  orientation: CT.WithDefault<SplitViewOrientation, 'inherit'>;
++  primaryBackgroundStyle: CT.WithDefault<
+     SplitViewPrimaryBackgroundStyle,
+     'default'
+   >;
+ 
+   // Behavior
+ 
+-  topColumnForCollapsing?: CT.WithDefault<
++  topColumnForCollapsing: CT.WithDefault<
+     SplitViewTopColumnForCollapsing,
+     'default'
+   >;
+ 
+   // Interactions
+ 
+-  presentsWithGesture?: CT.WithDefault<boolean, true>;
+-  showInspector?: CT.WithDefault<boolean, false>;
++  presentsWithGesture: CT.WithDefault<boolean, true>;
++  showInspector: CT.WithDefault<boolean, false>;
+ 
+   // Custom events
+ 
+diff --git a/node_modules/react-native-screens/src/fabric/gamma/SplitViewScreenNativeComponent.ts b/node_modules/react-native-screens/src/fabric/gamma/SplitViewScreenNativeComponent.ts
+index 0fe92a7..6a1e245 100644
+--- a/node_modules/react-native-screens/src/fabric/gamma/SplitViewScreenNativeComponent.ts
++++ b/node_modules/react-native-screens/src/fabric/gamma/SplitViewScreenNativeComponent.ts
+@@ -10,7 +10,7 @@ type SplitViewScreenColumnType = 'column' | 'inspector';
+ 
+ interface NativeProps extends ViewProps {
+   // Config
+-  columnType?: CT.WithDefault<SplitViewScreenColumnType, 'column'>;
++  columnType: CT.WithDefault<SplitViewScreenColumnType, 'column'>;
+ 
+   // Events
+   onWillAppear?: CT.DirectEventHandler<GenericEmptyEvent>;
+diff --git a/node_modules/react-native-screens/src/fabric/gamma/stack/StackScreenNativeComponent.ts b/node_modules/react-native-screens/src/fabric/gamma/stack/StackScreenNativeComponent.ts
+index 64e87f3..9d6a0ec 100644
+--- a/node_modules/react-native-screens/src/fabric/gamma/stack/StackScreenNativeComponent.ts
++++ b/node_modules/react-native-screens/src/fabric/gamma/stack/StackScreenNativeComponent.ts
+@@ -16,7 +16,7 @@ export interface NativeProps extends ViewProps {
+   // Control
+ 
+   // Codegen does not currently support non-optional enum.
+-  activityMode?: CT.WithDefault<ActivityMode, 'detached'>;
++  activityMode: CT.WithDefault<ActivityMode, 'detached'>;
+   screenKey: string;
+ 
+   // Events
+@@ -32,7 +32,7 @@ export interface NativeProps extends ViewProps {
+ 
+   // Configuration
+ 
+-  preventNativeDismiss?: CT.WithDefault<boolean, false>;
++  preventNativeDismiss: CT.WithDefault<boolean, false>;
+ }
+ 
+ export default codegenNativeComponent<NativeProps>('RNSStackScreen', {});
+diff --git a/node_modules/react-native-screens/src/fabric/safe-area/SafeAreaViewNativeComponent.ts b/node_modules/react-native-screens/src/fabric/safe-area/SafeAreaViewNativeComponent.ts
+index 01de59a..fd8b191 100644
+--- a/node_modules/react-native-screens/src/fabric/safe-area/SafeAreaViewNativeComponent.ts
++++ b/node_modules/react-native-screens/src/fabric/safe-area/SafeAreaViewNativeComponent.ts
+@@ -14,7 +14,7 @@ export interface NativeProps extends ViewProps {
+     left: boolean;
+   }>;
+   // Android-only
+-  insetType?: CT.WithDefault<InsetType, 'all'>;
++  insetType: CT.WithDefault<InsetType, 'all'>;
+ }
+ 
+ export default codegenNativeComponent<NativeProps>('RNSSafeAreaView', {
+diff --git a/node_modules/react-native-screens/src/fabric/tabs/TabsBottomAccessoryContentNativeComponent.ts b/node_modules/react-native-screens/src/fabric/tabs/TabsBottomAccessoryContentNativeComponent.ts
+index 3646447..94e0b93 100644
+--- a/node_modules/react-native-screens/src/fabric/tabs/TabsBottomAccessoryContentNativeComponent.ts
++++ b/node_modules/react-native-screens/src/fabric/tabs/TabsBottomAccessoryContentNativeComponent.ts
 @@ -6,7 +6,7 @@ import type { CodegenTypes as CT, ViewProps } from 'react-native';
  type BottomAccessoryEnvironment = 'regular' | 'inline';
  
@@ -276,10 +405,10 @@ index a77f0e2..1c53bab 100644
  }
  
  export default codegenNativeComponent<NativeProps>(
-diff --git a/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsNativeComponent.ts b/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsNativeComponent.ts
-index 45181b6..e72df25 100644
---- a/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsNativeComponent.ts
-+++ b/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsNativeComponent.ts
+diff --git a/node_modules/react-native-screens/src/fabric/tabs/TabsHostNativeComponent.ts b/node_modules/react-native-screens/src/fabric/tabs/TabsHostNativeComponent.ts
+index 3864c41..a9791e8 100644
+--- a/node_modules/react-native-screens/src/fabric/tabs/TabsHostNativeComponent.ts
++++ b/node_modules/react-native-screens/src/fabric/tabs/TabsHostNativeComponent.ts
 @@ -34,7 +34,7 @@ export interface NativeProps extends ViewProps {
    onNativeFocusChange?: CT.DirectEventHandler<NativeFocusChangeEvent>;
  
@@ -316,11 +445,11 @@ index 45181b6..e72df25 100644
 +  controlNavigationStateInJS: CT.WithDefault<boolean, false>;
  }
  
- export default codegenNativeComponent<NativeProps>('RNSBottomTabs', {
-diff --git a/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsScreenNativeComponent.ts b/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsScreenNativeComponent.ts
-index 857fa9c..8ef88b4 100644
---- a/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsScreenNativeComponent.ts
-+++ b/node_modules/react-native-screens/src/fabric/bottom-tabs/BottomTabsScreenNativeComponent.ts
+ export default codegenNativeComponent<NativeProps>('RNSTabsHost', {
+diff --git a/node_modules/react-native-screens/src/fabric/tabs/TabsScreenNativeComponent.ts b/node_modules/react-native-screens/src/fabric/tabs/TabsScreenNativeComponent.ts
+index f6ce662..7230f1d 100644
+--- a/node_modules/react-native-screens/src/fabric/tabs/TabsScreenNativeComponent.ts
++++ b/node_modules/react-native-screens/src/fabric/tabs/TabsScreenNativeComponent.ts
 @@ -50,7 +50,7 @@ export type Appearance = {
  
    tabBarBackgroundColor?: ProcessedColorValue | null;
@@ -393,111 +522,4 @@ index 857fa9c..8ef88b4 100644
 +  userInterfaceStyle: CT.WithDefault<UserInterfaceStyle, 'unspecified'>;
  }
  
- export default codegenNativeComponent<NativeProps>('RNSBottomTabsScreen', {});
-diff --git a/node_modules/react-native-screens/src/fabric/gamma/SplitViewHostNativeComponent.ts b/node_modules/react-native-screens/src/fabric/gamma/SplitViewHostNativeComponent.ts
-index cc46993..b49b2ed 100644
---- a/node_modules/react-native-screens/src/fabric/gamma/SplitViewHostNativeComponent.ts
-+++ b/node_modules/react-native-screens/src/fabric/gamma/SplitViewHostNativeComponent.ts
-@@ -40,43 +40,43 @@ type SplitViewOrientation =
- type SplitViewPrimaryBackgroundStyle = 'default' | 'none' | 'sidebar';
- 
- interface ColumnMetrics {
--  minimumPrimaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
--  maximumPrimaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
--  preferredPrimaryColumnWidthOrFraction?: CT.WithDefault<CT.Float, -1.0>;
--  minimumSupplementaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
--  maximumSupplementaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
--  preferredSupplementaryColumnWidthOrFraction?: CT.WithDefault<CT.Float, -1.0>;
-+  minimumPrimaryColumnWidth: CT.WithDefault<CT.Float, -1.0>;
-+  maximumPrimaryColumnWidth: CT.WithDefault<CT.Float, -1.0>;
-+  preferredPrimaryColumnWidthOrFraction: CT.WithDefault<CT.Float, -1.0>;
-+  minimumSupplementaryColumnWidth: CT.WithDefault<CT.Float, -1.0>;
-+  maximumSupplementaryColumnWidth: CT.WithDefault<CT.Float, -1.0>;
-+  preferredSupplementaryColumnWidthOrFraction: CT.WithDefault<CT.Float, -1.0>;
- 
-   // iOS 26 only
--  minimumSecondaryColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
--  preferredSecondaryColumnWidthOrFraction?: CT.WithDefault<CT.Float, -1.0>;
--  minimumInspectorColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
--  maximumInspectorColumnWidth?: CT.WithDefault<CT.Float, -1.0>;
--  preferredInspectorColumnWidthOrFraction?: CT.WithDefault<CT.Float, -1.0>;
-+  minimumSecondaryColumnWidth: CT.WithDefault<CT.Float, -1.0>;
-+  preferredSecondaryColumnWidthOrFraction: CT.WithDefault<CT.Float, -1.0>;
-+  minimumInspectorColumnWidth: CT.WithDefault<CT.Float, -1.0>;
-+  maximumInspectorColumnWidth: CT.WithDefault<CT.Float, -1.0>;
-+  preferredInspectorColumnWidthOrFraction: CT.WithDefault<CT.Float, -1.0>;
- }
- 
- interface NativeProps extends ViewProps {
-   // Appearance
- 
--  preferredDisplayMode?: CT.WithDefault<SplitViewDisplayMode, 'automatic'>;
--  preferredSplitBehavior?: CT.WithDefault<SplitViewSplitBehavior, 'automatic'>;
--  primaryEdge?: CT.WithDefault<SplitViewPrimaryEdge, 'leading'>;
--  showSecondaryToggleButton?: CT.WithDefault<boolean, false>;
--  displayModeButtonVisibility?: CT.WithDefault<
-+  preferredDisplayMode: CT.WithDefault<SplitViewDisplayMode, 'automatic'>;
-+  preferredSplitBehavior: CT.WithDefault<SplitViewSplitBehavior, 'automatic'>;
-+  primaryEdge: CT.WithDefault<SplitViewPrimaryEdge, 'leading'>;
-+  showSecondaryToggleButton: CT.WithDefault<boolean, false>;
-+  displayModeButtonVisibility: CT.WithDefault<
-     SplitViewDisplayModeButtonVisibility,
-     'automatic'
-   >;
-   columnMetrics?: ColumnMetrics;
--  orientation?: CT.WithDefault<SplitViewOrientation, 'inherit'>;
--  primaryBackgroundStyle?: CT.WithDefault<
-+  orientation: CT.WithDefault<SplitViewOrientation, 'inherit'>;
-+  primaryBackgroundStyle: CT.WithDefault<
-     SplitViewPrimaryBackgroundStyle,
-     'default'
-   >;
- 
-   // Interactions
- 
--  presentsWithGesture?: CT.WithDefault<boolean, true>;
--  showInspector?: CT.WithDefault<boolean, false>;
-+  presentsWithGesture: CT.WithDefault<boolean, true>;
-+  showInspector: CT.WithDefault<boolean, false>;
- 
-   // Custom events
- 
-diff --git a/node_modules/react-native-screens/src/fabric/gamma/SplitViewScreenNativeComponent.ts b/node_modules/react-native-screens/src/fabric/gamma/SplitViewScreenNativeComponent.ts
-index 0fe92a7..6a1e245 100644
---- a/node_modules/react-native-screens/src/fabric/gamma/SplitViewScreenNativeComponent.ts
-+++ b/node_modules/react-native-screens/src/fabric/gamma/SplitViewScreenNativeComponent.ts
-@@ -10,7 +10,7 @@ type SplitViewScreenColumnType = 'column' | 'inspector';
- 
- interface NativeProps extends ViewProps {
-   // Config
--  columnType?: CT.WithDefault<SplitViewScreenColumnType, 'column'>;
-+  columnType: CT.WithDefault<SplitViewScreenColumnType, 'column'>;
- 
-   // Events
-   onWillAppear?: CT.DirectEventHandler<GenericEmptyEvent>;
-diff --git a/node_modules/react-native-screens/src/fabric/gamma/stack/StackScreenNativeComponent.ts b/node_modules/react-native-screens/src/fabric/gamma/stack/StackScreenNativeComponent.ts
-index 8dd0371..5b59dff 100644
---- a/node_modules/react-native-screens/src/fabric/gamma/stack/StackScreenNativeComponent.ts
-+++ b/node_modules/react-native-screens/src/fabric/gamma/stack/StackScreenNativeComponent.ts
-@@ -16,7 +16,7 @@ export interface NativeProps extends ViewProps {
-   // Control
- 
-   // Codegen does not currently support non-optional enum.
--  activityMode?: CT.WithDefault<ActivityMode, 'detached'>;
-+  activityMode: CT.WithDefault<ActivityMode, 'detached'>;
-   screenKey: string;
- 
-   // Events
-diff --git a/node_modules/react-native-screens/src/fabric/safe-area/SafeAreaViewNativeComponent.ts b/node_modules/react-native-screens/src/fabric/safe-area/SafeAreaViewNativeComponent.ts
-index 01de59a..fd8b191 100644
---- a/node_modules/react-native-screens/src/fabric/safe-area/SafeAreaViewNativeComponent.ts
-+++ b/node_modules/react-native-screens/src/fabric/safe-area/SafeAreaViewNativeComponent.ts
-@@ -14,7 +14,7 @@ export interface NativeProps extends ViewProps {
-     left: boolean;
-   }>;
-   // Android-only
--  insetType?: CT.WithDefault<InsetType, 'all'>;
-+  insetType: CT.WithDefault<InsetType, 'all'>;
- }
- 
- export default codegenNativeComponent<NativeProps>('RNSSafeAreaView', {
+ export default codegenNativeComponent<NativeProps>('RNSTabsScreen', {});
