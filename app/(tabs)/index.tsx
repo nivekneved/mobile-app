@@ -8,7 +8,7 @@ import { CategoryCard } from '../../src/components/CategoryCard';
 import { ServiceCard } from '../../src/components/ServiceCard';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { Search, Filter, Plane, Sparkles, Percent, MessageCircle, Mail, MapPin, Calendar as CalendarIcon, Users } from 'lucide-react-native';
+import { Search, Filter, Plane, Sparkles, Percent, MessageCircle, Mail, MapPin, Calendar as CalendarIcon, Users, Car } from 'lucide-react-native';
 import { PremiumCarousel } from '../../src/components/PremiumCarousel';
 import { PartnerSlider } from '../../src/components/PartnerSlider';
 import Footer from '../../src/components/Footer';
@@ -93,36 +93,36 @@ export default function HomeScreen() {
 
         {/* Core Logic 1: Find Value (Prices/Benefits) */}
         <View style={styles.valuationSection}>
-           <View style={styles.searchBarWrapper}>
-             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
-               <MapPin size={18} color={Colors.primary} />
-               <View>
-                 <Text style={styles.searchLabel}>Where to?</Text>
-                 <Text style={styles.searchValue}>Anywhere</Text>
-               </View>
-             </TouchableOpacity>
-             <View style={styles.searchDivider} />
-             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
-               <CalendarIcon size={18} color={Colors.primary} />
-               <View>
-                 <Text style={styles.searchLabel}>When?</Text>
-                 <Text style={styles.searchValue}>Select Date</Text>
-               </View>
-             </TouchableOpacity>
-             <View style={styles.searchDivider} />
-             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
-               <Users size={18} color={Colors.primary} />
-               <View>
-                 <Text style={styles.searchLabel}>Guests</Text>
-                 <Text style={styles.searchValue}>Add</Text>
-               </View>
-             </TouchableOpacity>
-           </View>
+            <View style={styles.searchBarWrapper}>
+              <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
+                <MapPin size={18} color={Colors.primary} />
+                <View>
+                  <Text style={styles.searchLabel}>Hubs</Text>
+                  <Text style={styles.searchValue}>Pickup Point</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.searchDivider} />
+              <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
+                <CalendarIcon size={18} color={Colors.primary} />
+                <View>
+                  <Text style={styles.searchLabel}>Dates</Text>
+                  <Text style={styles.searchValue}>Select Range</Text>
+                </View>
+              </TouchableOpacity>
+              <View style={styles.searchDivider} />
+              <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
+                <Car size={18} color={Colors.primary} />
+                <View>
+                  <Text style={styles.searchLabel}>Fleet</Text>
+                  <Text style={styles.searchValue}>Model</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
 
-           <View style={styles.servicesHeader}>
-              <Text style={styles.labelTitle}>OUR SERVICES</Text>
-              <Text style={[styles.sectionTitle, { fontSize: 32 }]}>Helping You Plan{"\n"}<Text style={{color: Colors.slate[300]}}>Perfect Holidays.</Text></Text>
-           </View>
+            <View style={styles.servicesHeader}>
+               <Text style={styles.labelTitle}>ELITE FLEET</Text>
+               <Text style={[styles.sectionTitle, { fontSize: 32 }]}>Explore Mauritius{"\n"}<Text style={{color: Colors.slate[300]}}>With Freedom.</Text></Text>
+            </View>
 
            {/* Mobile Elite Category Slider (Reference Image Align) */}
            <View style={styles.categoriesWrapper}>
@@ -191,10 +191,10 @@ export default function HomeScreen() {
           <View style={styles.sectionHeader}>
             <View>
               <Text style={styles.labelTitle}>
-                {contentBlocks.offers?.label || 'EXCLUSIVE OFFERS'}
+                {contentBlocks.offers?.label || 'ELITE INVENTORY'}
               </Text>
               <Text style={styles.sectionTitle}>
-                {contentBlocks.offers?.title || 'Seasonal Deals'}
+                {contentBlocks.offers?.title || 'Featured Vehicles'}
               </Text>
             </View>
             <TouchableOpacity onPress={() => router.push('/explore')}>
