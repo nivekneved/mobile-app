@@ -81,7 +81,7 @@ const Footer = () => {
       {/* Footer Top - Branding */}
       <View style={styles.brandingSection}>
         <Image 
-          source={resolveImageUrl(settings?.logoUrl || '/assets/logo-white.png')} 
+          source={require('../../assets/tlounge-logo-transparent.webp')} 
           style={styles.logo}
           resizeMode="contain"
         />
