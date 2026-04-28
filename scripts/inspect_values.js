@@ -8,7 +8,7 @@ const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.NEX
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function inspectValues() {
-  const { data, error } = await supabase.from('services').select('service_type, status, base_price').limit(5);
+  const { data, error } = await supabase.from('services').select('service_type, status').limit(5);
   if (error) {
     console.error('Error fetching services:', error);
   } else {
