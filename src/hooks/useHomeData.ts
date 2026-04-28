@@ -23,7 +23,7 @@ export type Service = {
   id: string;
   name: string;
   description: string;
-  base_price: number; // Actual column name
+  lowestPrice: number;
   price: number;      // mapped for UI
   image_url: string;
   service_type: string; // Actual column name
@@ -59,7 +59,7 @@ export const useHomeData = () => {
         ] = await Promise.all([
           supabase.from('hero_slides').select('*').order('order_index', { ascending: true }),
           supabase.from('categories').select('*').order('display_order', { ascending: true, nullsFirst: false }),
-          supabase.from('services').select('*, service_categories(categories(name))').order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(10),
+          supabase.from('services').select('*, service_pricing(price), service_categories(categories(name))').order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(10),
           supabase.from('services').select('region').not('region', 'is', null)
         ]);
         
@@ -78,7 +78,9 @@ export const useHomeData = () => {
 
         const mappedServices = (services || []).map((s: any) => {
           const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
-          return { ...s, price: s.base_price || 0, category: categoryName };
+          const prices = (s.service_pricing || []).map((p: any) => Number(p.price)).filter((p: number) => p > 0);
+          const lowestPrice = prices.length > 0 ? Math.min(...prices) : 0;
+          return { ...s, price: lowestPrice, lowestPrice, category: categoryName };
         });
 
         if (!regionError && regionData) {

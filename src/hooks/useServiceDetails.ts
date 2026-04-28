@@ -18,7 +18,7 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
         setIsLoading(true);
         const { data, error: serviceError } = await supabase
           .from('services')
-          .select('*, amenities, itinerary, gallery_images, service_categories(categories(name))')
+          .select('*, amenities, itinerary, gallery_images, service_pricing(price), service_categories(categories(name))')
           .eq('id', id)
           .single();
 
@@ -28,9 +28,13 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
           // Extract category name from the join if available
           const categoryName = data.service_categories?.[0]?.categories?.name || data.service_type || 'Experience';
 
+          const prices = (data.service_pricing || []).map((p: any) => Number(p.price)).filter((p: number) => p > 0);
+          const lowestPrice = prices.length > 0 ? Math.min(...prices) : 0;
+
           setService({
             ...data,
-            price: data.base_price || 0,
+            price: lowestPrice,
+            lowestPrice: lowestPrice,
             category: categoryName
           });
         }
