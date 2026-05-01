@@ -1,26 +1,48 @@
-# 03 Database & API Model
+# 03 Database Schema (PostgreSQL)
 
-## Data Orchestration
-The Mobile App is 100% dynamic, sourcing all inventory and content from Supabase.
+## Core Relational Tables
+Travel Lounge has migrated to a high-integrity relational schema.
 
-### 1. Unified Discovery
-Fetches from `services`, `categories`, and `hero_slides` to build the immersive homepage experience.
+### 1. `services`
+The authoritative catalog for Hotels, Tours, Activities, and Packages.
+- **Columns**: `id`, `name`, `description`, `price` (base), `category_id`, `image_url`, `banner_url`.
+- **Structural Upgrades**: Added `itinerary` (JSONB), `not_included` (JSONB), `included` (JSONB), and `cancellation_policy` to support complex travel products.
+- **Special Flags**: `is_seasonal_deal` (mapped to **"Promotional Deal"**) and `is_coming_soon`.
 
-### 2. Concierge Data
-Uses the `editorial_posts` table for the "Insights" module and `reviews` for social proof on service details.
+### 2. `service_pricing` (The Pricing Grid)
+Centralized table for all seasonal overrides, availability, and meal supplements.
+- **Columns**: `id`, `service_id`, `variant_id`, `date_from`, `date_to`, `price` (Adult), `is_stop_sell`, `units_available`.
+- **Occupancy Pricing**: Features the `occupancy_pricing` JSONB column for Single, Double, Triple, and Quad rates, specifically tailored for the Mauritian market.
+- **Meal Supplements**: Integrated `meal_plan_pricing` (JSONB) to handle dynamic board basis upgrades.
 
-### 3. Secure Transactions
-- **Customer Identity**: Resolves via `get_or_create_customer_v1` RPC to maintain cross-platform user profiles.
-- **Booking Submission**: Transmits payloads to the `create_booking_v1` RPC, ensuring compliance with tax fields and status naming conventions.
+### 3. `room_types` (Variants)
+Defines specific configurations for a service (e.g., Superior Room, Deluxe Tour).
+- **Columns**: `id`, `service_id`, `name`, `capacity_adults`, `capacity_children`, `image_url`, `meal_plan`, `description`.
+
+### 4. `cms_content`
+Stores page-level content and configuration.
+- **Columns**: `id`, `page_slug`, `section`, `title`, `subtitle`, `content` (Rich Text), `image_url`.
+
+### 5. `bookings` & `booking_items`
+Relational tracking of reservations.
+- **Columns**: `id`, `customer_id`, `total_amount`, `status`, `lead_data` (JSONB for transient form fields).
 
 ---
 
-## Supabase Integration Patterns
-- **Real-time Updates**: Subscribes to `site_settings` for dynamic footer and branding toggles.
-- **Image Resizing**: Appends transformation parameters (e.g., `?width=600&height=400&resize=contain`) to Supabase storage URLs to minimize mobile bandwidth usage.
+## Security & Access (RLS)
+Row Level Security is strictly enforced:
+- **Public**: Select access to services, prices, and CMS content.
+- **Authenticated (Admin)**: Full CRUD access to all tables.
+- **Customers**: View access to their own bookings and profile.
+
+---
+
+## API & RPC Logic
+- **`create_booking_v1`**: Validates the payload and handles table insertion across legacy and modern order tables.
+- **`get_or_create_customer_v1`**: Ensures guest profiles are unified across the ecosystem.
 
 ---
 
 ## Security
-- **JWT Verification**: Ensures all sensitive requests carry a valid user token.
-- **RLS Policies**: Adheres to strict Row Level Security to prevent unauthorized access to customer booking histories.
+- **JWT Protection**: Secured endpoints for customer-specific actions.
+- **Input Validation**: Front-end Zod schemas synchronized with database constraints.
