@@ -19,6 +19,7 @@ import { User } from 'lucide-react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useWishlist } from '../../src/context/WishlistContext';
 import { stripHtml } from '../../src/utils/textUtils';
+import { Utensils } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 450;
@@ -195,11 +196,49 @@ export default function ServiceDetailScreen() {
                 <Surface key={room.id} style={styles.roomCard} elevation={0}>
                   <Image source={resolveImageUrl(room.image_url)} style={styles.roomImage} />
                   <View style={styles.roomContent}>
-                    <Text style={styles.roomName}>{room.name}</Text>
-                    <View style={styles.priceGrid}>
-                        <View style={styles.priceCell}><Text style={styles.priceCellTitle}>WEEKDAY</Text><Text style={styles.priceCellVal}>Rs {room.weekday_price?.toLocaleString() || '0'}</Text></View>
-                        <View style={styles.priceCell}><Text style={[styles.priceCellTitle, {color: Colors.primary}]}>WEEKEND</Text><Text style={[styles.priceCellVal, {color: Colors.primary}]}>Rs {room.weekend_price?.toLocaleString() || '0'}</Text></View>
+                    <View style={styles.roomHeaderRow}>
+                      <Text style={styles.roomName}>{room.name}</Text>
+                      {room.meal_plan && (
+                        <View style={styles.mealPlanBadge}>
+                          <Utensils size={10} color="#D97706" />
+                          <Text style={styles.mealPlanText}>{room.meal_plan.toUpperCase()}</Text>
+                        </View>
+                      )}
                     </View>
+                    
+                    <View style={styles.occupancyRow}>
+                      <View style={styles.occupancyItem}>
+                        <User size={14} color={Colors.slate[400]} />
+                        <Text style={styles.occupancyText}>{room.max_adults || 2} Adults</Text>
+                      </View>
+                      {(room.max_children || 0) > 0 && (
+                        <View style={styles.occupancyItem}>
+                          <User size={12} color={Colors.slate[400]} />
+                          <Text style={styles.occupancyText}>{room.max_children} Children</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    <View style={styles.roomDivider} />
+
+                    <View style={styles.priceGrid}>
+                        <View style={styles.priceCell}>
+                          <Text style={styles.priceCellTitle}>WEEKDAY</Text>
+                          <Text style={styles.priceCellVal}>
+                            {room.weekday_price > 0 ? `Rs ${room.weekday_price.toLocaleString()}` : 'Contact Us'}
+                          </Text>
+                        </View>
+                        <View style={styles.priceCell}>
+                          <Text style={[styles.priceCellTitle, {color: Colors.primary}]}>WEEKEND</Text>
+                          <Text style={[styles.priceCellVal, {color: Colors.primary}]}>
+                            {room.weekend_price > 0 ? `Rs ${room.weekend_price.toLocaleString()}` : 'Contact Us'}
+                          </Text>
+                        </View>
+                    </View>
+
+                    <TouchableOpacity style={styles.selectRoomBtn} onPress={() => setBookingVisible(true)}>
+                      <Text style={styles.selectRoomBtnText}>SELECT THIS ROOM</Text>
+                    </TouchableOpacity>
                   </View>
                 </Surface>
               ))}
@@ -296,24 +335,28 @@ export default function ServiceDetailScreen() {
           {(service.cancellation_policy || service.terms_and_conditions) && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Policies & Facts</Text>
-              <View style={styles.policiesWrapper}>
+              <View style={styles.policiesStack}>
                 {service.cancellation_policy && (
-                  <Surface style={styles.policyCard} elevation={0}>
-                    <View style={styles.policyHeader}>
-                      <Info size={18} color={Colors.primary} />
-                      <Text style={styles.policyTitle}>Cancellation Policy</Text>
+                  <View style={styles.premiumPolicyItem}>
+                    <View style={styles.policyIconCircle}>
+                      <Info size={20} color={Colors.primary} />
                     </View>
-                    <Text style={styles.policyText}>{stripHtml(service.cancellation_policy as string)}</Text>
-                  </Surface>
+                    <View style={styles.policyContent}>
+                      <Text style={styles.policyItemTitle}>Cancellation Policy</Text>
+                      <Text style={styles.policyItemText}>{stripHtml(service.cancellation_policy as string)}</Text>
+                    </View>
+                  </View>
                 )}
                 {service.terms_and_conditions && (
-                  <Surface style={[styles.policyCard, { marginTop: 12, backgroundColor: Colors.slate[50], borderColor: Colors.border }]} elevation={0}>
-                    <View style={styles.policyHeader}>
-                      <Clock size={18} color={Colors.charcoal} />
-                      <Text style={styles.policyTitle}>Terms & Conditions</Text>
+                  <View style={[styles.premiumPolicyItem, { marginTop: 24 }]}>
+                    <View style={[styles.policyIconCircle, { backgroundColor: '#F1F5F9' }]}>
+                      <Clock size={20} color={Colors.charcoal} />
                     </View>
-                    <Text style={[styles.policyText, { color: Colors.slate[500] }]}>{stripHtml(service.terms_and_conditions as string)}</Text>
-                  </Surface>
+                    <View style={styles.policyContent}>
+                      <Text style={styles.policyItemTitle}>Terms & Conditions</Text>
+                      <Text style={styles.policyItemText}>{stripHtml(service.terms_and_conditions as string)}</Text>
+                    </View>
+                  </View>
                 )}
               </View>
             </View>
@@ -529,7 +572,19 @@ const styles = StyleSheet.create({
   galleryContent: { paddingRight: 24, gap: 16 },
   galleryCard: { width: 280, height: 180, borderRadius: 24, overflow: 'hidden', backgroundColor: Colors.white },
   galleryImage: { width: '100%', height: '100%', resizeMode: 'cover' },
-  policiesWrapper: { gap: 0 },
-  policyHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
-  policyTitle: { fontFamily: 'Outfit_900Black', fontSize: 14, color: Colors.charcoal, textTransform: 'uppercase', letterSpacing: 1 },
+  policiesStack: { backgroundColor: '#F8FAFC', padding: 24, borderRadius: 32, borderWidth: 1, borderColor: Colors.border },
+  premiumPolicyItem: { flexDirection: 'row', gap: 16 },
+  policyIconCircle: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#E0F2FE', justifyContent: 'center', alignItems: 'center' },
+  policyContent: { flex: 1 },
+  policyItemTitle: { fontFamily: 'Outfit_900Black', fontSize: 13, color: Colors.charcoal, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 },
+  policyItemText: { fontFamily: 'Outfit_500Medium', fontSize: 14, color: Colors.slate[500], lineHeight: 22 },
+  roomHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
+  mealPlanBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#FEF3C7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  mealPlanText: { fontFamily: 'Outfit_900Black', fontSize: 9, color: '#D97706' },
+  occupancyRow: { flexDirection: 'row', gap: 16, marginBottom: 16 },
+  occupancyItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  occupancyText: { fontFamily: 'Outfit_600SemiBold', fontSize: 12, color: Colors.slate[500] },
+  roomDivider: { height: 1, backgroundColor: Colors.border, marginBottom: 16 },
+  selectRoomBtn: { backgroundColor: Colors.charcoal, height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginTop: 16 },
+  selectRoomBtnText: { color: Colors.white, fontFamily: 'Outfit_900Black', fontSize: 11, letterSpacing: 2 },
 });
