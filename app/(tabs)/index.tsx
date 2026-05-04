@@ -138,10 +138,16 @@ export default function HomeScreen() {
                     name={cat.name} 
                     slug={cat.slug}
                     image_url={cat.image_url} 
-                    onPress={() => router.push({
-                      pathname: '/explore',
-                      params: { category: cat.slug }
-                    })} 
+                    onPress={() => {
+                      if (cat.slug === 'flights') {
+                        router.push('/flights');
+                      } else {
+                        router.push({
+                          pathname: '/explore',
+                          params: { category: cat.slug }
+                        });
+                      }
+                    }} 
                   />
                 )) : [1,2,3,4].map(k => <View key={k} style={[styles.categorySkeleton, {width: 156, height: 240}]} />)}
               </ScrollView>
@@ -156,7 +162,7 @@ export default function HomeScreen() {
                 <View style={[styles.filterIcon, {backgroundColor: 'rgba(16, 185, 129, 0.1)'}]}><Percent size={16} color="#10B981" /></View>
                 <Text style={styles.filterText}>BEST PRICES</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/explore?category=flights')}>
+              <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/flights')}>
                 <View style={[styles.filterIcon, {backgroundColor: 'rgba(59, 130, 246, 0.1)'}]}><Plane size={16} color="#3B82F6" /></View>
                 <Text style={styles.filterText}>FLIGHTS</Text>
               </TouchableOpacity>
