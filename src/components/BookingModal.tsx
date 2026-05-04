@@ -57,6 +57,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
   const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submittedReport, setSubmittedReport] = useState<any>(null);
   const { roomTypes: hookRoomTypes, loading: fetchingRooms } = useRoomTypes(service.id);
 
   const roomTypes = React.useMemo(() => {
@@ -150,13 +151,10 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
   const handleFormSubmit = async (data: BookingFormData) => {
     setIsSubmitting(true);
     try {
-      await onSubmit({ ...data, totalAmount: calculateTotal() });
+      const total = calculateTotal();
+      await onSubmit({ ...data, totalAmount: total });
+      setSubmittedReport({ ...data, totalAmount: total });
       setIsSuccess(true);
-      setTimeout(() => {
-        setIsSuccess(false);
-        reset();
-        onDismiss();
-      }, 3000);
     } catch (error) {
       Alert.alert('Error', 'Failed to submit booking. Please try again.');
     } finally {
@@ -164,18 +162,57 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
     }
   };
 
-  if (isSuccess) {
+  if (isSuccess && submittedReport) {
     return (
       <Portal>
         <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles.successContainer}>
           <View style={styles.successContent}>
-            <CheckCircle color="#059669" size={64} />
-            <Text variant="headlineSmall" style={styles.successTitle}>Request Sent!</Text>
+            <View style={styles.successHeader}>
+               <CheckCircle color="#059669" size={48} />
+               <View>
+                 <Text variant="headlineSmall" style={styles.successTitle}>Booking Report</Text>
+                 <Text style={styles.successSubtitle}>Transaction successful</Text>
+               </View>
+            </View>
+
+            <View style={styles.reportCard}>
+               <View style={styles.reportRow}>
+                  <Text style={styles.reportLabel}>Experience</Text>
+                  <Text style={styles.reportVal} numberOfLines={1}>{service.name}</Text>
+               </View>
+               <View style={styles.reportRow}>
+                  <Text style={styles.reportLabel}>Dates</Text>
+                  <Text style={styles.reportVal}>{new Date(submittedReport.checkIn).toLocaleDateString()} - {new Date(submittedReport.checkOut).toLocaleDateString()}</Text>
+               </View>
+               <View style={styles.reportRow}>
+                  <Text style={styles.reportLabel}>Travelers</Text>
+                  <Text style={styles.reportVal}>
+                    {submittedReport.paxAdults}A, {submittedReport.paxTeens}T, {submittedReport.paxChildren}C
+                  </Text>
+               </View>
+               <View style={styles.reportDivider} />
+               <View style={styles.reportRow}>
+                  <Text style={styles.totalLabel}>TOTAL AMOUNT</Text>
+                  <Text style={styles.totalVal}>Rs {submittedReport.totalAmount?.toLocaleString()}</Text>
+               </View>
+            </View>
+
             <Text style={styles.successText}>
-              We've received your booking request for {service.name}. Our team will contact you shortly.
+              A confirmation email has been sent to {submittedReport.email}. Our team will contact you shortly to finalize the arrangements.
             </Text>
-            <Button mode="contained" onPress={onDismiss} style={styles.successButton}>
-              Close
+            
+            <Button 
+              mode="contained" 
+              onPress={() => {
+                setIsSuccess(false);
+                setSubmittedReport(null);
+                reset();
+                onDismiss();
+              }} 
+              style={styles.successButton}
+              contentStyle={{ height: 56 }}
+            >
+              Back to Experience
             </Button>
           </View>
         </Modal>
@@ -785,30 +822,79 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   successContainer: {
-    backgroundColor: Colors.white,
-    margin: 40,
-    borderRadius: 32,
-    padding: 32,
-    alignItems: 'center',
+    backgroundColor: 'transparent',
+    padding: 20,
   },
   successContent: {
+    backgroundColor: Colors.white,
+    borderRadius: 32,
+    padding: 32,
+    alignItems: 'stretch',
+  },
+  successHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    textAlign: 'center',
-  },
-  successTitle: {
-    fontWeight: '900',
-    color: Colors.charcoal,
-    marginTop: 20,
-    marginBottom: 12,
-  },
-  successText: {
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
+    gap: 16,
     marginBottom: 24,
   },
+  successTitle: {
+    fontFamily: 'Outfit_900Black',
+    color: Colors.charcoal,
+    fontSize: 24,
+  },
+  successSubtitle: {
+    fontFamily: 'Outfit_600SemiBold',
+    color: '#059669',
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  reportCard: {
+    backgroundColor: Colors.slate[50],
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  reportRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  reportLabel: {
+    fontFamily: 'Outfit_600SemiBold',
+    color: Colors.slate[400],
+    fontSize: 12,
+  },
+  reportVal: {
+    fontFamily: 'Outfit_700Bold',
+    color: Colors.charcoal,
+    fontSize: 12,
+    flex: 1,
+    textAlign: 'right',
+    marginLeft: 12,
+  },
+  reportDivider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: 12,
+  },
+  totalVal: {
+    fontFamily: 'Outfit_900Black',
+    color: Colors.primary,
+    fontSize: 18,
+  },
+  successText: {
+    fontFamily: 'Outfit_500Medium',
+    color: Colors.slate[500],
+    fontSize: 14,
+    lineHeight: 22,
+    marginBottom: 32,
+    textAlign: 'center',
+  },
   successButton: {
-    width: '100%',
     borderRadius: 16,
+    backgroundColor: Colors.charcoal,
   },
 });

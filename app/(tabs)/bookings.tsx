@@ -57,7 +57,7 @@ export default function BookingsScreen() {
             </View>
             <View style={styles.priceContainer}>
               <Text style={styles.priceLabel}>Total</Text>
-              <Text style={styles.price}>Rs {(item.total_price ?? 0).toLocaleString()}</Text>
+              <Text style={styles.price}>Rs {(item.total_amount ?? 0).toLocaleString()}</Text>
             </View>
           </View>
         </View>

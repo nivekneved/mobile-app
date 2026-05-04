@@ -8,7 +8,7 @@ export type Booking = {
   status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed' | string;
   created_at: string;
   service_name: string;
-  total_price: number;
+  total_amount: number;
   service_type: string;
   service_id?: string;
   image_url?: string;
@@ -55,7 +55,7 @@ export const useCustomerBookings = () => {
             status,
             created_at,
             service_name,
-            total_price,
+            total_amount,
             service_type,
             booking_items(
               service_id,
@@ -79,7 +79,7 @@ export const useCustomerBookings = () => {
             status: booking.status,
             created_at: booking.created_at,
             service_name: booking.service_name,
-            total_price: booking.total_price,
+            total_amount: booking.total_amount,
             service_type: booking.service_type,
             service_id: firstItem?.service_id || undefined,
             image_url: firstItem?.services?.image_url || undefined,

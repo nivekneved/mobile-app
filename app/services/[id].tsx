@@ -299,10 +299,15 @@ export default function ServiceDetailScreen() {
               pax_infants: data.paxInfants,
               pax_children: data.paxChildren,
               pax_teens: data.paxTeens,
-              amount: data.totalAmount, // Use calculated total from modal
+              total_amount: data.totalAmount, // Use total_amount for schema parity
               tax_amount: 0,
               service_type: service.category || 'General',
               service_name: service.name,
+              lead_data: {
+                ...data,
+                service_name: service.name,
+                category: service.category
+              },
               description: data.roomType 
                 ? `Booking for ${service.name}. Room: ${data.roomType}. Special: ${data.specialRequirements || 'None'}`
                 : `Booking for ${service.name}. Special: ${data.specialRequirements || 'None'}`,
