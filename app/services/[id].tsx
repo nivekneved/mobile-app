@@ -171,10 +171,26 @@ export default function ServiceDetailScreen() {
             <Text style={styles.description}>{stripHtml(service.description) || "Discover the beauty and luxury of this carefully curated experience by Travel Lounge."}</Text>
           </View>
 
-          {/* Accommodation for Hotels */}
-          {service.category?.toLowerCase() === 'hotel' && roomTypes.length > 0 && (
+          {/* Multi-Image Experience Gallery */}
+          {service.gallery_images && service.gallery_images.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Elite Accommodation</Text>
+              <Text style={styles.sectionTitle}>Multi-Image Experience</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryContent}>
+                {service.gallery_images.map((img, idx) => (
+                  <TouchableOpacity key={idx} activeOpacity={0.9}>
+                    <Surface style={styles.galleryCard} elevation={2}>
+                      <Image source={resolveImageUrl(img)} style={styles.galleryImage} />
+                    </Surface>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {/* Accommodation for Hotels */}
+          {(service.category?.toLowerCase()?.includes('hotel') || service.category?.toLowerCase() === 'stay') && roomTypes.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Choose Your Room</Text>
               {roomTypes.map((room) => (
                 <Surface key={room.id} style={styles.roomCard} elevation={0}>
                   <Image source={resolveImageUrl(room.image_url)} style={styles.roomImage} />
@@ -276,14 +292,30 @@ export default function ServiceDetailScreen() {
             </View>
           )}
 
-          {/* Cancellation Policy */}
-          {service.cancellation_policy && (
+          {/* Policies & Facts */}
+          {(service.cancellation_policy || service.terms_and_conditions) && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Cancellation Policy</Text>
-              <Surface style={styles.policyCard} elevation={0}>
-                 <Info size={18} color={Colors.primary} />
-                 <Text style={styles.policyText}>{stripHtml(service.cancellation_policy as string)}</Text>
-              </Surface>
+              <Text style={styles.sectionTitle}>Policies & Facts</Text>
+              <View style={styles.policiesWrapper}>
+                {service.cancellation_policy && (
+                  <Surface style={styles.policyCard} elevation={0}>
+                    <View style={styles.policyHeader}>
+                      <Info size={18} color={Colors.primary} />
+                      <Text style={styles.policyTitle}>Cancellation Policy</Text>
+                    </View>
+                    <Text style={styles.policyText}>{stripHtml(service.cancellation_policy as string)}</Text>
+                  </Surface>
+                )}
+                {service.terms_and_conditions && (
+                  <Surface style={[styles.policyCard, { marginTop: 12, backgroundColor: Colors.slate[50], borderColor: Colors.border }]} elevation={0}>
+                    <View style={styles.policyHeader}>
+                      <Clock size={18} color={Colors.charcoal} />
+                      <Text style={styles.policyTitle}>Terms & Conditions</Text>
+                    </View>
+                    <Text style={[styles.policyText, { color: Colors.slate[500] }]}>{stripHtml(service.terms_and_conditions as string)}</Text>
+                  </Surface>
+                )}
+              </View>
             </View>
           )}
 
@@ -312,19 +344,6 @@ export default function ServiceDetailScreen() {
             </View>
           )}
 
-          {/* Frequently Asked Questions */}
-          {faqs.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Common Questions</Text>
-              {faqs.map((faq) => (
-                <View key={faq.id} style={styles.faqItem}>
-                  <Text style={styles.faqQuestion}>{faq.question}</Text>
-                  <Text style={styles.faqAnswer}>{faq.answer}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-          
           <View style={{ height: 160 }} />
         </View>
       </ScrollView>
@@ -507,4 +526,10 @@ const styles = StyleSheet.create({
   highlightItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 12 },
   highlightDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.primary, marginTop: 8 },
   highlightText: { fontFamily: 'Outfit_500Medium', fontSize: 15, color: Colors.charcoal, flex: 1, lineHeight: 22 },
+  galleryContent: { paddingRight: 24, gap: 16 },
+  galleryCard: { width: 280, height: 180, borderRadius: 24, overflow: 'hidden', backgroundColor: Colors.white },
+  galleryImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+  policiesWrapper: { gap: 0 },
+  policyHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
+  policyTitle: { fontFamily: 'Outfit_900Black', fontSize: 14, color: Colors.charcoal, textTransform: 'uppercase', letterSpacing: 1 },
 });
