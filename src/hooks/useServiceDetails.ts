@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Service } from './useHomeData';
+import { calculateLeadPrice } from '../utils/pricingUtils';
 
 export const useServiceDetails = (id: string | string[] | undefined) => {
   const [service, setService] = useState<Service | null>(null);
@@ -18,7 +19,7 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
         setIsLoading(true);
         const { data, error: serviceError } = await supabase
           .from('services')
-          .select('*, amenities, itinerary, gallery_images, service_pricing(price), service_categories(categories(name))')
+          .select('*, amenities, itinerary, gallery_images, service_pricing(price, occupancy_pricing), service_categories(categories(name))')
           .eq('id', id)
           .single();
 
@@ -27,9 +28,7 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
         if (data) {
           // Extract category name from the join if available
           const categoryName = data.service_categories?.[0]?.categories?.name || data.service_type || 'Experience';
-
-          const prices = (data.service_pricing || []).map((p: any) => Number(p.price)).filter((p: number) => p > 0);
-          const lowestPrice = prices.length > 0 ? Math.min(...prices) : 0;
+          const lowestPrice = calculateLeadPrice(data.service_pricing || [], data.service_type);
 
           setService({
             ...data,

@@ -20,6 +20,7 @@
     *   Standardized iconography across all navigation modules using Lucide-react.
     *   Updated Flights filter button and category card on Home screen to navigate directly to the `/flights` module.
     *   Renamed "Seasonal Deals" to "Promotional Deals" and filtered for "Evening Package" services.
+    *   Synchronized mobile pricing engine with Web-App logic, resolving the widespread "Rs 0" display issue by implementing `calculateLeadPrice` to support complex `occupancy_pricing` (JSONB).
 
 ## Status: 2026-05-04 - Mobile Responsiveness & Navigation Stabilization
 

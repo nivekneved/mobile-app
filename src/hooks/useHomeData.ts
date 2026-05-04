@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { calculateLeadPrice } from '../utils/pricingUtils';
 
 export type HeroSlide = {
   id: string;
@@ -59,7 +60,7 @@ export const useHomeData = () => {
         ] = await Promise.all([
           supabase.from('hero_slides').select('*').order('order_index', { ascending: true }),
           supabase.from('categories').select('*').order('display_order', { ascending: true, nullsFirst: false }),
-          supabase.from('services').select('*, service_pricing(price), service_categories(categories(name))').order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(10),
+          supabase.from('services').select('*, service_pricing(price, occupancy_pricing), service_categories(categories(name))').order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(10),
           supabase.from('services').select('region').not('region', 'is', null)
         ]);
         
@@ -78,8 +79,7 @@ export const useHomeData = () => {
 
         const mappedServices = (services || []).map((s: any) => {
           const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
-          const prices = (s.service_pricing || []).map((p: any) => Number(p.price)).filter((p: number) => p > 0);
-          const lowestPrice = prices.length > 0 ? Math.min(...prices) : 0;
+          const lowestPrice = calculateLeadPrice(s.service_pricing || [], s.service_type);
           return { ...s, price: lowestPrice, lowestPrice, category: categoryName };
         });
 

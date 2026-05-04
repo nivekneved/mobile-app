@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Service } from './useHomeData';
+import { calculateLeadPrice } from '../utils/pricingUtils';
 
 export const useSearchServices = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -16,11 +17,11 @@ export const useSearchServices = () => {
       setIsLoading(true);
       setError(null);
       try {
-        let selectString = '*, service_pricing(price), service_categories(categories(id, name, slug))';
+        let selectString = '*, service_pricing(price, occupancy_pricing), service_categories(categories(id, name, slug))';
 
         // Use !inner joins when filtering by category to ensure the main records are filtered
         if (categorySlug && categorySlug !== 'all') {
-          selectString = '*, service_pricing(price), service_categories!inner(categories!inner(id, name, slug))';
+          selectString = '*, service_pricing(price, occupancy_pricing), service_categories!inner(categories!inner(id, name, slug))';
         }
 
         let supabaseQuery = supabase
@@ -44,9 +45,7 @@ export const useSearchServices = () => {
         const mappedServices = (data || []).map((s: any) => {
           // Extract category name from the join if available
           const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
-
-          const prices = (s.service_pricing || []).map((p: any) => Number(p.price)).filter((p: number) => p > 0);
-          const lowestPrice = prices.length > 0 ? Math.min(...prices) : 0;
+          const lowestPrice = calculateLeadPrice(s.service_pricing || [], s.service_type);
 
           return {
             ...s,
