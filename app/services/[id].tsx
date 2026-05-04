@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
 import { useServiceDetails } from '../../src/hooks/useServiceDetails';
 import { useRoomTypes } from '../../src/hooks/useRoomTypes';
-import { MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, Calendar as CalendarIcon, Tag, Moon, MessageCircle, Phone, Sparkles } from 'lucide-react-native';
+import { MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, X, Calendar as CalendarIcon, Tag, Moon, MessageCircle, Phone, Sparkles } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
 import { BookingModal } from '../../src/components/BookingModal';
@@ -19,7 +19,6 @@ import { User } from 'lucide-react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useWishlist } from '../../src/context/WishlistContext';
 import { stripHtml } from '../../src/utils/textUtils';
-import { Check, X, Info } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 450;
