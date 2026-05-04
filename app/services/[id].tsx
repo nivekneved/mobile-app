@@ -18,6 +18,8 @@ import { StarRating } from '../../src/components/StarRating';
 import { User } from 'lucide-react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useWishlist } from '../../src/context/WishlistContext';
+import { stripHtml } from '../../src/utils/textUtils';
+import { Check, X, Info } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 450;
@@ -167,7 +169,7 @@ export default function ServiceDetailScreen() {
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>The Experience</Text>
-            <Text style={styles.description}>{service.description || "Discover the beauty and luxury of this carefully curated experience by Travel Lounge."}</Text>
+            <Text style={styles.description}>{stripHtml(service.description) || "Discover the beauty and luxury of this carefully curated experience by Travel Lounge."}</Text>
           </View>
 
           {/* Accommodation for Hotels */}
@@ -206,6 +208,83 @@ export default function ServiceDetailScreen() {
                   </View>
                 </View>
               ))}
+            </View>
+          )}
+
+          {/* Key Highlights */}
+          {service.highlights && (Array.isArray(service.highlights) ? service.highlights.length > 0 : service.highlights.length > 0) && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Key Highlights</Text>
+              <View style={styles.highlightsCard}>
+                {(Array.isArray(service.highlights) ? service.highlights : (service.highlights as string).split('\n')).map((item, idx) => (
+                  <View key={idx} style={styles.highlightItem}>
+                    <View style={styles.highlightDot} />
+                    <Text style={styles.highlightText}>{item.trim()}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Special Features */}
+          {service.special_features && (Array.isArray(service.special_features) ? service.special_features.length > 0 : service.special_features.length > 0) && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Exclusive Features</Text>
+              <View style={styles.amenitiesGrid}>
+                {(Array.isArray(service.special_features) ? service.special_features : (service.special_features as string).split(',')).map((item, idx) => (
+                  <View key={idx} style={styles.amenityItem}>
+                    <Sparkles size={14} color="#D97706" />
+                    <Text style={styles.amenityText}>{item.trim()}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Property Amenities */}
+          {service.amenities && (Array.isArray(service.amenities) ? service.amenities.length > 0 : service.amenities.length > 0) && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Property Amenities</Text>
+              <View style={styles.amenitiesGrid}>
+                {(Array.isArray(service.amenities) ? service.amenities : (service.amenities as string).split(',')).map((item, idx) => (
+                  <View key={idx} style={styles.amenityItem}>
+                    <Check size={14} color={Colors.primary} />
+                    <Text style={styles.amenityText}>{item.trim()}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Inclusions & Exclusions */}
+          {(service.included || service.not_included) && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>What's Included</Text>
+              <View style={styles.inclusionsCard}>
+                {service.included && (Array.isArray(service.included) ? service.included : [service.included]).map((item, idx) => (
+                  <View key={idx} style={styles.inclusionItem}>
+                    <Check size={16} color="#059669" />
+                    <Text style={styles.inclusionText}>{item}</Text>
+                  </View>
+                ))}
+                {service.not_included && (Array.isArray(service.not_included) ? service.not_included : [service.not_included]).map((item, idx) => (
+                  <View key={idx} style={styles.inclusionItem}>
+                    <X size={16} color="#DC2626" />
+                    <Text style={[styles.inclusionText, { color: Colors.slate[400] }]}>{item}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Cancellation Policy */}
+          {service.cancellation_policy && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Cancellation Policy</Text>
+              <Surface style={styles.policyCard} elevation={0}>
+                 <Info size={18} color={Colors.primary} />
+                 <Text style={styles.policyText}>{stripHtml(service.cancellation_policy as string)}</Text>
+              </Surface>
             </View>
           )}
 
@@ -417,4 +496,16 @@ const styles = StyleSheet.create({
   faqItem: { marginBottom: 24 },
   faqQuestion: { fontFamily: 'Outfit_900Black', fontSize: 15, color: Colors.charcoal, marginBottom: 8 },
   faqAnswer: { fontFamily: 'Outfit_500Medium', fontSize: 14, color: Colors.slate[500], lineHeight: 22 },
+  amenitiesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  amenityItem: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.slate[50], paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: Colors.border },
+  amenityText: { fontFamily: 'Outfit_600SemiBold', fontSize: 12, color: Colors.charcoal },
+  inclusionsCard: { backgroundColor: Colors.slate[50], padding: 20, borderRadius: 24, borderWidth: 1, borderColor: Colors.border },
+  inclusionItem: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  inclusionText: { fontFamily: 'Outfit_500Medium', fontSize: 14, color: Colors.charcoal, flex: 1 },
+  policyCard: { flexDirection: 'row', gap: 12, backgroundColor: '#F0F9FF', padding: 20, borderRadius: 24, borderWidth: 1, borderColor: '#BAE6FD' },
+  policyText: { fontFamily: 'Outfit_500Medium', fontSize: 14, color: '#0369A1', flex: 1, lineHeight: 22 },
+  highlightsCard: { backgroundColor: Colors.white, padding: 0 },
+  highlightItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 12 },
+  highlightDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.primary, marginTop: 8 },
+  highlightText: { fontFamily: 'Outfit_500Medium', fontSize: 15, color: Colors.charcoal, flex: 1, lineHeight: 22 },
 });

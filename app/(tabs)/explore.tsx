@@ -131,7 +131,7 @@ export default function ExploreScreen() {
             All
           </Chip>
           {[
-            ...categories.filter(cat => cat.slug !== 'activities'),
+            ...categories.filter(cat => cat.slug !== 'activities' && cat.slug !== 'flight' && cat.slug !== 'flights'),
             ...(!categories.find(c => c.slug === 'sea-activities') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea' }] : []),
             ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land' }] : [])
           ].map((cat: any) => (

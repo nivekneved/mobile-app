@@ -47,8 +47,8 @@ export const useServiceAddons = (serviceId: string | undefined) => {
           supabase
             .from('faqs')
             .select('id, question, answer, category, order_index')
-            .eq('service_id', serviceId)
-            .order('order_index', { ascending: true }),
+            .order('order_index', { ascending: true })
+            .limit(5),
         ]);
 
         if (reviewError) throw reviewError;
