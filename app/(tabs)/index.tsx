@@ -139,7 +139,7 @@ export default function HomeScreen() {
                     slug={cat.slug}
                     image_url={cat.image_url} 
                     onPress={() => router.push({
-                      pathname: '/(tabs)/explore',
+                      pathname: '/explore',
                       params: { category: cat.slug }
                     })} 
                   />
@@ -148,7 +148,7 @@ export default function HomeScreen() {
            </View>
 
            <View style={styles.quickFilters}>
-              <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/explore?benefits=all-inclusive')}>
+               <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/explore?benefits=all-inclusive')}>
                 <View style={[styles.filterIcon, {backgroundColor: 'rgba(220, 38, 38, 0.1)'}]}><Sparkles size={16} color={Colors.primary} /></View>
                 <Text style={styles.filterText}>ALL-INCLUSIVE</Text>
               </TouchableOpacity>
@@ -205,14 +205,23 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuredList}>
-            {featuredServices?.map((service) => service && (
+            {featuredServices && featuredServices.length > 0 ? (
+              featuredServices.map((service) => service && (
                 <ServiceCard 
-                  key={service.id} name={service.name} 
-                  image_url={service.image_url} price={service.price}
-                  category={service.category} location={service.location}
+                  key={service.id} 
+                  name={service.name} 
+                  image_url={service.image_url} 
+                  price={service.price || 0}
+                  category={service.category} 
+                  location={service.location}
                   onPress={() => router.push(`/services/${service.id}`)}
                 />
-              )) || <ActivityIndicator style={{marginLeft: 24}} />}
+              ))
+            ) : isLoading ? (
+              <ActivityIndicator style={{ marginLeft: 24 }} color={Colors.primary} />
+            ) : (
+              <Text style={{ marginLeft: 24, color: Colors.slate[400], fontFamily: 'Outfit_500Medium' }}>No featured deals today.</Text>
+            )}
           </ScrollView>
         </View>
 

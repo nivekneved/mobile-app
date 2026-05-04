@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
-import { Home, Search, Calendar, User, Newspaper, Plane } from 'lucide-react-native';
+import { Home, Search, Calendar, User, Newspaper, Plane, Heart } from 'lucide-react-native';
 import { TouchableOpacity, Alert } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 
@@ -65,15 +65,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="wishlist"
+        options={{
+          title: 'Wishlist',
+          tabBarIcon: ({ color }) => <Heart size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="bookings"
         options={{
-          href: null,
+          title: 'Bookings',
+          tabBarIcon: ({ color }) => <Calendar size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          href: null,
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <User size={24} color={color} />,
         }}
       />
       <Tabs.Screen

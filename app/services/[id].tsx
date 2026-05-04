@@ -180,8 +180,8 @@ export default function ServiceDetailScreen() {
                   <View style={styles.roomContent}>
                     <Text style={styles.roomName}>{room.name}</Text>
                     <View style={styles.priceGrid}>
-                        <View style={styles.priceCell}><Text style={styles.priceCellTitle}>WEEKDAY</Text><Text style={styles.priceCellVal}>Rs {room.weekday_price.toLocaleString()}</Text></View>
-                        <View style={styles.priceCell}><Text style={[styles.priceCellTitle, {color: Colors.primary}]}>WEEKEND</Text><Text style={[styles.priceCellVal, {color: Colors.primary}]}>Rs {room.weekend_price.toLocaleString()}</Text></View>
+                        <View style={styles.priceCell}><Text style={styles.priceCellTitle}>WEEKDAY</Text><Text style={styles.priceCellVal}>Rs {room.weekday_price?.toLocaleString() || '0'}</Text></View>
+                        <View style={styles.priceCell}><Text style={[styles.priceCellTitle, {color: Colors.primary}]}>WEEKEND</Text><Text style={[styles.priceCellVal, {color: Colors.primary}]}>Rs {room.weekend_price?.toLocaleString() || '0'}</Text></View>
                     </View>
                   </View>
                 </Surface>
@@ -255,7 +255,7 @@ export default function ServiceDetailScreen() {
       <Surface style={styles.footerBar} elevation={5}>
          <View style={styles.footerInfo}>
              <Text style={styles.footerPriceLabel}>TOTAL FROM</Text>
-             <Text style={styles.footerPriceVal}>Rs {service.price.toLocaleString()}</Text>
+             <Text style={styles.footerPriceVal}>Rs {service.price?.toLocaleString() || '0'}</Text>
          </View>
          <TouchableOpacity style={styles.footerCta} onPress={() => setBookingVisible(true)}>
              <Text style={styles.footerCtaText}>CONTINUE BOOKING</Text>

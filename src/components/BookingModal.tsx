@@ -134,14 +134,14 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
   const calculateTotal = () => {
     if (!pricing) return 0;
     
-    let total = pricing.total;
+    let total = pricing.total || 0;
     
     // Add meal plan costs
     if (watchAllFields.mealPreference && watchAllFields.mealPreference !== 'none') {
       const meal = service.meal_plans?.find(m => m.id === watchAllFields.mealPreference);
-      if (meal) {
+      if (meal && meal.price) {
         const totalPax = (watchAllFields.paxAdults || 0) + (watchAllFields.paxTeens || 0) + (watchAllFields.paxChildren || 0) + (watchAllFields.paxInfants || 0);
-        total += meal.price * totalPax * Math.max(1, pricing.nights);
+        total += (meal.price || 0) * totalPax * Math.max(1, pricing.nights || 0);
       }
     }
     return total;
@@ -437,14 +437,14 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                                 <Text style={[
                                   styles.roomTypePrice,
                                   value === type.name && styles.roomTypeTextSelected
-                                ]}> Rs {type.weekday_price.toLocaleString()}</Text>
+                                ]}> Rs {type.weekday_price?.toLocaleString() || '0'}</Text>
                               </View>
                               <View style={[styles.miniPriceBadge, styles.miniPriceBadgeWeekend]}>
                                 <Moon size={10} color={value === type.name ? Colors.white : Colors.primary} />
                                 <Text style={[
                                   styles.roomTypePrice,
                                   { color: value === type.name ? Colors.white : Colors.primary }
-                                ]}> Rs {type.weekend_price.toLocaleString()}</Text>
+                                ]}> Rs {type.weekend_price?.toLocaleString() || '0'}</Text>
                               </View>
                             </View>
                             {type.min_stay && type.min_stay > 1 && (
@@ -507,7 +507,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                           <View style={styles.miniPriceBadge}>
                              <Utensils size={12} color={value === meal.id ? Colors.white : Colors.textSecondary} />
                              <Text style={[styles.roomTypePrice, value === meal.id && styles.roomTypeTextSelected]}>
-                                +Rs {meal.price.toLocaleString()} per pax/night
+                                +Rs {meal.price?.toLocaleString() || '0'} per pax/night
                              </Text>
                           </View>
                         </View>
@@ -544,7 +544,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
             {calculatingPrice ? (
               <ActivityIndicator size="small" color={Colors.primary} />
             ) : (
-              <Text style={styles.totalValue}>Rs {calculateTotal().toLocaleString()}</Text>
+              <Text style={styles.totalValue}>Rs {(calculateTotal() || 0).toLocaleString()}</Text>
             )}
           </View>
           <Button

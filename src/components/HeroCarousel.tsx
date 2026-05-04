@@ -71,7 +71,7 @@ type HeroCarouselProps = {
 
 export const HeroCarousel = ({ data }: HeroCarouselProps) => {
   const { width } = useWindowDimensions();
-  if (!data || data.length === 0) return null;
+  if (!data || data.length === 0 || width === 0) return null;
 
   return (
     <View style={styles.container}>
@@ -95,7 +95,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.charcoal,
   },
   slide: {
-    width,
     height: ITEM_HEIGHT,
     position: 'relative',
     overflow: 'hidden',

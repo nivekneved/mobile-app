@@ -15,7 +15,7 @@ export type FAQ = {
   question: string;
   answer: string;
   category: string;
-  display_order: number;
+  order_index: number;
 };
 
 export const useServiceAddons = (serviceId: string | undefined) => {
@@ -46,9 +46,9 @@ export const useServiceAddons = (serviceId: string | undefined) => {
             .limit(5),
           supabase
             .from('faqs')
-            .select('id, question, answer, category, display_order')
+            .select('id, question, answer, category, order_index')
             .eq('service_id', serviceId)
-            .order('display_order', { ascending: true }),
+            .order('order_index', { ascending: true }),
         ]);
 
         if (reviewError) throw reviewError;

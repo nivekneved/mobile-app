@@ -1,17 +1,25 @@
 # Development Log
 
-## Status: 2026-05-04
-### Task: Mobile Responsiveness & Orientation Support
-**Status: Verified & Deployed**
-- **Dynamic Viewport Scaling**: 
-  - Migrated from legacy `Dimensions.get('window')` to the `useWindowDimensions` hook across all primary carousel and layout components in the `mobile-app`.
-  - This ensures that UI elements, including the **HeroCarousel**, **PremiumCarousel**, and **Destination Cards**, reactively scale and realign when the device orientation changes or screen dimensions are modified.
-- **Component Refinement**:
-  - `HomeScreen`: Updated `DestinationCard` to accept dynamic `cardWidth` props, resolving layout friction on tablets and landscape viewports.
-  - `HeroCarousel` & `PremiumCarousel`: Optimized internal scroll logic to utilize real-time viewport width, guaranteeing 100% precision for snap-to-alignment carousels.
-- **Validation**: 
-  - Verified smooth layout transitions across multiple simulated device sizes.
-- **Deployment**: Changes committed and pushed to GitHub.
+### 2026-05-04: Mobile-App Stability & Production Readiness
+
+#### **Critical Bug Fixes**
+*   **Runtime Crash Resolution**: 
+    *   Fixed `TypeError: toLocaleString of undefined` in `BookingModal.tsx` and `app/services/[id].tsx` by adding nullish coalescing to all price displays.
+    *   Resolved `ReferenceError: width is not defined` in `HeroCarousel.tsx` and added safety guards for `useWindowDimensions`.
+*   **Database Synchronization**: 
+    *   Corrected FAQ query in `useServiceAddons.ts` to use `order_index` instead of `display_order`, resolving SQL error 42703.
+
+#### **Production Enhancements**
+*   **Navigation & Tabs**: 
+    *   Enabled "Bookings" and "Profile" tabs in bottom navigation.
+    *   Created and integrated a high-fidelity "Wishlist" tab for managing saved experiences.
+*   **Profile Hub**: 
+    *   Revamped the Profile screen with sections for Personal Details, Account Settings, Premium Support (WhatsApp integration), and a secure Logout mechanism.
+*   **Stability & UX**: 
+    *   Added robust data-existence checks in `HomeScreen` to prevent rendering empty or invalid states.
+    *   Standardized iconography across all navigation modules using Lucide-react.
+
+## Status: 2026-05-04 - Mobile Responsiveness & Navigation Stabilization
 
 ## Status: 2026-05-01
 ### Task: May Milestone - SMTP Finalization & Ecosystem Certification

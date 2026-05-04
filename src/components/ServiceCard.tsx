@@ -1,13 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { Text, Surface } from 'react-native-paper';
 import { Colors } from '../theme/colors';
 import { MapPin, Sparkles } from 'lucide-react-native';
 import { resolveImageUrl } from '../utils/imageUtils';
 import { Image as ExpoImage } from 'expo-image';
-
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.75;
 
 interface ServiceCardProps {
   name: string;
@@ -19,9 +16,11 @@ interface ServiceCardProps {
 }
 
 export const ServiceCard = ({ name, image_url, price, category, location, onPress }: ServiceCardProps) => {
+  const { width } = useWindowDimensions();
+  const CARD_WIDTH = width * 0.75;
   return (
     <TouchableOpacity 
-      style={styles.container} 
+      style={[styles.container, { width: CARD_WIDTH }]} 
       onPress={onPress} 
       activeOpacity={0.9}
       accessibilityRole="button"
@@ -74,7 +73,6 @@ export const ServiceCard = ({ name, image_url, price, category, location, onPres
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
     marginRight: 20,
     marginBottom: 10,
   },
