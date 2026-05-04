@@ -82,18 +82,23 @@ export default function ServiceDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false} style={styles.container} stickyHeaderIndices={[1]}>
         {/* Elite Image Header / Gallery */}
         <View style={styles.imageContainer}>
-          {service.gallery_images && service.gallery_images.length > 0 ? (
+          {(service.gallery_images && service.gallery_images.length > 0) ? (
             <PremiumCarousel
               data={service.gallery_images.map(img => ({ image: img }))}
               itemWidth={width}
               gap={0}
               showIndicators={true}
               renderItem={({ item }: { item: { image: string } }) => (
-                <Image source={resolveImageUrl(item.image)} style={styles.image} />
+                <View style={{ width, height: HEADER_HEIGHT }}>
+                  <Image source={resolveImageUrl(item.image)} style={styles.image} />
+                </View>
               )}
             />
           ) : (
-            <Image source={resolveImageUrl(service.image_url)} style={styles.image} />
+            <Image 
+              source={resolveImageUrl(service.banner_url || service.image_url)} 
+              style={styles.image} 
+            />
           )}
           <View style={styles.overlay} />
           <View style={styles.topControls}>

@@ -65,7 +65,7 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
     let transform = '?';
     if (width) transform += `width=${width}`;
     if (height) transform += `${transform.length > 1 ? '&' : ''}height=${height}`;
-    return { uri: `${renderUrl}${transform}&quality=80&resize=contain` };
+    return { uri: `${renderUrl}${transform}&quality=80&resize=cover` };
   }
 
   return { uri: baseUrl };
