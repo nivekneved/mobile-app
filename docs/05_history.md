@@ -19,6 +19,7 @@
     *   Added robust data-existence checks in `HomeScreen` to prevent rendering empty or invalid states.
     *   Standardized iconography across all navigation modules using Lucide-react.
     *   Updated Flights filter button and category card on Home screen to navigate directly to the `/flights` module.
+    *   Renamed "Seasonal Deals" to "Promotional Deals" and filtered for "Evening Package" services.
 
 ## Status: 2026-05-04 - Mobile Responsiveness & Navigation Stabilization
 

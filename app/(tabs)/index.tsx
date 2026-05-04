@@ -201,7 +201,7 @@ export default function HomeScreen() {
                 {contentBlocks.offers?.label || 'EXCLUSIVE OFFERS'}
               </Text>
               <Text style={styles.sectionTitle}>
-                {contentBlocks.offers?.title || 'Seasonal Deals'}
+                {contentBlocks.offers?.title || 'Promotional Deals'}
               </Text>
             </View>
             <TouchableOpacity onPress={() => router.push('/explore')}>
@@ -212,7 +212,9 @@ export default function HomeScreen() {
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuredList}>
             {featuredServices && featuredServices.length > 0 ? (
-              featuredServices.map((service) => service && (
+              featuredServices
+                .filter(s => s && (s.name?.toLowerCase().includes('evening package') || s.service_type?.toLowerCase().includes('evening package')))
+                .map((service) => (
                 <ServiceCard 
                   key={service.id} 
                   name={service.name} 
