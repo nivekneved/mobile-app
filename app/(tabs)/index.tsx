@@ -132,7 +132,11 @@ export default function HomeScreen() {
                 showsHorizontalScrollIndicator={false} 
                 contentContainerStyle={styles.categoryScroll}
               >
-                {categories.length > 0 ? categories.map((cat) => (
+                {categories.length > 0 ? [
+                  ...categories.filter(cat => cat.slug !== 'activities'),
+                  ...(!categories.find(c => c.slug === 'sea-activities') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea', image_url: '' }] : []),
+                  ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land', image_url: '' }] : [])
+                ].map((cat: any) => (
                   <CategoryCard 
                     key={cat.id} 
                     name={cat.name} 
@@ -153,45 +157,41 @@ export default function HomeScreen() {
               </ScrollView>
            </View>
 
-           <View style={styles.quickFilters}>
-               <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/explore?benefits=all-inclusive')}>
-                <View style={[styles.filterIcon, {backgroundColor: 'rgba(220, 38, 38, 0.1)'}]}><Sparkles size={16} color={Colors.primary} /></View>
-                <Text style={styles.filterText}>ALL-INCLUSIVE</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/explore?on_sale=true')}>
-                <View style={[styles.filterIcon, {backgroundColor: 'rgba(16, 185, 129, 0.1)'}]}><Percent size={16} color="#10B981" /></View>
-                <Text style={styles.filterText}>BEST PRICES</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/flights')}>
-                <View style={[styles.filterIcon, {backgroundColor: 'rgba(59, 130, 246, 0.1)'}]}><Plane size={16} color="#3B82F6" /></View>
-                <Text style={styles.filterText}>FLIGHTS</Text>
-              </TouchableOpacity>
-           </View>
-        </View>
+           {/* Premium Quick Filters (Restored with Better UI) */}
+           <View style={styles.quickFiltersContainer}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickFiltersScroll}>
+                <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#FEF2F2' }]} onPress={() => router.push('/explore?benefits=all-inclusive')}>
+                  <View style={[styles.quickFilterIcon, { backgroundColor: Colors.primary }]}>
+                    <Sparkles size={18} color={Colors.white} />
+                  </View>
+                  <View>
+                    <Text style={styles.quickFilterLabel}>ALL-INCLUSIVE</Text>
+                    <Text style={styles.quickFilterSublabel}>Luxury Stays</Text>
+                  </View>
+                </TouchableOpacity>
 
-        {/* Discovery Sections */}
-        <View style={styles.discoverySection}>
-          <View style={styles.sectionHeader}>
-            <View>
-              <Text style={styles.labelTitle}>
-                {contentBlocks.luxury?.label || 'FEEL THE LUXURY'}
-              </Text>
-              <Text style={styles.sectionTitle}>
-                {contentBlocks.luxury?.title || 'Elite Collections'}
-              </Text>
+                <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#F0FDF4' }]} onPress={() => router.push('/explore?on_sale=true')}>
+                  <View style={[styles.quickFilterIcon, { backgroundColor: '#10B981' }]}>
+                    <Percent size={18} color={Colors.white} />
+                  </View>
+                  <View>
+                    <Text style={styles.quickFilterLabel}>BEST PRICES</Text>
+                    <Text style={styles.quickFilterSublabel}>Top Deals</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#EFF6FF' }]} onPress={() => router.push('/flights')}>
+                  <View style={[styles.quickFilterIcon, { backgroundColor: '#3B82F6' }]}>
+                    <Plane size={18} color={Colors.white} />
+                  </View>
+                  <View>
+                    <Text style={styles.quickFilterLabel}>FLIGHTS</Text>
+                    <Text style={styles.quickFilterSublabel}>Global Routes</Text>
+                  </View>
+                </TouchableOpacity>
+              </ScrollView>
             </View>
-          </View>
-          <PremiumCarousel
-            data={destinations}
-            itemWidth={DEST_CARD_WIDTH}
-            gap={DEST_GAP}
-            showIndicators={true}
-            indicatorColor={Colors.primary}
-            renderItem={({ item, index, scrollX }) => (
-              <DestinationCard item={item} index={index} scrollX={scrollX} onPress={() => router.push(`/explore?query=${item.query}`)} cardWidth={DEST_CARD_WIDTH} />
-            )}
-          />
-        </View>
+         </View>
 
         {/* Exclusive Deals with Benefit Visibility */}
         <View style={[styles.section, styles.featuredSection]}>
@@ -338,10 +338,36 @@ const styles = StyleSheet.create({
   categoriesWrapper: { marginTop: 24, marginBottom: 24 },
   categoryScroll: { paddingRight: 24 },
   categorySkeleton: { backgroundColor: Colors.slate[50], borderRadius: 40, marginRight: 16 },
-  quickFilters: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
-  filterBtn: { alignItems: 'center', gap: 8, width: 75 },
-  filterIcon: { width: 50, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  filterText: { fontSize: 8, fontFamily: 'Outfit_900Black', color: Colors.slate[500], textAlign: 'center' },
+  quickFiltersContainer: { marginTop: 12 },
+  quickFiltersScroll: { paddingRight: 24 },
+  quickFilterCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 24,
+    marginRight: 12,
+    minWidth: 180,
+    gap: 12,
+  },
+  quickFilterIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quickFilterLabel: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 12,
+    color: Colors.charcoal,
+    letterSpacing: 0.5,
+  },
+  quickFilterSublabel: {
+    fontFamily: 'Outfit_500Medium',
+    fontSize: 10,
+    color: Colors.slate[500],
+    marginTop: -2,
+  },
   discoverySection: { paddingVertical: 16 },
   destCardWrapper: { height: 260 },
   destCard: { width: '100%', height: '100%', borderRadius: 40, overflow: 'hidden', borderWidth: 1, borderColor: Colors.border },

@@ -130,7 +130,11 @@ export default function ExploreScreen() {
           >
             All
           </Chip>
-          {categories.map((cat) => (
+          {[
+            ...categories.filter(cat => cat.slug !== 'activities'),
+            ...(!categories.find(c => c.slug === 'sea-activities') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea' }] : []),
+            ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land' }] : [])
+          ].map((cat: any) => (
             <Chip 
               key={cat.id}
               selected={selectedCategory === cat.slug} 
