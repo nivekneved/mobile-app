@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, Image, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import Animated, { 
   useAnimatedStyle, 
@@ -11,18 +11,18 @@ import { Colors } from '../theme/colors';
 import { HeroSlide } from '../hooks/useHomeData';
 import { PremiumCarousel } from './PremiumCarousel';
 
-const { width } = Dimensions.get('window');
 const ITEM_HEIGHT = 480;
 
 type HeroSlideItemProps = {
   item: HeroSlide;
   index: number;
   scrollX: SharedValue<number>;
+  width: number;
 };
 
 import { resolveImageUrl } from '../utils/imageUtils';
 
-const HeroSlideItem = ({ item, index, scrollX }: HeroSlideItemProps) => {
+const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
   const animatedImageStyle = useAnimatedStyle(() => {
     const input = [(index - 1) * width, index * width, (index + 1) * width];
     const scale = interpolate(scrollX.value, input, [1.2, 1, 1.2], Extrapolate.CLAMP);
@@ -43,7 +43,7 @@ const HeroSlideItem = ({ item, index, scrollX }: HeroSlideItemProps) => {
   });
 
   return (
-    <View style={styles.slide}>
+    <View style={[styles.slide, { width }]}>
       <View style={styles.imageContainer}>
         <Animated.Image 
           source={resolveImageUrl(item.image_url)} 
@@ -70,6 +70,7 @@ type HeroCarouselProps = {
 };
 
 export const HeroCarousel = ({ data }: HeroCarouselProps) => {
+  const { width } = useWindowDimensions();
   if (!data || data.length === 0) return null;
 
   return (
@@ -81,7 +82,7 @@ export const HeroCarousel = ({ data }: HeroCarouselProps) => {
         showIndicators={true}
         indicatorColor={Colors.primary}
         renderItem={({ item, index, scrollX }) => (
-          <HeroSlideItem item={item} index={index} scrollX={scrollX} />
+          <HeroSlideItem item={item} index={index} scrollX={scrollX} width={width} />
         )}
       />
     </View>

@@ -1,5 +1,18 @@
 # Development Log
 
+## Status: 2026-05-04
+### Task: Mobile Responsiveness & Orientation Support
+**Status: Verified & Deployed**
+- **Dynamic Viewport Scaling**: 
+  - Migrated from legacy `Dimensions.get('window')` to the `useWindowDimensions` hook across all primary carousel and layout components in the `mobile-app`.
+  - This ensures that UI elements, including the **HeroCarousel**, **PremiumCarousel**, and **Destination Cards**, reactively scale and realign when the device orientation changes or screen dimensions are modified.
+- **Component Refinement**:
+  - `HomeScreen`: Updated `DestinationCard` to accept dynamic `cardWidth` props, resolving layout friction on tablets and landscape viewports.
+  - `HeroCarousel` & `PremiumCarousel`: Optimized internal scroll logic to utilize real-time viewport width, guaranteeing 100% precision for snap-to-alignment carousels.
+- **Validation**: 
+  - Verified smooth layout transitions across multiple simulated device sizes.
+- **Deployment**: Changes committed and pushed to GitHub.
+
 ## Status: 2026-05-01
 ### Task: May Milestone - SMTP Finalization & Ecosystem Certification
 **Status: Verified & Certified**

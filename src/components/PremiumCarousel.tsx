@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, FlatList } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, FlatList } from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedScrollHandler, 
@@ -8,8 +8,6 @@ import Animated, {
   Extrapolate 
 } from 'react-native-reanimated';
 import { Colors } from '../theme/colors';
-
-const { width } = Dimensions.get('window');
 
 interface IndicatorProps {
   index: number;
@@ -50,11 +48,13 @@ interface PremiumCarouselProps<T> {
 export function PremiumCarousel<T>({ 
   data, 
   renderItem, 
-  itemWidth = width, 
+  itemWidth: providedItemWidth, 
   gap = 0,
   showIndicators = true,
   indicatorColor = Colors.primary
 }: PremiumCarouselProps<T>) {
+  const { width } = useWindowDimensions();
+  const itemWidth = providedItemWidth || width;
   const scrollX = useSharedValue(0);
 
   const onScroll = useAnimatedScrollHandler({

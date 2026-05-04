@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, Image, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
+import { useWindowDimensions, Image, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
 import { useHomeData } from '../../src/hooks/useHomeData';
@@ -17,20 +17,18 @@ import { resolveImageUrl } from '../../src/utils/imageUtils';
 import * as Linking from 'expo-linking';
 import Animated, { useAnimatedStyle, interpolate, Extrapolate, SharedValue } from 'react-native-reanimated';
 
-const { width } = Dimensions.get('window');
-const DEST_CARD_WIDTH = width * 0.8;
 const DEST_GAP = 20;
 
-const DestinationCard = ({ item, index, scrollX, onPress }: { 
-  item: any; index: number; scrollX: SharedValue<number>; onPress: () => void;
+const DestinationCard = ({ item, index, scrollX, onPress, cardWidth }: { 
+  item: any; index: number; scrollX: SharedValue<number>; onPress: () => void; cardWidth: number;
 }) => {
   const animatedCardStyle = useAnimatedStyle(() => {
-    const input = [(index - 1)*(DEST_CARD_WIDTH+DEST_GAP), index*(DEST_CARD_WIDTH+DEST_GAP), (index + 1)*(DEST_CARD_WIDTH+DEST_GAP)];
+    const input = [(index - 1)*(cardWidth+DEST_GAP), index*(cardWidth+DEST_GAP), (index + 1)*(cardWidth+DEST_GAP)];
     return { opacity: interpolate(scrollX.value, input, [0.8, 1, 0.8], Extrapolate.CLAMP) };
   });
 
   return (
-    <Animated.View style={[styles.destCardWrapper, animatedCardStyle]}>
+    <Animated.View style={[styles.destCardWrapper, { width: cardWidth, marginRight: DEST_GAP }, animatedCardStyle]}>
       <TouchableOpacity style={styles.destCard} onPress={onPress}>
         <Image source={item.image} style={styles.destImage} />
         <View style={styles.destOverlay}>
@@ -45,6 +43,9 @@ const DestinationCard = ({ item, index, scrollX, onPress }: {
 };
 
 export default function HomeScreen() {
+  const { width } = useWindowDimensions();
+  const DEST_CARD_WIDTH = width * 0.8;
+  
   const { heroSlides, categories, destinations, featuredServices, isLoading } = useHomeData();
   const { mobileConfig, generalConfig, contentBlocks } = useSettings();
   const router = useRouter();
@@ -181,7 +182,7 @@ export default function HomeScreen() {
             showIndicators={true}
             indicatorColor={Colors.primary}
             renderItem={({ item, index, scrollX }) => (
-              <DestinationCard item={item} index={index} scrollX={scrollX} onPress={() => router.push(`/explore?query=${item.query}`)} />
+              <DestinationCard item={item} index={index} scrollX={scrollX} onPress={() => router.push(`/explore?query=${item.query}`)} cardWidth={DEST_CARD_WIDTH} />
             )}
           />
         </View>
@@ -327,7 +328,7 @@ const styles = StyleSheet.create({
   filterIcon: { width: 50, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   filterText: { fontSize: 8, fontFamily: 'Outfit_900Black', color: Colors.slate[500], textAlign: 'center' },
   discoverySection: { paddingVertical: 16 },
-  destCardWrapper: { width: DEST_CARD_WIDTH, height: 260, marginRight: DEST_GAP },
+  destCardWrapper: { height: 260 },
   destCard: { width: '100%', height: '100%', borderRadius: 40, overflow: 'hidden', borderWidth: 1, borderColor: Colors.border },
   destImage: { width: '100%', height: '100%' },
   destOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.15)', justifyContent: 'flex-end', padding: 24 },
