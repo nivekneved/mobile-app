@@ -70,29 +70,38 @@ export default function ExploreScreen() {
     <TouchableOpacity 
       onPress={() => router.push(`/services/${item.id}`)}
       activeOpacity={0.9}
+      style={styles.serviceCardWrapper}
     >
-      <Surface style={styles.serviceCard} elevation={2}>
+      <Surface style={styles.serviceCard} elevation={0}>
         <View style={styles.serviceImageContainer}>
           <Image 
             source={resolveImageUrl(item.image_url)} 
             style={styles.serviceImage} 
             resizeMode="cover"
           />
+          <View style={styles.priceTag}>
+            <Text style={styles.priceLabel}>FROM</Text>
+            <Text style={styles.priceValue}>Rs {item.price?.toLocaleString() || '0'}</Text>
+          </View>
         </View>
         <View style={styles.serviceInfo}>
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{item.category || 'Experience'}</Text>
+          <View style={styles.headerRow}>
+            <Text style={styles.categoryBadgeText}>{item.category?.toUpperCase() || 'EXPERIENCE'}</Text>
+            <View style={styles.eliteBadge}>
+              <Star size={10} color="#D97706" fill="#D97706" />
+              <Text style={styles.eliteText}>ELITE</Text>
+            </View>
           </View>
-          <Text variant="titleMedium" style={styles.serviceName}>{item.name}</Text>
-          <View style={styles.locationContainer}>
-            <MapPin size={14} color={Colors.textSecondary} />
-            <Text style={styles.locationText}>{item.location}</Text>
-          </View>
-          <View style={styles.priceRow}>
-            <Text style={styles.price}>Rs {item.price.toLocaleString()}</Text>
-            <View style={styles.ratingContainer}>
-              <Star size={14} color="#FFD700" fill="#FFD700" />
-              <Text style={styles.ratingText}>4.9</Text>
+          
+          <Text style={styles.serviceName}>{item.name}</Text>
+          
+          <View style={styles.footerRow}>
+            <View style={styles.locationContainer}>
+              <MapPin size={12} color={Colors.slate[400]} />
+              <Text style={styles.locationText}>{item.location || 'Mauritius'}</Text>
+            </View>
+            <View style={styles.discoverBtn}>
+               <Text style={styles.discoverText}>DISCOVER</Text>
             </View>
           </View>
         </View>
@@ -257,82 +266,117 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingBottom: 40,
   },
+  serviceCardWrapper: {
+    marginBottom: 24,
+  },
   serviceCard: {
     backgroundColor: Colors.white,
-    borderRadius: 24,
+    borderRadius: 32,
     overflow: 'hidden',
-    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   serviceImageContainer: {
-    height: 180,
+    height: 200,
     backgroundColor: Colors.surface,
-    overflow: 'hidden',
+    position: 'relative',
   },
   serviceImage: {
     width: '100%',
     height: '100%',
   },
-  placeholderText: {
-    color: Colors.textSecondary,
-    fontSize: 12,
-    fontWeight: '500',
+  priceTag: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    backgroundColor: Colors.white,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  priceLabel: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 8,
+    color: Colors.slate[400],
+    letterSpacing: 1.5,
+    marginBottom: 2,
+  },
+  priceValue: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 16,
+    color: Colors.primary,
   },
   serviceInfo: {
-    padding: 20,
+    padding: 24,
   },
-  categoryBadge: {
-    backgroundColor: Colors.primary + '10',
-    paddingHorizontal: 10,
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  categoryBadgeText: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 10,
+    color: Colors.primary,
+    letterSpacing: 2,
+  },
+  eliteBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
-    alignSelf: 'flex-start',
-    marginBottom: 8,
   },
-  categoryText: {
-    color: Colors.primary,
-    fontSize: 10,
-    fontWeight: '900',
-    textTransform: 'uppercase',
+  eliteText: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 8,
+    color: '#D97706',
+    letterSpacing: 1,
   },
   serviceName: {
-    fontWeight: '800',
+    fontFamily: 'Outfit_900Black',
+    fontSize: 20,
     color: Colors.charcoal,
-    marginBottom: 8,
+    marginBottom: 16,
+    letterSpacing: -0.5,
+  },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    paddingTop: 16,
   },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 12,
+    gap: 6,
   },
   locationText: {
-    color: Colors.textSecondary,
+    fontFamily: 'Outfit_600SemiBold',
     fontSize: 12,
-    fontWeight: '500',
+    color: Colors.slate[400],
   },
-  priceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 4,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
+  discoverBtn: {
+    backgroundColor: Colors.slate[50],
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
   },
-  price: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: Colors.primary,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  ratingText: {
-    fontWeight: '700',
-    fontSize: 12,
+  discoverText: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 10,
     color: Colors.charcoal,
+    letterSpacing: 1,
   },
   emptyContainer: {
     padding: 40,

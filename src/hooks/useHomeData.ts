@@ -10,6 +10,8 @@ export type HeroSlide = {
   media_type: string;
   cta_text?: string;
   cta_link?: string;
+  badge_text?: string;
+  badge_color?: string;
 };
 
 export type Category = {

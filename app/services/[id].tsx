@@ -50,6 +50,7 @@ export default function ServiceDetailScreen() {
           weekend_price: weekend,
           min_stay: parseInt(room.min_stay) || 1,
           image_url: room.image_url || room.image,
+          meal_plan: room.meal_plan || room.mealPlan,
           amenities: Array.isArray(room.features) ? room.features : 
                      (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
         };
@@ -168,9 +169,40 @@ export default function ServiceDetailScreen() {
             </View>
             <View style={styles.benefitBadge}>
                <Sparkles size={14} color="#D97706" />
-               <Text style={styles.benefitBadgeText}>ALL-INCLUSIVE</Text>
+               <Text style={styles.benefitBadgeText}>{service.category?.toUpperCase() === 'HOTEL' ? 'ALL-INCLUSIVE' : 'ELITE CHOICE'}</Text>
             </View>
           </View>
+          
+          {/* Quick Info Bar for Activities/Tours */}
+          {(service.service_type !== 'hotel' && service.category?.toLowerCase() !== 'stay' && (service.duration_days || service.duration_hours || service.max_group_size || service.location)) && (
+            <View style={styles.quickInfoBar}>
+              {service.duration_days ? (
+                <View style={styles.quickInfoItem}>
+                  <Clock size={16} color={Colors.primary} />
+                  <Text style={styles.quickInfoText}>{service.duration_days} Days</Text>
+                </View>
+              ) : service.duration_hours ? (
+                <View style={styles.quickInfoItem}>
+                  <Clock size={16} color={Colors.primary} />
+                  <Text style={styles.quickInfoText}>{service.duration_hours} Hours</Text>
+                </View>
+              ) : null}
+              
+              {service.max_group_size && (
+                <View style={styles.quickInfoItem}>
+                  <Users size={16} color={Colors.primary} />
+                  <Text style={styles.quickInfoText}>Max {service.max_group_size}</Text>
+                </View>
+              )}
+
+              {service.location && (
+                <View style={styles.quickInfoItem}>
+                  <MapPin size={16} color={Colors.primary} />
+                  <Text style={styles.quickInfoText}>{service.location.split(',')[0]}</Text>
+                </View>
+              )}
+            </View>
+          )}
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>The Experience</Text>
@@ -416,7 +448,8 @@ export default function ServiceDetailScreen() {
           price: service.price, 
           childPrice: (service as any).child_price,
           category: service.category,
-          meal_plans: (service as any).meal_plans
+          meal_plans: (service as any).meal_plans,
+          room_types: roomTypes // Pass the mapped room types including meal_plan
         }}
         onSubmit={async (data) => {
           try {
@@ -473,6 +506,40 @@ export default function ServiceDetailScreen() {
             });
 
             if (rpcError) throw rpcError;
+            
+            // 4. Trigger Email Notification via Web-App API (Production Parity)
+            try {
+              // Get the booking reference from the result if possible, or use ID
+              const bookingRef = (rpcError as any)?.details?.reference || `TL-${Date.now().toString().slice(-6)}`;
+              
+              await fetch('https://www.travellounge.mu/api/notify/booking', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: data.email,
+                  customerName: `${data.firstName} ${data.lastName}`,
+                  bookingId: bookingRef,
+                  serviceName: service.name,
+                  amount: data.totalAmount,
+                  checkIn: data.checkIn,
+                  checkOut: data.checkOut,
+                  adults: data.paxAdults,
+                  teens: data.paxTeens,
+                  children: data.paxChildren,
+                  infants: data.paxInfants,
+                  phone: data.phone,
+                  roomPreference: data.roomType,
+                  mealPreference: data.mealPreference !== 'none' ? data.mealPreference : (data as any).roomMealPlan || 'As per room type',
+                  notes: data.specialRequirements,
+                  serviceCategory: service.category || 'hotel',
+                  isLocalDeal: service.location?.toLowerCase().includes('mauritius') || false
+                })
+              });
+              console.log('[Mobile/Booking] Email notification triggered successfully');
+            } catch (emailErr) {
+              console.error('[Mobile/Booking] Email notification failed (background):', emailErr);
+              // We don't throw here as the booking itself was successful in DB
+            }
 
           } catch (error: any) {
             console.error('Mobile booking submission failed:', error.message || error);
@@ -526,6 +593,16 @@ const styles = StyleSheet.create({
   valuationValue: { fontFamily: 'Outfit_900Black', fontSize: 32, color: Colors.primary, letterSpacing: -1 },
   benefitBadge: { backgroundColor: '#FEF3C7', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 6 },
   benefitBadgeText: { color: '#D97706', fontFamily: 'Outfit_900Black', fontSize: 10, letterSpacing: 1 },
+  quickInfoBar: { 
+    flexDirection: 'row', 
+    backgroundColor: Colors.slate[50], 
+    padding: 16, 
+    borderRadius: 20, 
+    marginBottom: 32,
+    gap: 20
+  },
+  quickInfoItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  quickInfoText: { fontFamily: 'Outfit_900Black', fontSize: 12, color: Colors.charcoal },
   section: { marginBottom: 40 },
   sectionTitle: { fontFamily: 'Outfit_900Black', fontSize: 13, letterSpacing: 4, color: Colors.charcoal, textTransform: 'uppercase', marginBottom: 20 },
   description: { fontFamily: 'Outfit_500Medium', fontSize: 16, color: Colors.slate[500], lineHeight: 28 },

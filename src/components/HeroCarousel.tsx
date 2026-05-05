@@ -10,6 +10,7 @@ import Animated, {
 import { Colors } from '../theme/colors';
 import { HeroSlide } from '../hooks/useHomeData';
 import { PremiumCarousel } from './PremiumCarousel';
+import { useRouter } from 'expo-router';
 
 const ITEM_HEIGHT = 480;
 
@@ -42,6 +43,39 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
     };
   });
 
+  const router = useRouter();
+
+  const mapRoute = (link: string) => {
+    if (!link) return '/explore';
+    
+    // Exact matches
+    if (link === '/search') return '/explore';
+    if (link === '/hotels') return { pathname: '/explore', params: { category: 'hotels' } };
+    if (link === '/activities') return { pathname: '/explore', params: { category: 'activities' } };
+    if (link === '/cruises') return { pathname: '/explore', params: { category: 'cruises' } };
+    if (link === '/flights') return '/flights';
+    
+    // Default fallback
+    return link;
+  };
+
+  const handlePress = () => {
+    if (!item.cta_link) return;
+    
+    // Handle external links
+    if (item.cta_link.startsWith('http')) {
+      import('expo-linking').then(Linking => Linking.openURL(item.cta_link!));
+      return;
+    }
+
+    const route = mapRoute(item.cta_link);
+    router.push(route as any);
+  };
+
+  const handleSecondaryPress = () => {
+    router.push('/tailormade');
+  };
+
   return (
     <View style={[styles.slide, { width }]}>
       <View style={styles.imageContainer}>
@@ -52,14 +86,31 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
       </View>
       <View style={styles.overlay} />
       <Animated.View style={[styles.content, animatedContentStyle]}>
-        <Text variant="labelMedium" style={styles.tag}>Exclusive Collection</Text>
+        <Text variant="labelMedium" style={[styles.tag, item.badge_color ? { backgroundColor: item.badge_color + '33', borderColor: item.badge_color + '66' } : null]}>
+          {item.badge_text || 'Exclusive Collection'}
+        </Text>
         <Text variant="displaySmall" style={styles.title}>{item.title}</Text>
         <Text variant="bodyLarge" style={styles.subtitle}>{item.subtitle}</Text>
-        {item.cta_text && (
-          <TouchableOpacity style={styles.cta} activeOpacity={0.8}>
-            <Text variant="labelLarge" style={styles.ctaText}>{item.cta_text}</Text>
+        
+        <View style={styles.buttonRow}>
+          {item.cta_text && (
+            <TouchableOpacity 
+              style={styles.cta} 
+              activeOpacity={0.8}
+              onPress={handlePress}
+            >
+              <Text variant="labelLarge" style={styles.ctaText}>{item.cta_text}</Text>
+            </TouchableOpacity>
+          )}
+          
+          <TouchableOpacity 
+            style={styles.secondaryCta} 
+            activeOpacity={0.8}
+            onPress={handleSecondaryPress}
+          >
+            <Text variant="labelLarge" style={styles.secondaryCtaText}>DISCOVER</Text>
           </TouchableOpacity>
-        )}
+        </View>
       </Animated.View>
     </View>
   );
@@ -147,12 +198,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
   cta: {
     backgroundColor: Colors.primary,
-    paddingHorizontal: 36,
+    paddingHorizontal: 24,
     paddingVertical: 16,
     borderRadius: 14,
-    alignSelf: 'flex-start',
+    minWidth: 140,
+    alignItems: 'center',
     shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -163,6 +219,24 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontWeight: '900',
     textTransform: 'uppercase',
-    letterSpacing: 1.5,
+    letterSpacing: 1,
+    fontSize: 11,
+  },
+  secondaryCta: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 14,
+    minWidth: 120,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  secondaryCtaText: {
+    color: Colors.white,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontSize: 11,
   },
 });

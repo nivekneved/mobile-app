@@ -39,6 +39,7 @@ interface BookingModalProps {
     childPrice?: number;
     category?: string;
     meal_plans?: { id: string; label: string; price: number }[];
+    room_types?: any[];
   };
   onSubmit: (data: BookingFormData & { totalAmount: number }) => Promise<void>;
   initialData?: Partial<BookingFormData>;
@@ -50,6 +51,7 @@ interface RoomType {
   weekday_price: number;
   weekend_price: number;
   min_stay?: number;
+  meal_plan?: string;
 }
 
 export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialData }: BookingModalProps) => {
@@ -74,6 +76,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
             weekend_price: weekend,
             min_stay: parseInt(room.min_stay) || 1,
             image_url: room.image_url,
+            meal_plan: room.meal_plan || room.mealPlan,
             amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
           };
         })
@@ -152,7 +155,14 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
     setIsSubmitting(true);
     try {
       const total = calculateTotal();
-      await onSubmit({ ...data, totalAmount: total });
+      const selectedRoom = roomTypes.find(r => r.name === data.roomType);
+      
+      await onSubmit({ 
+        ...data, 
+        totalAmount: total,
+        roomMealPlan: selectedRoom?.meal_plan // Pass the specific room's meal plan
+      } as any);
+      
       setSubmittedReport({ ...data, totalAmount: total });
       setIsSuccess(true);
     } catch (error) {
@@ -484,6 +494,15 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                                 ]}> Rs {type.weekend_price?.toLocaleString() || '0'}</Text>
                               </View>
                             </View>
+                            {type.meal_plan && (
+                              <View style={[styles.miniPriceBadge, { marginTop: 4 }]}>
+                                <Utensils size={10} color={value === type.name ? Colors.white : '#D97706'} />
+                                <Text style={[
+                                  styles.roomTypePrice,
+                                  { color: value === type.name ? Colors.white : '#D97706', fontSize: 10 }
+                                ]}> {type.meal_plan}</Text>
+                              </View>
+                            )}
                             {type.min_stay && type.min_stay > 1 && (
                               <Text style={[
                                 styles.minStayText,
