@@ -50,8 +50,10 @@ export default function TailorMadeScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.destination) {
-      Alert.alert('Required Fields', 'Please fill in all mandatory fields.');
+    const sanitizeString = (str: string) => str.replace(/<[^>]*>?/gm, '').trim();
+
+    if (!sanitizeString(formData.firstName) || !sanitizeString(formData.lastName) || !sanitizeString(formData.email) || !sanitizeString(formData.phone) || !sanitizeString(formData.destination)) {
+      Alert.alert('Required Fields', 'Please fill in all mandatory fields with valid information.');
       return;
     }
 
@@ -83,11 +85,11 @@ Marketing Opt-in: ${formData.marketingOptIn ? 'Yes' : 'No'}
     try {
       // 1. Save Inquiry
       const { error: inquiryError } = await supabase.from('inquiries').insert([{
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        phone: formData.phone,
-        subject: `Tailor-Made Request: ${formData.destination || 'Custom'}`,
-        message: fullMessage,
+        name: `${sanitizeString(formData.firstName)} ${sanitizeString(formData.lastName)}`,
+        email: sanitizeString(formData.email),
+        phone: sanitizeString(formData.phone),
+        subject: `Tailor-Made Request: ${sanitizeString(formData.destination) || 'Custom'}`,
+        message: sanitizeString(fullMessage),
         status: 'unread'
       }]);
 
@@ -221,7 +223,7 @@ Marketing Opt-in: ${formData.marketingOptIn ? 'Yes' : 'No'}
 
           <View style={styles.row}>
             <View style={styles.col}>
-               <Text style={styles.inputLabel}>Departure</Text>
+               <Text style={styles.inputLabel}>Star Date</Text>
                <NativeTextInput 
                 placeholder="DD/MM/YYYY" 
                 style={styles.nativeInput}

@@ -23,9 +23,16 @@ export default function InquiryForm({ visible, onDismiss, serviceId, serviceName
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const sanitizeString = (str: string) => str.replace(/<[^>]*>?/gm, '').trim();
+
   const handleSubmit = async () => {
-    if (!name || !email || !message) {
-      Alert.alert('Missing Fields', 'Please fill in all required fields.');
+    const sName = sanitizeString(name);
+    const sEmail = sanitizeString(email);
+    const sMessage = sanitizeString(message);
+    const sPhone = sanitizeString(phone);
+
+    if (!sName || !sEmail || !sMessage) {
+      Alert.alert('Missing Fields', 'Please fill in all required fields (Name, Email, Message).');
       return;
     }
 
@@ -35,11 +42,11 @@ export default function InquiryForm({ visible, onDismiss, serviceId, serviceName
         .from('inquiries')
         .insert([
           {
-            name,
-            email,
-            phone,
+            name: sName,
+            email: sEmail,
+            phone: sPhone,
             subject: `Inquiry for ${serviceName}`,
-            message: `Service ID: ${serviceId}\n\n${message}`,
+            message: `Service ID: ${serviceId}\n\n${sMessage}`,
             status: 'unread',
           }
         ]);
