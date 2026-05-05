@@ -152,15 +152,30 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
   };
 
   const handleFormSubmit = async (data: BookingFormData) => {
+    // Basic sanitization (trimming)
+    const sanitizedData = {
+      ...data,
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      email: data.email.trim().toLowerCase(),
+      phone: data.phone.trim(),
+      specialRequirements: data.specialRequirements?.trim(),
+    };
+
+    if (!sanitizedData.firstName || !sanitizedData.lastName || !sanitizedData.email || !sanitizedData.phone) {
+      Alert.alert('Incomplete Form', 'Please provide all contact information.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const total = calculateTotal();
-      const selectedRoom = roomTypes.find(r => r.name === data.roomType);
+      const selectedRoom = roomTypes.find(r => r.name === sanitizedData.roomType);
       
       await onSubmit({ 
-        ...data, 
+        ...sanitizedData, 
         totalAmount: total,
-        roomMealPlan: selectedRoom?.meal_plan // Pass the specific room's meal plan
+        roomMealPlan: selectedRoom?.meal_plan 
       } as any);
       
       setSubmittedReport({ ...data, totalAmount: total });
@@ -326,7 +341,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
 
           <View style={styles.row}>
             <View style={styles.col}>
-              <Text style={styles.fieldLabel}>Check-in</Text>
+              <Text style={styles.fieldLabel}>Star Date</Text>
               <TouchableOpacity 
                 style={styles.dateSelector} 
                 onPress={() => setShowCheckInPicker(true)}
@@ -357,7 +372,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
               )}
             </View>
             <View style={styles.col}>
-              <Text style={styles.fieldLabel}>Check-out</Text>
+              <Text style={styles.fieldLabel}>Date end</Text>
               <TouchableOpacity 
                 style={styles.dateSelector} 
                 onPress={() => setShowCheckOutPicker(true)}
