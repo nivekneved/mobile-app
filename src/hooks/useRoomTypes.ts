@@ -8,6 +8,10 @@ export interface RoomType {
   weekend_price: number;
   image_url?: string;
   amenities?: string[];
+  meal_plan?: string;
+  min_stay?: number;
+  max_adults?: number;
+  max_children?: number;
 }
 
 export const useRoomTypes = (serviceId: string | undefined, skip = false) => {

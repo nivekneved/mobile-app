@@ -11,6 +11,8 @@ import { Colors } from '../theme/colors';
 import { HeroSlide } from '../hooks/useHomeData';
 import { PremiumCarousel } from './PremiumCarousel';
 import { useRouter } from 'expo-router';
+import * as Linking from 'expo-linking';
+import { resolveImageUrl } from '../utils/imageUtils';
 
 const ITEM_HEIGHT = 480;
 
@@ -21,7 +23,7 @@ type HeroSlideItemProps = {
   width: number;
 };
 
-import { resolveImageUrl } from '../utils/imageUtils';
+
 
 const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
   const animatedImageStyle = useAnimatedStyle(() => {
@@ -64,7 +66,7 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
     
     // Handle external links
     if (item.cta_link.startsWith('http')) {
-      import('expo-linking').then(Linking => Linking.openURL(item.cta_link!));
+      Linking.openURL(item.cta_link!);
       return;
     }
 

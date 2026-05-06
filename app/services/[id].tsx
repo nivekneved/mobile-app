@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
 import { useServiceDetails } from '../../src/hooks/useServiceDetails';
 import { useRoomTypes } from '../../src/hooks/useRoomTypes';
-import { MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, X, Calendar as CalendarIcon, Tag, Moon, MessageCircle, Phone, Sparkles } from 'lucide-react-native';
+import { MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, X, Calendar as CalendarIcon, Tag, Moon, MessageCircle, Phone, Sparkles, Users } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
 import { BookingModal } from '../../src/components/BookingModal';
@@ -51,6 +51,8 @@ export default function ServiceDetailScreen() {
           min_stay: parseInt(room.min_stay) || 1,
           image_url: room.image_url || room.image,
           meal_plan: room.meal_plan || room.mealPlan,
+          max_adults: room.max_adults || room.maxAdults || 2,
+          max_children: room.max_children || room.maxChildren || 0,
           amenities: Array.isArray(room.features) ? room.features : 
                      (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
         };
@@ -333,7 +335,7 @@ export default function ServiceDetailScreen() {
           )}
 
           {/* Property Amenities */}
-          {service.amenities && (Array.isArray(service.amenities) ? service.amenities.length > 0 : service.amenities.length > 0) && (
+          {service.amenities && (Array.isArray(service.amenities) ? (service.amenities.length > 0) : ((service.amenities as any).length > 0)) && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Property Amenities</Text>
               <View style={styles.amenitiesGrid}>

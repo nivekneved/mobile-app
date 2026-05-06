@@ -38,6 +38,15 @@ export type Service = {
   room_types?: any[]; // JSON column
   max_group_size?: number;
   max_adults?: number;
+  cancellation_policy?: string;
+  terms_and_conditions?: string;
+  included?: string[] | string;
+  not_included?: string[] | string;
+  special_features?: string[] | string;
+  highlights?: string[] | string;
+  duration_days?: number;
+  duration_hours?: number;
+  banner_url?: string;
 };
 
 export const useHomeData = () => {
