@@ -432,10 +432,10 @@ export default function ServiceDetailScreen() {
 
       {/* Elite Sticky Footer Conversion */}
       <Surface style={styles.footerBar} elevation={5}>
-         <View style={styles.footerInfo}>
-             <Text style={styles.footerPriceLabel}>TOTAL FROM</Text>
-             <Text style={styles.footerPriceVal}>Rs {service.price?.toLocaleString() || '0'}</Text>
-         </View>
+          <View style={styles.footerInfo}>
+              <Text style={styles.footerPriceLabel}>AS FROM</Text>
+              <Text style={styles.footerPriceVal}>Rs {service.price?.toLocaleString() || '0'}</Text>
+          </View>
          <TouchableOpacity style={styles.footerCta} onPress={() => setBookingVisible(true)}>
              <Text style={styles.footerCtaText}>CONTINUE BOOKING</Text>
          </TouchableOpacity>

@@ -38,7 +38,7 @@ export const ServiceCard = ({ name, image_url, price, category, location, onPres
             accessibilityLabel={`Photo of ${name}`}
           />
           <View style={styles.priceTag}>
-            <Text style={styles.priceLabel}>FROM</Text>
+            <Text style={styles.priceLabel}>AS FROM</Text>
             <Text style={styles.priceValue}>
               Rs {price?.toLocaleString() || '0'}
             </Text>
