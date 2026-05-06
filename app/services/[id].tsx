@@ -295,7 +295,7 @@ export default function ServiceDetailScreen() {
                     {index !== (service.itinerary?.length || 0) - 1 && <View style={styles.journeyLine} />}
                   </View>
                   <View style={styles.journeyContent}>
-                     <Text style={styles.journeyTime}>{item?.time}</Text>
+                     <Text style={styles.journeyTime}>{item?.day || item?.time}</Text>
                      <Text style={styles.journeyTitle}>{item?.title}</Text>
                      <Text style={styles.journeyDesc}>{item?.description}</Text>
                   </View>

@@ -33,7 +33,7 @@ export type Service = {
   category: string;     // mapped for UI
   location?: string;
   amenities?: string[];
-  itinerary?: { time: string; title: string; description: string }[];
+  itinerary?: { day?: string; time?: string; title: string; description: string }[];
   gallery_images?: string[];
   room_types?: any[]; // JSON column
   max_group_size?: number;
