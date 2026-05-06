@@ -1,5 +1,31 @@
 # Development Log
 
+---
+
+## 2026-05-06 — May 2026 Feature Set Completion
+### May 2026 Milestone: Mobile Parity, Navigation, & Booking Integration
+**Status: Verified & Deployed**
+
+#### Navigation (May 2026)
+- **Hero Carousel Buttons**: Implemented `router.push()` handlers for all Hero banner CTAs — navigates to destination routes (`/services?category=hotels`, etc.).
+- **Secondary Discover CTA**: Added "Discover" buttons with consistent UI parity across banner slides.
+- **Android Authorization**: Documented fix — `npx expo start --localhost` bypasses the "not authorized" device error.
+- **react-native-screens Patch**: Documented fix for patch regeneration on version 4.4.0.
+
+#### Booking & Data (May 2026)
+- **Meal Plan Display**: `BookingModal` now correctly reads `meal_plan_pricing` JSONB from `service_pricing`.
+- **Booking Notify API**: Mobile booking flow now calls `web-app/api/notify/booking` to trigger SMTP notifications via the same triple-desk pipeline as the web app.
+- **Badge Content**: Dynamic category and promotional badges now synchronized with Supabase database values.
+
+#### Documentation & Infrastructure (May 2026)
+- **Agent.md Updated**: Standardized `agent.md` with mobile-app specific project context, known gotchas, and build rules.
+- **Architecture Doc**: Fixed directory paths in `docs/02_architecture.md` to reflect actual Expo Router layout.
+- **Dev Guide**: Updated `docs/04_development.md` with Android authorization fix, patch-package guidance, and EAS build steps.
+- **README Updated**: Mobile README now has a complete documentation index table.
+- **Backup**: Created and pushed `backup/2026-05-06-2153` branch.
+
+---
+
 ### 2026-05-04: Mobile-App Stability & Production Readiness
 
 #### **Critical Bug Fixes**
