@@ -51,6 +51,10 @@ interface RoomType {
   weekend_price: number;
   min_stay?: number;
   meal_plan?: string;
+  max_adults?: number;
+  max_teens?: number;
+  max_children?: number;
+  max_infants?: number;
 }
 
 export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialData }: BookingModalProps) => {
@@ -213,8 +217,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                </View>
                <View style={styles.reportRow}>
                   <Text style={styles.reportLabel}>Travelers</Text>
-                  <Text style={styles.reportVal}>
-                    {submittedReport.paxAdults}A, {submittedReport.paxTeens}T, {submittedReport.paxChildren}C
+                   <Text style={styles.reportVal}>
+                    {submittedReport.paxAdults}A, {submittedReport.paxTeens}T, {submittedReport.paxChildren}C, {submittedReport.paxInfants}I
                   </Text>
                </View>
                <View style={styles.reportDivider} />
@@ -469,8 +473,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
             </View>
           </View>
 
-          {/* FIX-1: Inclusive category check */}
-          {(service.category?.toLowerCase() === 'hotel' || service.category?.toLowerCase() === 'hotels') && (
+          {/* Show variant selection for both Hotels and Packages if available */}
+          {roomTypes.length > 0 && (
             <View style={styles.roomTypeSection}>
               <Text style={styles.fieldLabel}>Select Room Type</Text>
               {fetchingRooms ? (

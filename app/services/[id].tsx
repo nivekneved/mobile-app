@@ -98,18 +98,25 @@ export default function ServiceDetailScreen() {
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const roomTypes = React.useMemo<RoomType[]>(() => {
+    const pricing = (service as any)?.service_pricing || [];
+    
     // 1. Check for JSONB room_types in the service object first (from services table)
     if (service?.room_types && Array.isArray(service.room_types) && service.room_types.length > 0) {
       return service.room_types.map((room: any, index: number) => {
-        // Handle both string and number for prices
-        const weekday = typeof room.prices?.mon === 'string' ? parseFloat(room.prices.mon) : (room.prices?.mon || 0);
-        const weekend = typeof room.prices?.sat === 'string' ? parseFloat(room.prices.sat) : (room.prices?.sat || 0);
+        // Match price from grid if not in JSONB
+        let weekday = typeof room.prices?.mon === 'string' ? parseFloat(room.prices.mon) : (room.prices?.mon || 0);
+        let weekend = typeof room.prices?.sat === 'string' ? parseFloat(room.prices.sat) : (room.prices?.sat || 0);
+
+        if (weekday === 0 && pricing.length > 0) {
+          const matchedPrice = pricing.find((p: any) => p.label?.toLowerCase() === (room.type || room.name)?.toLowerCase())?.price;
+          if (matchedPrice) weekday = Number(matchedPrice);
+        }
         
         return {
           id: `json-${index}`,
           name: room.type || room.name || 'Standard Room',
           weekday_price: weekday,
-          weekend_price: weekend,
+          weekend_price: weekend || weekday, // Fallback weekend to weekday if 0
           min_stay: parseInt(room.min_stay) || 1,
           image_url: room.image_url || room.image,
           meal_plan: room.meal_plan || room.mealPlan,
@@ -123,9 +130,8 @@ export default function ServiceDetailScreen() {
         };
       });
     }
-    // 2. Fallback to separate room_types table if the JSON column is empty
     return hookRoomTypes || [];
-  }, [service?.room_types, hookRoomTypes]);
+  }, [service, hookRoomTypes]);
 
   const [bookingVisible, setBookingVisible] = React.useState(false);
 
@@ -356,6 +362,13 @@ export default function ServiceDetailScreen() {
                         {stripHtml(room.description)}
                       </Text>
                     )}
+
+                    {room.weekday_price > 0 && (
+                      <View style={styles.variantPriceBadge}>
+                        <Text style={styles.variantPriceLabel}>FROM</Text>
+                        <Text style={styles.variantPriceVal}>Rs {room.weekday_price.toLocaleString()}</Text>
+                      </View>
+                    )}
                     
                     <View style={styles.occupancyRow}>
                       <View style={styles.occupancyItem}>
@@ -384,19 +397,23 @@ export default function ServiceDetailScreen() {
 
                     <View style={styles.roomDivider} />
 
-                    <View style={styles.priceGrid}>
-                        <View style={styles.priceCell}>
-                          <Text style={styles.priceCellTitle}>WEEKDAY</Text>
-                          <Text style={styles.priceCellVal}>
-                            {room.weekday_price > 0 ? `Rs ${room.weekday_price.toLocaleString()}` : 'Contact Us'}
-                          </Text>
+                    {/* Features section instead of Contact Us grid */}
+                    <View style={styles.roomFeaturesGrid}>
+                      {room.amenities?.slice(0, 4).map((amenity, idx) => {
+                        const Icon = getAmenityIcon(amenity);
+                        return (
+                          <View key={idx} style={styles.featureItem}>
+                            <Icon size={12} color={Colors.primary} />
+                            <Text style={styles.featureText} numberOfLines={1}>{amenity}</Text>
+                          </View>
+                        );
+                      })}
+                      {room.meal_plan && (
+                        <View style={styles.featureItem}>
+                          <Utensils size={12} color="#D97706" />
+                          <Text style={[styles.featureText, {color: '#D97706'}]}>{room.meal_plan}</Text>
                         </View>
-                        <View style={styles.priceCell}>
-                          <Text style={[styles.priceCellTitle, {color: Colors.primary}]}>WEEKEND</Text>
-                          <Text style={[styles.priceCellVal, {color: Colors.primary}]}>
-                            {room.weekend_price > 0 ? `Rs ${room.weekend_price.toLocaleString()}` : 'Contact Us'}
-                          </Text>
-                        </View>
+                      )}
                     </View>
 
                     <TouchableOpacity style={styles.selectRoomBtn} onPress={() => setBookingVisible(true)}>
@@ -797,7 +814,7 @@ const styles = StyleSheet.create({
   journeyImage: { width: '100%', height: 180, borderRadius: 20, marginVertical: 12, backgroundColor: Colors.slate[50] },
   footerBar: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 110, backgroundColor: Colors.white, borderTopWidth: 1, borderTopColor: Colors.border, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 20 },
   footerInfo: { flex: 1 },
-  footerPriceLabel: { fontFamily: 'Outfit_900Black', fontSize: 10, letterSpacing: 3, color: Colors.slate[400] },
+  footerPriceLabel: { fontFamily: 'Outfit_900Black', fontSize: 10, letterSpacing: 1.5, color: Colors.slate[400], textTransform: 'uppercase' },
   footerPriceVal: { fontFamily: 'Outfit_900Black', fontSize: 24, color: Colors.charcoal, letterSpacing: -0.5 },
   footerCta: { flex: 1.2, height: 64, backgroundColor: Colors.primary, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   footerCtaText: { color: Colors.white, fontFamily: 'Outfit_900Black', fontSize: 12, letterSpacing: 2 },
@@ -842,4 +859,10 @@ const styles = StyleSheet.create({
   roomDivider: { height: 1, backgroundColor: Colors.border, marginBottom: 16 },
   selectRoomBtn: { backgroundColor: Colors.charcoal, height: 54, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginTop: 16 },
   selectRoomBtnText: { color: Colors.white, fontFamily: 'Outfit_900Black', fontSize: 11, letterSpacing: 2 },
+  roomFeaturesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 8 },
+  featureItem: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.slate[50], paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: Colors.border, minWidth: '45%' },
+  featureText: { fontFamily: 'Outfit_600SemiBold', fontSize: 11, color: Colors.charcoal },
+  variantPriceBadge: { position: 'absolute', top: 24, right: 24, backgroundColor: Colors.white, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
+  variantPriceLabel: { fontFamily: 'Outfit_900Black', fontSize: 8, color: Colors.slate[400], letterSpacing: 1 },
+  variantPriceVal: { fontFamily: 'Outfit_900Black', fontSize: 13, color: Colors.charcoal },
 });
