@@ -91,9 +91,21 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
             (o.date_from <= currentDateStr && o.date_to >= currentDateStr)
           );
 
+          // Deep Search Parity: Handle occupancy-based pricing (JSONB)
+          let adultRate = activePricing ? Number(activePricing.price) : baseRates.adult;
+          const occ = activePricing?.occupancy_pricing;
+          
+          if (occ && typeof occ === 'object') {
+            const numAdults = participants.adults || 0;
+            const tierPrice = occ[numAdults.toString()] ?? occ[numAdults];
+            if (tierPrice !== undefined && tierPrice !== null) {
+              adultRate = typeof tierPrice === 'object' ? Number(tierPrice.price || 0) : Number(tierPrice);
+            }
+          }
+
           const rates: DailyRate = {
             date: currentDateStr,
-            adult: activePricing ? Number(activePricing.price) : baseRates.adult,
+            adult: adultRate,
             teen: activePricing ? Number(activePricing.price_teen) : baseRates.teen,
             child: activePricing ? Number(activePricing.price_child) : baseRates.child,
             infant: activePricing ? Number(activePricing.price_infant) : baseRates.infant,
@@ -128,7 +140,7 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
     };
 
     calculate();
-  }, [JSON.stringify(req)]);
+  }, [req]);
 
   return { pricing, loading, error };
 };

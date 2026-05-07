@@ -5,8 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Colors } from '../theme/colors';
-import { Calendar, Users, X, CheckCircle, Moon, Clock, Utensils } from 'lucide-react-native';
-import { supabase } from '../lib/supabase';
+import { Calendar, X, CheckCircle, Moon, Clock, Utensils } from 'lucide-react-native';
 import { useRoomTypes } from '../hooks/useRoomTypes';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useServicePricing } from '../hooks/useServicePricing';
@@ -93,7 +92,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
     });
 
     return combined;
-  }, [(service as any).room_types, hookRoomTypes]);
+  }, [service, hookRoomTypes]);
 
   const { control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -116,7 +115,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
 
   const watchAllFields = watch();
 
-  const { pricing, loading: calculatingPrice } = useServicePricing({
+  const pricingRequest = React.useMemo(() => ({
     serviceId: service.id,
     variantId: roomTypes.find(r => r.name === watchAllFields.roomType || (r as any).type === watchAllFields.roomType)?.id || 'default',
     startDate: watchAllFields.checkIn,
@@ -128,12 +127,14 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
       infants: watchAllFields.paxInfants
     },
     baseRates: {
-      adult: service.price || 0,
+      adult: roomTypes.find(r => r.name === watchAllFields.roomType)?.weekday_price || service.price || 0,
       teen: (service as any).teen_price || (service as any).child_price || service.price || 0,
       child: service.childPrice || 0,
       infant: (service as any).infant_price || 0
     }
-  });
+  }), [service, watchAllFields, roomTypes]);
+
+  const { pricing, loading: calculatingPrice } = useServicePricing(pricingRequest);
 
   const calculateTotal = () => {
     if (!pricing) return 0;
@@ -180,7 +181,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
       
       setSubmittedReport({ ...data, totalAmount: total });
       setIsSuccess(true);
-    } catch (error) {
+    } catch (err) {
+      console.error('Booking submission error:', err);
       Alert.alert('Error', 'Failed to submit booking. Please try again.');
     } finally {
       setIsSubmitting(false);

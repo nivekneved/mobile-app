@@ -13,11 +13,12 @@ interface ServiceCardProps {
   category?: string;
   location?: string;
   onPress: () => void;
+  fullWidth?: boolean;
 }
 
-export const ServiceCard = ({ name, image_url, price, category, location, onPress }: ServiceCardProps) => {
+export const ServiceCard = ({ name, image_url, price, category, location, onPress, fullWidth }: ServiceCardProps) => {
   const { width } = useWindowDimensions();
-  const CARD_WIDTH = width * 0.75;
+  const CARD_WIDTH = fullWidth ? width - 48 : width * 0.75;
   return (
     <TouchableOpacity 
       style={[styles.container, { width: CARD_WIDTH }]} 

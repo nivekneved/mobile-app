@@ -1,29 +1,31 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, FlatList, TextInput, TouchableOpacity, ScrollView, Image, Dimensions } from 'react-native';
-import { Text, ActivityIndicator, Surface, Chip, Button } from 'react-native-paper';
+import { View, StyleSheet, FlatList, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { Text, ActivityIndicator, Button, Chip } from 'react-native-paper';
 import { useSearchServices } from '../../src/hooks/useSearchServices';
 import { Colors } from '../../src/theme/colors';
-import { Search, MapPin, Star, Sliders, X } from 'lucide-react-native';
+import { Search, Sliders } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useHomeData } from '../../src/hooks/useHomeData';
-import { StatusBar } from 'expo-status-bar';
 import { resolveImageUrl } from '../../src/utils/imageUtils';
+import { StatusBar } from 'expo-status-bar';
 import { FilterModal } from '../../src/components/FilterModal';
+import { validateOccupancy, validateAmenities, FilterState } from '../../src/utils/filterUtils';
+import { ServiceCard } from '../../src/components/ServiceCard';
 
-const { width } = Dimensions.get('window');
+
 
 export default function ExploreScreen() {
   const params = useLocalSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterState>({
     adults: 2,
     teenagers: 0,
     children: 0,
     infants: 0,
-    date: null,
     priceRange: [0, 200000],
+    amenities: [],
   });
 
   const { categories } = useHomeData();
@@ -40,18 +42,28 @@ export default function ExploreScreen() {
 
   useEffect(() => {
     searchServices(searchQuery, selectedCategory);
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, searchServices]);
+
+  const availableAmenities = useMemo(() => {
+    const amenities = new Set<string>();
+    services.forEach(s => {
+      if (Array.isArray(s.amenities)) {
+        s.amenities.forEach(a => {
+          const text = typeof a === 'string' ? a : (a as any).item;
+          if (text) amenities.add(text);
+        });
+      }
+    });
+    return Array.from(amenities).sort();
+  }, [services]);
 
   const processedServices = useMemo(() => {
     let result = [...services];
 
-    const totalGuests = filters.adults + filters.teenagers + filters.children + filters.infants;
-    if (totalGuests > 0) {
-      result = result.filter(s => {
-         if (s.max_group_size && totalGuests > s.max_group_size) return false;
-         if (s.max_adults && filters.adults > s.max_adults) return false;
-         return true;
-      });
+    result = result.filter(s => validateOccupancy(s, filters));
+
+    if (filters.amenities.length > 0) {
+      result = result.filter(s => validateAmenities(s, filters.amenities));
     }
 
     if (filters.priceRange[1] < 200000) {
@@ -61,52 +73,23 @@ export default function ExploreScreen() {
     return result;
   }, [services, filters]);
 
-  const handleApplyFilters = (newFilters: any) => {
+  const handleApplyFilters = (newFilters: FilterState) => {
     setFilters(newFilters);
     setIsFilterVisible(false);
   };
 
   const renderServiceItem = ({ item }: { item: any }) => (
-    <TouchableOpacity 
-      onPress={() => router.push(`/services/${item.id}`)}
-      activeOpacity={0.9}
-      style={styles.serviceCardWrapper}
-    >
-      <Surface style={styles.serviceCard} elevation={0}>
-        <View style={styles.serviceImageContainer}>
-          <Image 
-            source={resolveImageUrl(item.image_url)} 
-            style={styles.serviceImage} 
-            resizeMode="cover"
-          />
-          <View style={styles.priceTag}>
-            <Text style={styles.priceLabel}>FROM</Text>
-            <Text style={styles.priceValue}>Rs {item.price?.toLocaleString() || '0'}</Text>
-          </View>
-        </View>
-        <View style={styles.serviceInfo}>
-          <View style={styles.headerRow}>
-            <Text style={styles.categoryBadgeText}>{item.category?.toUpperCase() || 'EXPERIENCE'}</Text>
-            <View style={styles.eliteBadge}>
-              <Star size={10} color="#D97706" fill="#D97706" />
-              <Text style={styles.eliteText}>ELITE</Text>
-            </View>
-          </View>
-          
-          <Text style={styles.serviceName}>{item.name}</Text>
-          
-          <View style={styles.footerRow}>
-            <View style={styles.locationContainer}>
-              <MapPin size={12} color={Colors.slate[400]} />
-              <Text style={styles.locationText}>{item.location || 'Mauritius'}</Text>
-            </View>
-            <View style={styles.discoverBtn}>
-               <Text style={styles.discoverText}>DISCOVER</Text>
-            </View>
-          </View>
-        </View>
-      </Surface>
-    </TouchableOpacity>
+    <View style={styles.serviceCardWrapper}>
+      <ServiceCard
+        name={item.name}
+        image_url={item.image_url}
+        price={item.price}
+        category={item.category}
+        location={item.location}
+        fullWidth
+        onPress={() => router.push(`/services/${item.id}`)}
+      />
+    </View>
   );
 
   return (
@@ -172,7 +155,7 @@ export default function ExploreScreen() {
             <View style={styles.emptyContainer}>
               <Text variant="titleMedium" style={styles.emptyText}>No services found</Text>
               <Text style={styles.emptySubtext}>Try adjusting your search or filters</Text>
-              <Button mode="text" onPress={() => setFilters({ adults: 2, teenagers: 0, children: 0, infants: 0, date: null, priceRange: [0, 200000] })}>Reset Filters</Button>
+              <Button mode="text" onPress={() => setFilters({ adults: 2, teenagers: 0, children: 0, infants: 0, priceRange: [0, 200000], amenities: [] })}>Reset Filters</Button>
             </View>
           }
         />
@@ -183,6 +166,7 @@ export default function ExploreScreen() {
         onClose={() => setIsFilterVisible(false)} 
         filters={filters} 
         onApply={handleApplyFilters} 
+        availableAmenities={availableAmenities}
       />
     </View>
   );
