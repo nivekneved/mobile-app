@@ -14,6 +14,7 @@ export interface RoomType {
   max_children?: number;
   max_teens?: number;
   max_infants?: number;
+  description?: string;
 }
 
 export const useRoomTypes = (serviceId: string | undefined, skip = false) => {

@@ -117,6 +117,7 @@ export default function ServiceDetailScreen() {
           max_teens: room.max_teens || room.maxTeens || 0,
           max_children: room.max_children || room.maxChildren || 0,
           max_infants: room.max_infants || room.maxInfants || 0,
+          description: room.description || room.details || room.desc,
           amenities: Array.isArray(room.features) ? room.features : 
                      (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
         };
@@ -349,6 +350,12 @@ export default function ServiceDetailScreen() {
                         </View>
                       )}
                     </View>
+
+                    {room.description && (
+                      <Text style={styles.roomDesc} numberOfLines={3}>
+                        {stripHtml(room.description)}
+                      </Text>
+                    )}
                     
                     <View style={styles.occupancyRow}>
                       <View style={styles.occupancyItem}>
@@ -418,7 +425,10 @@ export default function ServiceDetailScreen() {
                   <View style={styles.journeyContent}>
                      <Text style={styles.journeyTime}>{item?.day || item?.time}</Text>
                      <Text style={styles.journeyTitle}>{item?.title}</Text>
-                     <Text style={styles.journeyDesc}>{item?.description}</Text>
+                     {item.image_url && (
+                        <Image source={{ uri: item.image_url }} style={styles.journeyImage} />
+                      )}
+                     <Text style={styles.journeyDesc}>{stripHtml(item?.description)}</Text>
                   </View>
                 </View>
               ))}
@@ -770,7 +780,8 @@ const styles = StyleSheet.create({
   roomCard: { borderRadius: 32, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden', marginBottom: 20 },
   roomImage: { width: '100%', height: 200 },
   roomContent: { padding: 24 },
-  roomName: { fontFamily: 'Outfit_900Black', fontSize: 20, color: Colors.charcoal, marginBottom: 16 },
+  roomName: { fontFamily: 'Outfit_900Black', fontSize: 20, color: Colors.charcoal, marginBottom: 8 },
+  roomDesc: { fontFamily: 'Outfit_500Medium', fontSize: 13, color: Colors.slate[500], lineHeight: 18, marginBottom: 16 },
   priceGrid: { flexDirection: 'row', gap: 20, backgroundColor: Colors.slate[50], padding: 16, borderRadius: 20 },
   priceCell: { flex: 1 },
   priceCellTitle: { fontFamily: 'Outfit_900Black', fontSize: 9, letterSpacing: 1, color: Colors.slate[400], marginBottom: 4 },
@@ -783,6 +794,7 @@ const styles = StyleSheet.create({
   journeyTime: { fontFamily: 'Outfit_900Black', fontSize: 11, color: Colors.primary, letterSpacing: 2, marginBottom: 4 },
   journeyTitle: { fontFamily: 'Outfit_900Black', fontSize: 18, color: Colors.charcoal, marginBottom: 8 },
   journeyDesc: { fontFamily: 'Outfit_500Medium', fontSize: 14, color: Colors.slate[500], lineHeight: 22 },
+  journeyImage: { width: '100%', height: 180, borderRadius: 20, marginVertical: 12, backgroundColor: Colors.slate[50] },
   footerBar: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 110, backgroundColor: Colors.white, borderTopWidth: 1, borderTopColor: Colors.border, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 20 },
   footerInfo: { flex: 1 },
   footerPriceLabel: { fontFamily: 'Outfit_900Black', fontSize: 10, letterSpacing: 3, color: Colors.slate[400] },
