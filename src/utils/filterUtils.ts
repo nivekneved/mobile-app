@@ -65,7 +65,7 @@ export function validateAmenities(service: any, requestedAmenities: string[]): b
   const sAmenities = Array.isArray(service.amenities) 
     ? service.amenities.map((a: any) => typeof a === 'string' ? a.toLowerCase() : a.item?.toLowerCase()).filter(Boolean)
     : typeof service.amenities === 'string' 
-      ? service.amenities.split(',').map(a => a.trim().toLowerCase()) 
+      ? (service.amenities as string).split(',').map((a: string) => a.trim().toLowerCase()) 
       : [];
 
   return requestedAmenities.every(req => sAmenities.includes(req.toLowerCase()));

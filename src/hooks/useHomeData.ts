@@ -47,6 +47,9 @@ export type Service = {
   duration_days?: number;
   duration_hours?: number;
   banner_url?: string;
+  rating?: number;
+  meal_plans?: string[];
+  secondary_image_url?: string;
 };
 
 export const useHomeData = () => {

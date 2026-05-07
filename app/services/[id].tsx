@@ -4,8 +4,15 @@ import { Text, ActivityIndicator, Surface } from 'react-native-paper';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
 import { useServiceDetails } from '../../src/hooks/useServiceDetails';
-import { useRoomTypes } from '../../src/hooks/useRoomTypes';
-import { MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, X, Calendar as CalendarIcon, Tag, Moon, MessageCircle, Phone, Sparkles, Users } from 'lucide-react-native';
+import { useRoomTypes, RoomType } from '../../src/hooks/useRoomTypes';
+import { 
+  MapPin, ArrowLeft, Share2, Mail, Clock, Info, Check, X, 
+  Calendar as CalendarIcon, Tag, Moon, MessageCircle, Phone, 
+  Sparkles, Users, Utensils, Wifi, Monitor, Waves, Flower2, 
+  Dumbbell, Car, GlassWater, ConciergeBell, Wind, Umbrella, 
+  WashingMachine, Coffee, Tv, ShieldCheck, Briefcase, Plane, 
+  Bath, Bike, Zap, Map 
+} from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
 import { BookingModal } from '../../src/components/BookingModal';
@@ -19,10 +26,65 @@ import { User } from 'lucide-react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useWishlist } from '../../src/context/WishlistContext';
 import { stripHtml } from '../../src/utils/textUtils';
-import { Utensils } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 450;
+
+const AMENITY_ICONS: Record<string, any> = {
+  'wifi': Wifi,
+  'free wifi': Wifi,
+  'internet': Wifi,
+  'computer': Monitor,
+  'pool': Waves,
+  'infinity pool': Waves,
+  'swimming pool': Waves,
+  'water activities': Waves,
+  'spa': Flower2,
+  'wellness': Flower2,
+  'massage': Flower2,
+  'gym': Dumbbell,
+  'fitness': Dumbbell,
+  'parking': Car,
+  'free parking': Car,
+  'restaurant': Utensils,
+  'dining': Utensils,
+  'bar': GlassWater,
+  'lounge': GlassWater,
+  'cocktail': GlassWater,
+  'room service': ConciergeBell,
+  'ac': Wind,
+  'air conditioning': Wind,
+  'beach': Umbrella,
+  'towels': Wind,
+  'private beach': Umbrella,
+  'laundry': WashingMachine,
+  'cleaning': WashingMachine,
+  'concierge': ConciergeBell,
+  'breakfast': Coffee,
+  'tv': Tv,
+  'television': Tv,
+  'security': ShieldCheck,
+  'business center': Briefcase,
+  'shop': Briefcase,
+  'airport shuttle': Plane,
+  'transfer': Plane,
+  'bath': Bath,
+  'bathtub': Bath,
+  'bicycle': Bike,
+  'bike': Bike,
+  'electricity': Zap,
+  'power': Zap,
+  'games': Zap,
+  'view': Map
+};
+
+function getAmenityIcon(amenity: string) {
+  const key = amenity.toLowerCase().trim();
+  for (const [name, Icon] of Object.entries(AMENITY_ICONS)) {
+    if (key.includes(name)) return Icon;
+  }
+  return Sparkles;
+}
 
 export default function ServiceDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -35,7 +97,7 @@ export default function ServiceDetailScreen() {
   const { reviews, faqs } = useServiceAddons(id as string);
   const { toggleWishlist, isInWishlist } = useWishlist();
 
-  const roomTypes = React.useMemo(() => {
+  const roomTypes = React.useMemo<RoomType[]>(() => {
     // 1. Check for JSONB room_types in the service object first (from services table)
     if (service?.room_types && Array.isArray(service.room_types) && service.room_types.length > 0) {
       return service.room_types.map((room: any, index: number) => {
@@ -52,7 +114,9 @@ export default function ServiceDetailScreen() {
           image_url: room.image_url || room.image,
           meal_plan: room.meal_plan || room.mealPlan,
           max_adults: room.max_adults || room.maxAdults || 2,
+          max_teens: room.max_teens || room.maxTeens || 0,
           max_children: room.max_children || room.maxChildren || 0,
+          max_infants: room.max_infants || room.maxInfants || 0,
           amenities: Array.isArray(room.features) ? room.features : 
                      (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
         };
@@ -134,11 +198,29 @@ export default function ServiceDetailScreen() {
             </TouchableOpacity>
           </View>
           <View style={styles.titleOverlay}>
-            <View style={styles.categoryBadge}><Text style={styles.categoryText}>{service.category || 'Experience'}</Text></View>
+            <View style={styles.badgeRow}>
+              <View style={styles.categoryBadge}><Text style={styles.categoryText}>{service.category || 'Experience'}</Text></View>
+              {service.rating && (
+                <View style={styles.ratingBadge}>
+                  <StarRating rating={service.rating} size={12} color="#FFFFFF" />
+                  <Text style={styles.ratingText}>{service.rating} RATING</Text>
+                </View>
+              )}
+            </View>
             <Text style={styles.name}>{service.name}</Text>
-            {service.location && (
-              <View style={styles.locationContainer}><MapPin color="#CBD5E1" size={14} /><Text style={styles.location}>{service.location}</Text></View>
-            )}
+            <View style={styles.metaRow}>
+              {service.location && (
+                <View style={styles.locationContainer}><MapPin color="#CBD5E1" size={14} /><Text style={styles.location}>{service.location}</Text></View>
+              )}
+              {service.meal_plans && Array.isArray(service.meal_plans) && service.meal_plans.length > 0 && (
+                <View style={styles.headerMealPlanContainer}>
+                  <Utensils color="#FFFFFF" size={14} />
+                  <Text style={styles.headerMealPlanText}>
+                    {service.meal_plans.map((mp: any) => typeof mp === 'string' ? mp : (mp as any).label).join(' • ')}
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
         </View>
 
@@ -208,7 +290,26 @@ export default function ServiceDetailScreen() {
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>The Experience</Text>
-            <Text style={styles.description}>{stripHtml(service.description) || "Discover the beauty and luxury of this carefully curated experience by Travel Lounge."}</Text>
+            <View style={styles.introContainer}>
+              <View style={styles.introContent}>
+                <Text style={styles.description}>{stripHtml(service.description) || "Discover the beauty and luxury of this carefully curated experience by Travel Lounge."}</Text>
+                {service.special_features && Array.isArray(service.special_features) && service.special_features.length > 0 && (
+                  <View style={styles.specialFeaturesRow}>
+                    {service.special_features.map((feature, idx) => (
+                      <View key={idx} style={styles.specialFeatureChip}>
+                        <Text style={styles.specialFeatureText}>{typeof feature === 'string' ? feature : (feature as any).item}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+              {service.secondary_image_url && (
+                <Image 
+                  source={resolveImageUrl(service.secondary_image_url)} 
+                  style={styles.secondaryImage} 
+                />
+              )}
+            </View>
           </View>
 
           {/* Multi-Image Experience Gallery */}
@@ -227,10 +328,14 @@ export default function ServiceDetailScreen() {
             </View>
           )}
 
-          {/* Accommodation for Hotels */}
-          {(service.category?.toLowerCase()?.includes('hotel') || service.category?.toLowerCase() === 'stay') && roomTypes.length > 0 && (
+          {/* Variants / Rooms Section - Unified for Hotels & Packages */}
+          {roomTypes.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Choose Your Room</Text>
+              <Text style={styles.sectionTitle}>
+                {service.category?.toLowerCase()?.includes('hotel') || service.category?.toLowerCase() === 'stay' 
+                  ? 'Choose Your Room' 
+                  : 'Choose Your Itinerary'}
+              </Text>
               {roomTypes.map((room) => (
                 <Surface key={room.id} style={styles.roomCard} elevation={0}>
                   <Image source={resolveImageUrl(room.image_url)} style={styles.roomImage} />
@@ -247,13 +352,25 @@ export default function ServiceDetailScreen() {
                     
                     <View style={styles.occupancyRow}>
                       <View style={styles.occupancyItem}>
-                        <User size={14} color={Colors.slate[400]} />
+                        <Users size={14} color={Colors.slate[400]} />
                         <Text style={styles.occupancyText}>{room.max_adults || 2} Adults</Text>
                       </View>
+                      {(room.max_teens || 0) > 0 && (
+                        <View style={styles.occupancyItem}>
+                          <Users size={12} color={Colors.slate[400]} />
+                          <Text style={styles.occupancyText}>{room.max_teens} Teens</Text>
+                        </View>
+                      )}
                       {(room.max_children || 0) > 0 && (
                         <View style={styles.occupancyItem}>
-                          <User size={12} color={Colors.slate[400]} />
+                          <Users size={12} color={Colors.slate[400]} />
                           <Text style={styles.occupancyText}>{room.max_children} Children</Text>
+                        </View>
+                      )}
+                      {(room.max_infants || 0) > 0 && (
+                        <View style={styles.occupancyItem}>
+                          <Users size={10} color={Colors.slate[400]} />
+                          <Text style={styles.occupancyText}>{room.max_infants} Infants</Text>
                         </View>
                       )}
                     </View>
@@ -276,7 +393,11 @@ export default function ServiceDetailScreen() {
                     </View>
 
                     <TouchableOpacity style={styles.selectRoomBtn} onPress={() => setBookingVisible(true)}>
-                      <Text style={styles.selectRoomBtnText}>SELECT THIS ROOM</Text>
+                      <Text style={styles.selectRoomBtnText}>
+                        {service.category?.toLowerCase()?.includes('hotel') || service.category?.toLowerCase() === 'stay' 
+                          ? 'SELECT THIS ROOM' 
+                          : 'SELECT THIS ITINERARY'}
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </Surface>
@@ -304,68 +425,80 @@ export default function ServiceDetailScreen() {
             </View>
           )}
 
-          {/* Key Highlights */}
-          {service.highlights && (Array.isArray(service.highlights) ? service.highlights.length > 0 : service.highlights.length > 0) && (
+          {/* Essentials Section (Highlights, Included, Not Included) */}
+          {( (service.highlights && (Array.isArray(service.highlights) ? service.highlights.length > 0 : service.highlights.length > 0)) || 
+             (service.included && (Array.isArray(service.included) ? service.included.length > 0 : true)) ) && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Key Highlights</Text>
-              <View style={styles.highlightsCard}>
-                {(Array.isArray(service.highlights) ? service.highlights : (service.highlights as string).split('\n')).map((item, idx) => (
-                  <View key={idx} style={styles.highlightItem}>
-                    <View style={styles.highlightDot} />
-                    <Text style={styles.highlightText}>{item.trim()}</Text>
+              <View style={styles.essentialsHeader}>
+                <View style={styles.essentialsIconCircle}>
+                  <Info size={18} color={Colors.primary} />
+                </View>
+                <View>
+                  <Text style={styles.essentialsSubtitle}>ESSENTIALS</Text>
+                  <Text style={styles.essentialsTitle}>Highlights & Inclusions</Text>
+                </View>
+              </View>
+
+              <View style={styles.essentialsCard}>
+                {service.highlights && (
+                  <View style={styles.essentialsGroup}>
+                    <Text style={styles.essentialsGroupTitle}>KEY HIGHLIGHTS</Text>
+                    {(Array.isArray(service.highlights) ? service.highlights : (service.highlights as string).split('\n')).map((item, idx) => (
+                      <View key={idx} style={styles.essentialHighlightItem}>
+                        <View style={styles.essentialHighlightDot} />
+                        <Text style={styles.essentialHighlightText}>{typeof item === 'string' ? item.trim() : (item as any).item}</Text>
+                      </View>
+                    ))}
                   </View>
-                ))}
+                )}
+
+                {service.included && (
+                  <View style={[styles.essentialsGroup, { marginTop: 24 }]}>
+                    <Text style={[styles.essentialsGroupTitle, { color: '#059669' }]}>WHAT'S INCLUDED</Text>
+                    {(Array.isArray(service.included) ? service.included : [service.included]).map((item, idx) => (
+                      <View key={idx} style={styles.inclusionItem}>
+                        <View style={styles.inclusionIconCircle}>
+                          <Check size={10} color="#059669" strokeWidth={3} />
+                        </View>
+                        <Text style={styles.inclusionText}>{typeof item === 'string' ? item : (item as any).item}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+
+                {service.not_included && (
+                  <View style={[styles.essentialsGroup, { marginTop: 24 }]}>
+                    <Text style={styles.essentialsGroupTitle}>WHAT'S NOT INCLUDED</Text>
+                    {(Array.isArray(service.not_included) ? service.not_included : [service.not_included]).map((item, idx) => (
+                      <View key={idx} style={styles.inclusionItem}>
+                        <View style={[styles.inclusionIconCircle, { backgroundColor: '#F1F5F9' }]}>
+                          <X size={10} color={Colors.slate[400]} strokeWidth={3} />
+                        </View>
+                        <Text style={[styles.inclusionText, { color: Colors.slate[400] }]}>{typeof item === 'string' ? item : (item as any).item}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
               </View>
             </View>
           )}
 
-          {/* Special Features */}
-          {service.special_features && (Array.isArray(service.special_features) ? service.special_features.length > 0 : service.special_features.length > 0) && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Exclusive Features</Text>
-              <View style={styles.amenitiesGrid}>
-                {(Array.isArray(service.special_features) ? service.special_features : (service.special_features as string).split(',')).map((item, idx) => (
-                  <View key={idx} style={styles.amenityItem}>
-                    <Sparkles size={14} color="#D97706" />
-                    <Text style={styles.amenityText}>{item.trim()}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* Property Amenities */}
+          {/* Property Amenities - High Parity with Web */}
           {service.amenities && (Array.isArray(service.amenities) ? (service.amenities.length > 0) : ((service.amenities as any).length > 0)) && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Property Amenities</Text>
+              <Text style={styles.sectionTitle}>Amenities & Services</Text>
               <View style={styles.amenitiesGrid}>
-                {(Array.isArray(service.amenities) ? service.amenities : (service.amenities as string).split(',')).map((item, idx) => (
-                  <View key={idx} style={styles.amenityItem}>
-                    <Check size={14} color={Colors.primary} />
-                    <Text style={styles.amenityText}>{item.trim()}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* Inclusions & Exclusions */}
-          {(service.included || service.not_included) && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>What's Included</Text>
-              <View style={styles.inclusionsCard}>
-                {service.included && (Array.isArray(service.included) ? service.included : [service.included]).map((item, idx) => (
-                  <View key={idx} style={styles.inclusionItem}>
-                    <Check size={16} color="#059669" />
-                    <Text style={styles.inclusionText}>{item}</Text>
-                  </View>
-                ))}
-                {service.not_included && (Array.isArray(service.not_included) ? service.not_included : [service.not_included]).map((item, idx) => (
-                  <View key={idx} style={styles.inclusionItem}>
-                    <X size={16} color="#DC2626" />
-                    <Text style={[styles.inclusionText, { color: Colors.slate[400] }]}>{item}</Text>
-                  </View>
-                ))}
+                {(Array.isArray(service.amenities) ? service.amenities : (service.amenities as string).split(',')).map((item, idx) => {
+                  const Icon = getAmenityIcon(item);
+                  return (
+                    <View key={idx} style={styles.premiumAmenityItem}>
+                      <View style={styles.amenityIconWrapper}>
+                        <Icon size={18} color={Colors.slate[400]} />
+                      </View>
+                      <Text style={styles.premiumAmenityText}>{item.trim().toUpperCase()}</Text>
+                    </View>
+                  );
+                })}
               </View>
             </View>
           )}
@@ -607,6 +740,32 @@ const styles = StyleSheet.create({
   quickInfoText: { fontFamily: 'Outfit_900Black', fontSize: 12, color: Colors.charcoal },
   section: { marginBottom: 40 },
   sectionTitle: { fontFamily: 'Outfit_900Black', fontSize: 13, letterSpacing: 4, color: Colors.charcoal, textTransform: 'uppercase', marginBottom: 20 },
+  introContainer: { flexDirection: 'row', gap: 20 },
+  introContent: { flex: 1 },
+  secondaryImage: { width: 140, height: 200, borderRadius: 24, resizeMode: 'cover' },
+  specialFeaturesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 16 },
+  specialFeatureChip: { backgroundColor: Colors.slate[50], paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: Colors.border },
+  specialFeatureText: { fontFamily: 'Outfit_900Black', fontSize: 10, color: Colors.slate[400], textTransform: 'uppercase', letterSpacing: 1 },
+  badgeRow: { flexDirection: 'row', gap: 12, marginBottom: 12, alignItems: 'center' },
+  ratingBadge: { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+  ratingText: { color: Colors.white, fontFamily: 'Outfit_900Black', fontSize: 9, letterSpacing: 1 },
+  metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, alignItems: 'center' },
+  headerMealPlanContainer: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  headerMealPlanText: { color: Colors.white, fontFamily: 'Outfit_700Bold', fontSize: 12, textTransform: 'uppercase' },
+  essentialsHeader: { flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 20 },
+  essentialsIconCircle: { width: 44, height: 44, borderRadius: 15, backgroundColor: '#FEF2F2', justifyContent: 'center', alignItems: 'center' },
+  essentialsSubtitle: { fontFamily: 'Outfit_900Black', fontSize: 10, color: Colors.primary, letterSpacing: 3 },
+  essentialsTitle: { fontFamily: 'Outfit_900Black', fontSize: 20, color: Colors.charcoal },
+  essentialsCard: { backgroundColor: Colors.white, borderRadius: 32, padding: 0 },
+  essentialsGroup: { },
+  essentialsGroupTitle: { fontFamily: 'Outfit_900Black', fontSize: 11, color: Colors.slate[400], letterSpacing: 2, marginBottom: 16 },
+  essentialHighlightItem: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  essentialHighlightDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.primary },
+  essentialHighlightText: { fontFamily: 'Outfit_600SemiBold', fontSize: 15, color: Colors.charcoal },
+  inclusionIconCircle: { width: 22, height: 22, borderRadius: 7, backgroundColor: '#ECFDF5', justifyContent: 'center', alignItems: 'center' },
+  premiumAmenityItem: { flexDirection: 'row', alignItems: 'center', gap: 12, width: '48%', marginBottom: 16 },
+  amenityIconWrapper: { width: 44, height: 44, borderRadius: 12, backgroundColor: Colors.slate[50], justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
+  premiumAmenityText: { fontFamily: 'Outfit_900Black', fontSize: 9, color: Colors.slate[500], letterSpacing: 1, flex: 1 },
   description: { fontFamily: 'Outfit_500Medium', fontSize: 16, color: Colors.slate[500], lineHeight: 28 },
   roomCard: { borderRadius: 32, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden', marginBottom: 20 },
   roomImage: { width: '100%', height: 200 },

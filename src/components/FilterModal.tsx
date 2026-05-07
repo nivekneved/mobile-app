@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   searchIcon: { marginRight: 12 },
   amenityInput: { flex: 1, fontFamily: 'Outfit_600SemiBold', fontSize: 14, color: Colors.charcoal },
   amenitiesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  amenityChip: { backgroundColor: Colors.white, borderColor: Colors.slate[200], borderWeight: 1, borderRadius: 12 },
+  amenityChip: { backgroundColor: Colors.white, borderColor: Colors.slate[200], borderWidth: 1, borderRadius: 12 },
   amenityChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   amenityChipText: { fontFamily: 'Outfit_600SemiBold', fontSize: 12, color: Colors.slate[600] },
   amenityChipTextActive: { color: Colors.white },
