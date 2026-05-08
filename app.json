@@ -22,12 +22,13 @@
       "versionCode": 3,
       "package": "com.travellounge.mobile",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#DC2626",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       }
     },
+    "primaryColor": "#DC2626",
     "scheme": "travellounge",
     "plugins": [
       "expo-router",

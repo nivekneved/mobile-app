@@ -695,9 +695,7 @@ export default function ServiceDetailScreen() {
                   notes: data.specialRequirements,
                   serviceCategory: service.category || 'hotel',
                   isLocalDeal: service.location?.toLowerCase().includes('mauritius') || false
-                })
-              });
-              console.log('[Mobile/Booking] Email notification triggered successfully');
+              // Email notification triggered
             } catch (emailErr) {
               console.error('[Mobile/Booking] Email notification failed (background):', emailErr);
               // We don't throw here as the booking itself was successful in DB
