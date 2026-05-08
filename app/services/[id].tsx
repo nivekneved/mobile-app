@@ -695,6 +695,8 @@ export default function ServiceDetailScreen() {
                   notes: data.specialRequirements,
                   serviceCategory: service.category || 'hotel',
                   isLocalDeal: service.location?.toLowerCase().includes('mauritius') || false
+                })
+              });
               // Email notification triggered
             } catch (emailErr) {
               console.error('[Mobile/Booking] Email notification failed (background):', emailErr);
