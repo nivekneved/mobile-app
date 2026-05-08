@@ -19,7 +19,7 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
         setIsLoading(true);
         const { data, error: serviceError } = await supabase
           .from('services')
-          .select('*, amenities, itinerary, gallery_images, service_pricing(price, occupancy_pricing), service_categories(categories(name))')
+          .select('*, amenities, itinerary, gallery_images, service_pricing(price, price_teen, price_child, price_infant, net_price, net_price_teen, net_price_child, net_price_infant, occupancy_pricing), service_categories(categories(name))')
           .eq('id', id)
           .single();
 
@@ -28,12 +28,17 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
         if (data) {
           // Extract category name from the join if available
           const categoryName = data.service_categories?.[0]?.categories?.name || data.service_type || 'Experience';
-          const lowestPrice = calculateLeadPrice(data.service_pricing || [], data.service_type);
+          const pricing = data.service_pricing || [];
+          const lowestPrice = calculateLeadPrice(pricing, data.service_type);
+          const primaryPricing = pricing.find((p: any) => !p.variant_id);
 
           setService({
             ...data,
             price: lowestPrice,
             lowestPrice: lowestPrice,
+            price_teen: primaryPricing?.price_teen || data.price_teen,
+            price_child: primaryPricing?.price_child || data.price_child,
+            price_infant: primaryPricing?.price_infant || data.price_infant,
             category: categoryName
           });
         }

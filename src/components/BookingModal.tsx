@@ -5,6 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Colors } from '../theme/colors';
+import { mss } from '../styles/mss';
 import { Calendar, X, CheckCircle, Moon, Clock, Utensils } from 'lucide-react-native';
 import { useRoomTypes } from '../hooks/useRoomTypes';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -49,7 +50,7 @@ interface RoomType {
   name: string;
   weekday_price: number;
   weekend_price: number;
-  min_stay?: number;
+  min_stay_days?: number;
   meal_plan?: string;
   max_adults?: number;
   max_teens?: number;
@@ -77,7 +78,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
             name: room.type || room.name || 'Standard Room',
             weekday_price: weekday,
             weekend_price: weekend,
-            min_stay: parseInt(room.min_stay) || 1,
+            min_stay_days: parseInt(room.min_stay_days || room.min_stay) || 1,
             image_url: room.image_url,
             meal_plan: room.meal_plan || room.mealPlan,
             amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
@@ -132,9 +133,9 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
     },
     baseRates: {
       adult: roomTypes.find(r => r.name === watchAllFields.roomType)?.weekday_price || service.price || 0,
-      teen: (service as any).teen_price || (service as any).child_price || service.price || 0,
-      child: service.childPrice || 0,
-      infant: (service as any).infant_price || 0
+      teen: (service as any).price_teen || (service as any).teen_price || (service as any).child_price || service.price || 0,
+      child: (service as any).price_child || service.childPrice || 0,
+      infant: (service as any).price_infant || (service as any).infant_price || 0
     }
   }), [service, watchAllFields, roomTypes]);
 
@@ -524,12 +525,12 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                                 ]}> {type.meal_plan}</Text>
                               </View>
                             )}
-                            {type.min_stay && type.min_stay > 1 && (
+                            {type.min_stay_days && type.min_stay_days > 1 && (
                               <Text style={[
                                 styles.minStayText,
                                 value === type.name && styles.roomTypeTextSelected
                               ]}>
-                                {type.min_stay} nights minimum stay required
+                                {type.min_stay_days} nights minimum stay required
                               </Text>
                             )}
                           </View>
@@ -866,8 +867,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   successContent: {
-    backgroundColor: Colors.white,
-    borderRadius: 32,
+    ...mss.section,
     padding: 32,
     alignItems: 'stretch',
   },

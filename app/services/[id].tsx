@@ -117,7 +117,7 @@ export default function ServiceDetailScreen() {
           name: room.type || room.name || 'Standard Room',
           weekday_price: weekday,
           weekend_price: weekend || weekday, // Fallback weekend to weekday if 0
-          min_stay: parseInt(room.min_stay) || 1,
+          min_stay_days: parseInt(room.min_stay_days || room.min_stay) || 1,
           image_url: room.image_url || room.image,
           meal_plan: room.meal_plan || room.mealPlan,
           max_adults: room.max_adults || room.maxAdults || 2,

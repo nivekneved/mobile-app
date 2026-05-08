@@ -41,6 +41,7 @@ import {
 } from '@expo-google-fonts/outfit';
 
 import '../src/lib/i18n';
+import '../src/styles/global.css';
 import { PopupManager } from '../src/components/PopupManager';
 
 // Keep the splash screen visible while we fetch resources

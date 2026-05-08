@@ -93,22 +93,32 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
 
           // Deep Search Parity: Handle occupancy-based pricing (JSONB)
           let adultRate = activePricing ? Number(activePricing.price) : baseRates.adult;
+          let teenRate = activePricing ? Number(activePricing.price_teen) : baseRates.teen;
+          let childRate = activePricing ? Number(activePricing.price_child) : baseRates.child;
+          let infantRate = activePricing ? Number(activePricing.price_infant) : baseRates.infant;
+
           const occ = activePricing?.occupancy_pricing;
-          
           if (occ && typeof occ === 'object') {
             const numAdults = participants.adults || 0;
-            const tierPrice = occ[numAdults.toString()] ?? occ[numAdults];
-            if (tierPrice !== undefined && tierPrice !== null) {
-              adultRate = typeof tierPrice === 'object' ? Number(tierPrice.price || 0) : Number(tierPrice);
+            const tierData = occ[numAdults.toString()] ?? occ[numAdults];
+            if (tierData !== undefined && tierData !== null) {
+              if (typeof tierData === 'object') {
+                adultRate = Number(tierData.price || 0);
+                if (tierData.teen !== undefined) teenRate = Number(tierData.teen);
+                if (tierData.child !== undefined) childRate = Number(tierData.child);
+                if (tierData.infant !== undefined) infantRate = Number(tierData.infant);
+              } else {
+                adultRate = Number(tierData);
+              }
             }
           }
 
           const rates: DailyRate = {
             date: currentDateStr,
             adult: adultRate,
-            teen: activePricing ? Number(activePricing.price_teen) : baseRates.teen,
-            child: activePricing ? Number(activePricing.price_child) : baseRates.child,
-            infant: activePricing ? Number(activePricing.price_infant) : baseRates.infant,
+            teen: teenRate,
+            child: childRate,
+            infant: infantRate,
             source: activePricing ? 'grid' : 'base',
           };
 
