@@ -13,6 +13,7 @@ import { PremiumCarousel } from './PremiumCarousel';
 import { useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { resolveImageUrl } from '../utils/imageUtils';
+import { useSettings } from '../context/SettingsContext';
 
 const ITEM_HEIGHT = 480;
 
@@ -46,6 +47,8 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
   });
 
   const router = useRouter();
+  const { generalConfig } = useSettings();
+  const labels = generalConfig?.ui_labels || {};
 
   const mapRoute = (link: string) => {
     if (!link) return '/explore';
@@ -89,11 +92,19 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
       <View style={styles.overlay} />
       <Animated.View style={[styles.content, animatedContentStyle]}>
         <Text variant="labelMedium" style={[styles.tag, item.badge_color ? { backgroundColor: item.badge_color + '33', borderColor: item.badge_color + '66' } : null]}>
-          {item.badge_text || 'Exclusive Collection'}
+          {item.badge_text || labels.hero_default_tag || 'Exclusive Collection'}
         </Text>
         <Text variant="displaySmall" style={styles.title}>{item.title}</Text>
         <Text variant="bodyLarge" style={styles.subtitle}>{item.subtitle}</Text>
         
+        {/* Pricing Badge Overlay (Premium WOW Factor) */}
+        {(item as any).starting_price && (
+          <View style={styles.priceOverlay}>
+             <Text style={styles.priceOverlayLabel}>{labels.as_from || 'AS FROM'}</Text>
+             <Text style={styles.priceOverlayValue}>Rs {(item as any).starting_price.toLocaleString()}</Text>
+          </View>
+        )}
+
         <View style={styles.buttonRow}>
           {item.cta_text && (
             <TouchableOpacity 
@@ -101,7 +112,7 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
               activeOpacity={0.8}
               onPress={handlePress}
             >
-              <Text variant="labelLarge" style={styles.ctaText}>{item.cta_text}</Text>
+              <Text variant="labelLarge" style={styles.ctaText}>{item.cta_text || labels.hero_default_cta || 'EXPLORE'}</Text>
             </TouchableOpacity>
           )}
           
@@ -110,7 +121,7 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
             activeOpacity={0.8}
             onPress={handleSecondaryPress}
           >
-            <Text variant="labelLarge" style={styles.secondaryCtaText}>DISCOVER</Text>
+            <Text variant="labelLarge" style={styles.secondaryCtaText}>{labels.hero_secondary_cta || 'DISCOVER'}</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -240,5 +251,30 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1,
     fontSize: 11,
+  },
+  priceOverlay: {
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+    marginBottom: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  priceOverlayLabel: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 8,
+    color: Colors.slate[400],
+    letterSpacing: 2,
+    marginBottom: 2,
+  },
+  priceOverlayValue: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 18,
+    color: Colors.primary,
   },
 });

@@ -9,7 +9,7 @@ export const useSearchServices = () => {
   const [error, setError] = useState<string | null>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const searchServices = useCallback(async (query: string, categorySlug: string | null = null) => {
+  const searchServices = useCallback(async (query: string, categorySlug: string | null = null, region: string | null = null) => {
     // FIX-3: Debounce — clear any pending timer, wait 300ms before firing
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
@@ -32,6 +32,10 @@ export const useSearchServices = () => {
 
         if (query) {
           supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
+        }
+
+        if (region && region !== 'All') {
+          supabaseQuery = supabaseQuery.ilike('location', `%${region}%`);
         }
 
         if (categorySlug && categorySlug !== 'all') {

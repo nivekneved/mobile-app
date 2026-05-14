@@ -11,6 +11,8 @@ import { StatusBar } from 'expo-status-bar';
 import { FilterModal } from '../../src/components/FilterModal';
 import { validateOccupancy, validateAmenities, FilterState } from '../../src/utils/filterUtils';
 import { ServiceCard } from '../../src/components/ServiceCard';
+import { InteractiveMap } from '../../src/components/InteractiveMap';
+import { Map as MapIcon, ChevronDown, ChevronUp } from 'lucide-react-native';
 
 
 
@@ -27,6 +29,8 @@ export default function ExploreScreen() {
     priceRange: [0, 200000],
     amenities: [],
   });
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [isMapVisible, setIsMapVisible] = useState(false);
 
   const { categories } = useHomeData();
   const { services, isLoading, searchServices } = useSearchServices();
@@ -41,8 +45,8 @@ export default function ExploreScreen() {
   }, [params.category, params.query]);
 
   useEffect(() => {
-    searchServices(searchQuery, selectedCategory);
-  }, [searchQuery, selectedCategory, searchServices]);
+    searchServices(searchQuery, selectedCategory, selectedRegion);
+  }, [searchQuery, selectedCategory, selectedRegion, searchServices]);
 
   const availableAmenities = useMemo(() => {
     const amenities = new Set<string>();
@@ -86,6 +90,14 @@ export default function ExploreScreen() {
         price={item.price}
         category={item.category}
         location={item.location}
+        rating={item.rating}
+        duration={item.duration_days ? `${item.duration_days} Days` : item.duration_hours ? `${item.duration_hours} Hours` : undefined}
+        amenities={item.amenities}
+        meal_plans={item.meal_plans}
+        activity_type={item.activity_type}
+        is_seasonal={item.is_seasonal}
+        deal_note={item.deal_note}
+        short_description={item.short_description || item.description}
         fullWidth
         onPress={() => router.push(`/services/${item.id}`)}
       />
@@ -109,8 +121,29 @@ export default function ExploreScreen() {
           <TouchableOpacity style={styles.filterBtn} onPress={() => setIsFilterVisible(true)}>
             <Sliders size={20} color={Colors.primary} />
           </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.filterBtn, isMapVisible && styles.filterBtnActive]} 
+            onPress={() => setIsMapVisible(!isMapVisible)}
+          >
+            <MapIcon size={20} color={isMapVisible ? '#fff' : Colors.primary} />
+          </TouchableOpacity>
         </View>
       </View>
+
+      {isMapVisible && (
+        <View style={styles.mapSection}>
+           <View style={styles.mapHeader}>
+              <Text style={styles.mapTitle}>REGIONAL DISCOVERY</Text>
+              <TouchableOpacity onPress={() => setSelectedRegion(null)}>
+                 <Text style={styles.resetMap}>RESET MAP</Text>
+              </TouchableOpacity>
+           </View>
+           <InteractiveMap 
+             selectedRegion={selectedRegion || undefined} 
+             onSelectRegion={setSelectedRegion} 
+           />
+        </View>
+      )}
 
       <View style={styles.filterSection}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryList}>
@@ -209,10 +242,43 @@ const styles = StyleSheet.create({
     color: Colors.charcoal,
   },
   filterBtn: {
-    padding: 8,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 14,
     backgroundColor: Colors.white,
     marginLeft: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterBtnActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  mapSection: {
+    backgroundColor: '#fff',
+    paddingBottom: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  mapHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  mapTitle: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Colors.slate[400],
+    letterSpacing: 2,
+  },
+  resetMap: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Colors.primary,
+    letterSpacing: 1,
   },
   filterSection: {
     paddingVertical: 16,

@@ -50,7 +50,17 @@ export type Service = {
   rating?: number;
   meal_plans?: string[];
   secondary_image_url?: string;
+  activity_type?: string;
+  is_seasonal?: boolean;
+  deal_note?: string;
+  short_description?: string;
 };
+/* PREVIOUS PROPERTIES PRESERVED AS COMMENT PER USER RULES:
+  rating?: number;
+  meal_plans?: string[];
+  secondary_image_url?: string;
+};
+*/
 
 export const useHomeData = () => {
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);

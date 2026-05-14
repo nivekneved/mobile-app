@@ -170,13 +170,13 @@ export default function HomeScreen() {
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#F0FDF4' }]} onPress={() => router.push('/explore?on_sale=true')}>
+                <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#F0FDF4' }]} onPress={() => router.push('/local-deals')}>
                   <View style={[styles.quickFilterIcon, { backgroundColor: '#10B981' }]}>
                     <Percent size={18} color={Colors.white} />
                   </View>
                   <View>
                     <Text style={styles.quickFilterLabel}>BEST PRICES</Text>
-                    <Text style={styles.quickFilterSublabel}>Top Deals</Text>
+                    <Text style={styles.quickFilterSublabel}>Local Resident Deals</Text>
                   </View>
                 </TouchableOpacity>
 
@@ -222,6 +222,14 @@ export default function HomeScreen() {
                   price={service.price || 0}
                   category={service.category} 
                   location={service.location}
+                  rating={service.rating}
+                  duration={service.duration_days ? `${service.duration_days} Days` : service.duration_hours ? `${service.duration_hours} Hours` : undefined}
+                  amenities={service.amenities}
+                  meal_plans={service.meal_plans}
+                  activity_type={service.activity_type}
+                  is_seasonal={service.is_seasonal}
+                  deal_note={service.deal_note}
+                  short_description={service.short_description || service.description}
                   onPress={() => router.push(`/services/${service.id}`)}
                 />
               ))

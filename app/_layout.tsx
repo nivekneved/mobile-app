@@ -43,6 +43,7 @@ import {
 import '../src/lib/i18n';
 import '../src/styles/global.css';
 import { PopupManager } from '../src/components/PopupManager';
+import { AIConcierge } from '../src/components/AIConcierge';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -113,6 +114,7 @@ function RootLayoutNav() {
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <PaperProvider theme={theme}>
         <PopupManager />
+        <AIConcierge />
         <Stack
           screenOptions={{
             headerStyle: {

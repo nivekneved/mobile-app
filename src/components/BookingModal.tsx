@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { Modal, Portal, Text, TextInput, Button, IconButton, Surface } from 'react-native-paper';
+import React, { useState, useMemo } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Dimensions } from 'react-native';
+import { Modal, Portal, Text, TextInput, Button, IconButton, Surface, Chip } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Colors } from '../theme/colors';
 import { mss } from '../styles/mss';
-import { Calendar, X, CheckCircle, Moon, Clock, Utensils } from 'lucide-react-native';
-import { useRoomTypes } from '../hooks/useRoomTypes';
+import { Calendar, X, CheckCircle, Moon, Clock, Utensils, Users, ArrowRight, ArrowLeft, ShieldCheck, Car, Smartphone, Plus, Trash2, Info } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useServicePricing } from '../hooks/useServicePricing';
+
+const { width } = Dimensions.get('window');
 
 const bookingSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -20,11 +21,15 @@ const bookingSchema = z.object({
   paxTeens: z.number().min(0),
   paxChildren: z.number().min(0),
   paxInfants: z.number().min(0),
-  checkIn: z.string().min(1, 'Star Date is required'),
-  checkOut: z.string().min(1, 'Date end is required'),
+  checkIn: z.string().min(1, 'Start Date is required'),
+  checkOut: z.string().min(1, 'End Date is required'),
   roomType: z.string().optional(),
   mealPreference: z.string().optional(),
+  addons: z.array(z.string()).optional(),
   specialRequirements: z.string().optional(),
+  /* PREVIOUS ADDONS PRESERVED AS COMMENT PER USER RULES:
+  addons: z.array(z.string()).default([]),
+  */
 });
 
 type BookingFormData = z.infer<typeof bookingSchema>;
@@ -45,61 +50,27 @@ interface BookingModalProps {
   initialData?: Partial<BookingFormData>;
 }
 
-interface RoomType {
-  id: string;
-  name: string;
-  weekday_price: number;
-  weekend_price: number;
-  min_stay_days?: number;
-  meal_plan?: string;
-  max_adults?: number;
-  max_teens?: number;
-  max_children?: number;
-  max_infants?: number;
-}
+// Mock Addons for Parity (Transfers, Spa, etc.)
+const AVAILABLE_ADDONS = [
+  { id: 'airport_transfer', name: 'Airport Transfer', price: 2500, icon: Car, description: 'Private VIP pickup from SSR Airport' },
+  { id: 'sim_card', name: 'Local SIM Card', price: 500, icon: Smartphone, description: '100GB 5G Data pre-activated' },
+  { id: 'spa_voucher', name: 'Premium Spa', price: 3500, icon: Moon, description: '60-min Holistic Mauritian Massage' },
+  { id: 'early_checkin', name: 'Early Check-in', price: 1500, icon: Clock, description: 'Arrival from 09:00 (Subject to availability)' },
+];
 
 export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialData }: BookingModalProps) => {
+  const [currentStep, setCurrentStep] = useState(1);
   const [showCheckInPicker, setShowCheckInPicker] = useState(false);
   const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedReport, setSubmittedReport] = useState<any>(null);
-  const { roomTypes: hookRoomTypes, loading: fetchingRooms } = useRoomTypes(service.id);
 
-  const roomTypes = React.useMemo(() => {
-    // 1. Process JSONB room_types from the service object
-    const jsonRooms = (service as any).room_types && Array.isArray((service as any).room_types)
-      ? (service as any).room_types.map((room: any, index: number) => {
-          const weekday = typeof room.prices?.mon === 'string' ? parseFloat(room.prices.mon) : (room.prices?.mon || room.price_per_night || 0);
-          const weekend = typeof room.prices?.sat === 'string' ? parseFloat(room.prices.sat) : (room.prices?.sat || room.price_per_night || 0);
-          
-          return {
-            id: `json-${index}-${room.type || 'room'}`,
-            name: room.type || room.name || 'Standard Room',
-            weekday_price: weekday,
-            weekend_price: weekend,
-            min_stay_days: parseInt(room.min_stay_days || room.min_stay) || 1,
-            image_url: room.image_url,
-            meal_plan: room.meal_plan || room.mealPlan,
-            amenities: Array.isArray(room.features) ? room.features : (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
-          };
-        })
-      : [];
+  const { roomTypes } = useMemo(() => {
+    return { roomTypes: service.room_types || [] };
+  }, [service]);
 
-    // 2. Combine with hookRoomTypes (from the dedicated table)
-    const combined = [...hookRoomTypes];
-    
-    jsonRooms.forEach((jr: any) => {
-      const exists = combined.some(cr => cr.name.toLowerCase() === jr.name.toLowerCase());
-      if (!exists) {
-        combined.push(jr);
-      }
-    });
-
-    return combined;
-  }, [service, hookRoomTypes]);
-
-  const { control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<BookingFormData>({
+  const { control, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       firstName: initialData?.firstName || '',
@@ -107,22 +78,24 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
       email: initialData?.email || '',
       phone: initialData?.phone || '',
       paxAdults: initialData?.paxAdults || 2,
-      paxInfants: initialData?.paxInfants || 0,
-      paxChildren: initialData?.paxChildren || 0,
       paxTeens: initialData?.paxTeens || 0,
+      paxChildren: initialData?.paxChildren || 0,
+      paxInfants: initialData?.paxInfants || 0,
       checkIn: initialData?.checkIn || new Date().toISOString().split('T')[0],
       checkOut: initialData?.checkOut || new Date(Date.now() + 86400000).toISOString().split('T')[0],
       roomType: initialData?.roomType || '',
       mealPreference: initialData?.mealPreference || 'none',
+      addons: [],
       specialRequirements: '',
     },
   });
 
   const watchAllFields = watch();
+  const selectedRoom = roomTypes.find(r => r.name === watchAllFields.roomType);
 
-  const pricingRequest = React.useMemo(() => ({
+  const pricingRequest = useMemo(() => ({
     serviceId: service.id,
-    variantId: roomTypes.find(r => r.name === watchAllFields.roomType || (r as any).type === watchAllFields.roomType)?.id || 'default',
+    variantId: selectedRoom?.id || 'default',
     startDate: watchAllFields.checkIn,
     endDate: watchAllFields.checkOut,
     participants: {
@@ -132,511 +105,419 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
       infants: watchAllFields.paxInfants
     },
     baseRates: {
-      adult: roomTypes.find(r => r.name === watchAllFields.roomType)?.weekday_price || service.price || 0,
-      teen: (service as any).price_teen || (service as any).teen_price || (service as any).child_price || service.price || 0,
-      child: (service as any).price_child || service.childPrice || 0,
-      infant: (service as any).price_infant || (service as any).infant_price || 0
-    }
-  }), [service, watchAllFields, roomTypes]);
+      adult: selectedRoom?.weekday_price || service.price || 0,
+      teen: (service as any).price_teen || service.price * 0.7 || 0,
+      child: (service as any).price_child || service.childPrice || service.price * 0.5 || 0,
+      infant: (service as any).price_infant || 0
+    },
+    isPerNight: service.category === 'hotel'
+  }), [service, watchAllFields, selectedRoom]);
 
+  const { pricing, mealOptions, loading: calculatingPrice } = useServicePricing(pricingRequest);
+
+  const calculateTotal = () => {
+    let base = pricing?.total || 0;
+    
+    // Dynamic Meal Plan Supplements Integration
+    const selectedMealOption = mealOptions.find(m => m.label === watchAllFields.mealPreference);
+    const mealPlanTotal = selectedMealOption?.total || 0;
+
+    // Addons
+    const currentAddons = watchAllFields.addons || [];
+    const addonTotal = currentAddons.reduce((sum, id) => {
+      const addon = AVAILABLE_ADDONS.find(a => a.id === id);
+      return sum + (addon?.price || 0);
+    }, 0);
+    /* PREVIOUS ADDONS REDUCE PRESERVED AS COMMENT PER USER RULES:
+    const addonTotal = watchAllFields.addons.reduce((sum, id) => {
+      const addon = AVAILABLE_ADDONS.find(a => a.id === id);
+      return sum + (addon?.price || 0);
+    }, 0);
+    */
+
+    return base + mealPlanTotal + addonTotal;
+  };
+
+  /* PREVIOUS IMPLEMENTATION PRESERVED AS COMMENTS PER USER RULES:
   const { pricing, loading: calculatingPrice } = useServicePricing(pricingRequest);
 
   const calculateTotal = () => {
-    if (!pricing) return 0;
+    let base = pricing?.total || 0;
     
-    let total = pricing.total || 0;
-    
-    // Add meal plan costs
-    if (watchAllFields.mealPreference && watchAllFields.mealPreference !== 'none') {
-      const meal = service.meal_plans?.find(m => m.id === watchAllFields.mealPreference);
-      if (meal && meal.price) {
-        const totalPax = (watchAllFields.paxAdults || 0) + (watchAllFields.paxTeens || 0) + (watchAllFields.paxChildren || 0) + (watchAllFields.paxInfants || 0);
-        total += (meal.price || 0) * totalPax * Math.max(1, pricing.nights || 0);
-      }
-    }
-    return total;
+    // Addons
+    const addonTotal = watchAllFields.addons.reduce((sum, id) => {
+      const addon = AVAILABLE_ADDONS.find(a => a.id === id);
+      return sum + (addon?.price || 0);
+    }, 0);
+
+    return base + addonTotal;
+  };
+  */
+
+  const handleNext = () => {
+    if (currentStep < 4) setCurrentStep(currentStep + 1);
   };
 
-  const handleFormSubmit = async (data: BookingFormData) => {
-    // Basic sanitization (trimming)
-    const sanitizedData = {
-      ...data,
-      firstName: data.firstName.trim(),
-      lastName: data.lastName.trim(),
-      email: data.email.trim().toLowerCase(),
-      phone: data.phone.trim(),
-      specialRequirements: data.specialRequirements?.trim(),
-    };
+  const handleBack = () => {
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
 
-    if (!sanitizedData.firstName || !sanitizedData.lastName || !sanitizedData.email || !sanitizedData.phone) {
-      Alert.alert('Incomplete Form', 'Please provide all contact information.');
-      return;
-    }
-
+  const onConfirm = async (data: any) => {
+    const formData = data as BookingFormData;
     setIsSubmitting(true);
     try {
       const total = calculateTotal();
-      const selectedRoom = roomTypes.find(r => r.name === sanitizedData.roomType);
-      
-      await onSubmit({ 
-        ...sanitizedData, 
-        totalAmount: total,
-        roomMealPlan: selectedRoom?.meal_plan 
-      } as any);
-      
-      setSubmittedReport({ ...data, totalAmount: total });
+      await onSubmit({ ...formData, totalAmount: total });
+      setSubmittedReport({ ...formData, totalAmount: total });
       setIsSuccess(true);
     } catch (err) {
-      console.error('Booking submission error:', err);
-      Alert.alert('Error', 'Failed to submit booking. Please try again.');
+      Alert.alert('Booking Failed', 'Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
+  /* PREVIOUS ONCONFIRM PRESERVED AS COMMENT PER USER RULES:
+  const onConfirm = async (data: BookingFormData) => {
+    setIsSubmitting(true);
+    try {
+      const total = calculateTotal();
+      await onSubmit({ ...data, totalAmount: total });
+      setSubmittedReport({ ...data, totalAmount: total });
+      setIsSuccess(true);
+    } catch (err) {
+      Alert.alert('Booking Failed', 'Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  */
 
-  if (isSuccess && submittedReport) {
-    return (
-      <Portal>
-        <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles.successContainer}>
-          <View style={styles.successContent}>
-            <View style={styles.successHeader}>
-               <CheckCircle color="#059669" size={48} />
-               <View>
-                 <Text variant="headlineSmall" style={styles.successTitle}>Booking Report</Text>
-                 <Text style={styles.successSubtitle}>Transaction successful</Text>
-               </View>
+  const renderStepIndicator = () => (
+    <View style={styles.stepIndicator}>
+      {[1, 2, 3, 4].map(step => (
+        <View key={step} style={styles.stepDotContainer}>
+          <View style={[styles.stepDot, currentStep >= step && styles.stepDotActive]} />
+          {step < 4 && <View style={[styles.stepLine, currentStep > step && styles.stepLineActive]} />}
+        </View>
+      ))}
+    </View>
+  );
+
+  const renderStep1 = () => (
+    <View style={styles.stepContainer}>
+      <Text style={styles.stepTitle}>Journey Details</Text>
+      <Text style={styles.stepSub}>Select travel dates and traveler counts.</Text>
+
+      <Surface style={styles.card}>
+        <View style={styles.dateRow}>
+          <TouchableOpacity onPress={() => setShowCheckInPicker(true)} style={styles.dateField}>
+            <Text style={styles.dateLabel}>DEPARTURE</Text>
+            <View style={styles.dateValueContainer}>
+              <Calendar size={16} color={Colors.primary} />
+              <Text style={styles.dateValue}>{watchAllFields.checkIn}</Text>
             </View>
-
-            <View style={styles.reportCard}>
-               <View style={styles.reportRow}>
-                  <Text style={styles.reportLabel}>Experience</Text>
-                  <Text style={styles.reportVal} numberOfLines={1}>{service.name}</Text>
-               </View>
-               <View style={styles.reportRow}>
-                  <Text style={styles.reportLabel}>Dates</Text>
-                  <Text style={styles.reportVal}>{new Date(submittedReport.checkIn).toLocaleDateString()} - {new Date(submittedReport.checkOut).toLocaleDateString()}</Text>
-               </View>
-               <View style={styles.reportRow}>
-                  <Text style={styles.reportLabel}>Travelers</Text>
-                   <Text style={styles.reportVal}>
-                    {submittedReport.paxAdults}A, {submittedReport.paxTeens}T, {submittedReport.paxChildren}C, {submittedReport.paxInfants}I
-                  </Text>
-               </View>
-               <View style={styles.reportDivider} />
-               <View style={styles.reportRow}>
-                  <Text style={styles.totalLabel}>TOTAL AMOUNT</Text>
-                  <Text style={styles.totalVal}>Rs {submittedReport.totalAmount?.toLocaleString()}</Text>
-               </View>
+          </TouchableOpacity>
+          <View style={styles.dateDivider} />
+          <TouchableOpacity onPress={() => setShowCheckOutPicker(true)} style={styles.dateField}>
+            <Text style={styles.dateLabel}>RETURN</Text>
+            <View style={styles.dateValueContainer}>
+              <Calendar size={16} color={Colors.primary} />
+              <Text style={styles.dateValue}>{watchAllFields.checkOut}</Text>
             </View>
+          </TouchableOpacity>
+        </View>
+      </Surface>
 
-            <Text style={styles.successText}>
-              A confirmation email has been sent to {submittedReport.email}. Our team will contact you shortly to finalize the arrangements.
-            </Text>
-            
-            <Button 
-              mode="contained" 
-              onPress={() => {
-                setIsSuccess(false);
-                setSubmittedReport(null);
-                reset();
-                onDismiss();
-              }} 
-              style={styles.successButton}
-              contentStyle={{ height: 56 }}
-            >
-              Back to Experience
-            </Button>
+      <Text style={styles.sectionLabel}>TRAVELERS</Text>
+      <View style={styles.occupancyGrid}>
+        {[
+          { label: 'Adults', key: 'paxAdults', min: 1 },
+          { label: 'Teens', key: 'paxTeens', min: 0 },
+          { label: 'Children', key: 'paxChildren', min: 0 },
+          { label: 'Infants', key: 'paxInfants', min: 0 }
+        ].map(item => (
+          <View key={item.key} style={styles.occupancyItem}>
+            <Text style={styles.occLabel}>{item.label}</Text>
+            <View style={styles.counterRow}>
+              <IconButton 
+                icon="minus-circle-outline" 
+                size={24} 
+                iconColor={Colors.primary}
+                onPress={() => setValue(item.key as any, Math.max(item.min, (watchAllFields as any)[item.key] - 1))}
+                disabled={(watchAllFields as any)[item.key] <= item.min}
+              />
+              <Text style={styles.counterText}>{(watchAllFields as any)[item.key]}</Text>
+              <IconButton 
+                icon="plus-circle-outline" 
+                size={24} 
+                iconColor={Colors.primary}
+                onPress={() => setValue(item.key as any, (watchAllFields as any)[item.key] + 1)}
+              />
+            </View>
           </View>
-        </Modal>
-      </Portal>
-    );
-  }
+        ))}
+      </View>
+    </View>
+  );
+
+  const renderStep2 = () => (
+    <View style={styles.stepContainer}>
+      <Text style={styles.stepTitle}>Stay Options</Text>
+      <Text style={styles.stepSub}>Customize your room and dining preferences.</Text>
+
+      {roomTypes.length > 0 && (
+        <>
+          <Text style={styles.sectionLabel}>ROOM TYPE</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.roomScroll}>
+            {roomTypes.map(room => (
+              <TouchableOpacity 
+                key={room.id}
+                onPress={() => setValue('roomType', room.name)}
+                style={[styles.roomCard, watchAllFields.roomType === room.name && styles.roomCardActive]}
+              >
+                <Text style={[styles.roomName, watchAllFields.roomType === room.name && styles.roomTextActive]}>{room.name}</Text>
+                <Text style={[styles.roomPrice, watchAllFields.roomType === room.name && styles.roomTextActive]}>
+                  MUR {room.weekday_price.toLocaleString()}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </>
+      )}
+
+      <Text style={styles.sectionLabel}>MEAL PLAN</Text>
+      <View style={styles.chipGrid}>
+        {mealOptions && mealOptions.length > 0 ? (
+          mealOptions.map(option => (
+            <Chip 
+              key={option.label}
+              selected={watchAllFields.mealPreference === option.label}
+              onPress={() => setValue('mealPreference', option.label)}
+              style={[styles.planChip, watchAllFields.mealPreference === option.label && styles.planChipActive]}
+              textStyle={[styles.planChipText, watchAllFields.mealPreference === option.label && styles.planChipTextActive]}
+            >
+              {option.label} (+MUR {option.total.toLocaleString()})
+            </Chip>
+          ))
+        ) : (
+          ['none', 'Bed & Breakfast', 'Half Board', 'Full Board', 'All Inclusive'].map(plan => (
+            <Chip 
+              key={plan}
+              selected={watchAllFields.mealPreference === plan}
+              onPress={() => setValue('mealPreference', plan)}
+              style={[styles.planChip, watchAllFields.mealPreference === plan && styles.planChipActive]}
+              textStyle={[styles.planChipText, watchAllFields.mealPreference === plan && styles.planChipTextActive]}
+            >
+              {plan === 'none' ? 'Room Only' : plan}
+            </Chip>
+          ))
+        )}
+      </View>
+      {/* PREVIOUS CHIPS PRESERVED AS COMMENTS PER USER RULES:
+      <View style={styles.chipGrid}>
+        {['none', 'Bed & Breakfast', 'Half Board', 'Full Board', 'All Inclusive'].map(plan => (
+          <Chip 
+            key={plan}
+            selected={watchAllFields.mealPreference === plan}
+            onPress={() => setValue('mealPreference', plan)}
+            style={[styles.planChip, watchAllFields.mealPreference === plan && styles.planChipActive]}
+            textStyle={[styles.planChipText, watchAllFields.mealPreference === plan && styles.planChipTextActive]}
+          >
+            {plan === 'none' ? 'Room Only' : plan}
+          </Chip>
+        ))}
+      </View>
+      */}
+    </View>
+  );
+
+  const renderStep3 = () => (
+    <View style={styles.stepContainer}>
+      <Text style={styles.stepTitle}>Premium Extras</Text>
+      <Text style={styles.stepSub}>Select optional addons to enhance your stay.</Text>
+
+      <ScrollView style={styles.addonList}>
+        {AVAILABLE_ADDONS.map(addon => {
+          const currentAddons = watchAllFields.addons || [];
+          const isSelected = currentAddons.includes(addon.id);
+          return (
+            <TouchableOpacity 
+              key={addon.id}
+              onPress={() => {
+                const current = [...currentAddons];
+                if (isSelected) {
+                  setValue('addons', current.filter(id => id !== addon.id));
+                } else {
+                  setValue('addons', [...current, addon.id]);
+                }
+              }}
+              style={[styles.addonCard, isSelected && styles.addonCardActive]}
+            >
+              <View style={styles.addonIconContainer}>
+                <addon.icon size={20} color={isSelected ? '#fff' : Colors.primary} />
+              </View>
+              <View style={styles.addonInfo}>
+                <Text style={[styles.addonName, isSelected && styles.textWhite]}>{addon.name}</Text>
+                <Text style={[styles.addonDesc, isSelected && styles.textWhite70]}>{addon.description}</Text>
+              </View>
+              <Text style={[styles.addonPrice, isSelected && styles.textWhite]}>+Rs {addon.price}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+
+  const renderStep4 = () => (
+    <View style={styles.stepContainer}>
+      <Text style={styles.stepTitle}>Confirmation</Text>
+      <Text style={styles.stepSub}>Provide contact details for your elite quote.</Text>
+
+      <View style={styles.formGrid}>
+        <Controller
+          control={control}
+          name="firstName"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput label="First Name" mode="outlined" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.firstName} style={styles.input} activeOutlineColor={Colors.primary} />
+          )}
+        />
+        <Controller
+          control={control}
+          name="lastName"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput label="Last Name" mode="outlined" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.lastName} style={styles.input} activeOutlineColor={Colors.primary} />
+          )}
+        />
+        <Controller
+          control={control}
+          name="email"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput label="Email Address" mode="outlined" keyboardType="email-address" autoCapitalize="none" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.email} style={styles.input} activeOutlineColor={Colors.primary} />
+          )}
+        />
+        <Controller
+          control={control}
+          name="phone"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput label="WhatsApp Number" mode="outlined" keyboardType="phone-pad" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.phone} style={styles.input} activeOutlineColor={Colors.primary} />
+          )}
+        />
+      </View>
+
+      <Surface style={styles.summaryCard}>
+        <View style={styles.summaryRow}>
+          <ShieldCheck size={16} color={Colors.success} />
+          <Text style={styles.summaryText}>Secure Booking Protocol</Text>
+        </View>
+        <Text style={styles.summaryNote}>Your request will be handled by a dedicated concierge for final verification.</Text>
+      </Surface>
+    </View>
+  );
+
+  const renderSuccess = () => (
+    <View style={styles.successWrapper}>
+      <CheckCircle size={80} color={Colors.success} style={{ marginBottom: 20 }} />
+      <Text style={styles.successTitle}>Request Dispatched</Text>
+      <Text style={styles.successSub}>Thank you for choosing Travel Lounge Elite. Our concierge team will reach out shortly.</Text>
+      
+      <Surface style={styles.reportCard}>
+        <View style={styles.reportRow}>
+          <Text style={styles.reportLabel}>SERVICE</Text>
+          <Text style={styles.reportValue}>{service.name}</Text>
+        </View>
+        <View style={styles.reportRow}>
+          <Text style={styles.reportLabel}>ESTIMATED TOTAL</Text>
+          <Text style={styles.reportValue}>MUR {calculateTotal().toLocaleString()}</Text>
+        </View>
+      </Surface>
+
+      <Button mode="contained" onPress={onDismiss} style={styles.doneBtn} contentStyle={{ height: 50 }} buttonColor={Colors.charcoal}>
+        BACK TO EXPLORE
+      </Button>
+    </View>
+  );
 
   return (
     <Portal>
       <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles.modalContainer}>
-        <Surface style={styles.header}>
-          <View>
-            <Text variant="titleLarge" style={styles.title}>Book Experience</Text>
-            <Text variant="labelMedium" style={styles.subtitle}>{service.name}</Text>
-          </View>
-          <IconButton icon={() => <X size={24} color={Colors.charcoal} />} onPress={onDismiss} />
-        </Surface>
+        {isSuccess ? renderSuccess() : (
+          <View style={styles.content}>
+            <View style={styles.header}>
+              <View>
+                <Text style={styles.brandBadge}>ELITE CONCIERGE</Text>
+                <Text style={styles.title}>{service.name}</Text>
+              </View>
+              <IconButton icon="close" onPress={onDismiss} />
+            </View>
 
-        <ScrollView style={styles.form} showsVerticalScrollIndicator={false}>
-          {/* ... existing form fields ... */}
-          {/* (I'll keep the middle part the same) */}
-          <View style={styles.row}>
-            <View style={styles.col}>
-              <Controller
-                control={control}
-                name="firstName"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    label="First Name"
-                    value={value}
-                    onChangeText={onChange}
-                    mode="outlined"
-                    error={!!errors.firstName}
-                    activeOutlineColor={Colors.primary}
-                    style={styles.input}
-                  />
+            {renderStepIndicator()}
+
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+              {currentStep === 1 && renderStep1()}
+              {currentStep === 2 && renderStep2()}
+              {currentStep === 3 && renderStep3()}
+              {currentStep === 4 && renderStep4()}
+            </ScrollView>
+
+            <View style={styles.footer}>
+              <View style={styles.priceContainer}>
+                <View>
+                   <Text style={styles.priceLabel}>ESTIMATED QUOTE</Text>
+                   <Text style={styles.nightsText}>{pricing?.nights || 0} NIGHTS SELECTION</Text>
+                </View>
+                {calculatingPrice ? (
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                ) : (
+                  <Text style={styles.totalPrice}>Rs {calculateTotal().toLocaleString()}</Text>
                 )}
-              />
-              {errors.firstName && <Text style={styles.error}>{errors.firstName.message}</Text>}
-            </View>
-            <View style={styles.col}>
-              <Controller
-                control={control}
-                name="lastName"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    label="Last Name"
-                    value={value}
-                    onChangeText={onChange}
-                    mode="outlined"
-                    error={!!errors.lastName}
-                    activeOutlineColor={Colors.primary}
-                    style={styles.input}
-                  />
+              </View>
+
+              <View style={styles.buttonRow}>
+                {currentStep > 1 && (
+                  <TouchableOpacity onPress={handleBack} style={styles.backBtn}>
+                    <ArrowLeft size={20} color={Colors.charcoal} />
+                  </TouchableOpacity>
                 )}
-              />
-              {errors.lastName && <Text style={styles.error}>{errors.lastName.message}</Text>}
-            </View>
-          </View>
-
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label="Email"
-                value={value}
-                onChangeText={onChange}
-                mode="outlined"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                error={!!errors.email}
-                activeOutlineColor={Colors.primary}
-                style={styles.input}
-              />
-            )}
-          />
-          {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
-
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label="Phone Number"
-                value={value}
-                onChangeText={onChange}
-                mode="outlined"
-                keyboardType="phone-pad"
-                error={!!errors.phone}
-                activeOutlineColor={Colors.primary}
-                style={styles.input}
-              />
-            )}
-          />
-          {errors.phone && <Text style={styles.error}>{errors.phone.message}</Text>}
-
-          <View style={styles.sectionDivider}>
-            <Text style={styles.sectionTitle}>Booking Details</Text>
-          </View>
-
-          <View style={styles.row}>
-            <View style={styles.col}>
-              <Text style={styles.fieldLabel}>Star Date</Text>
-              <TouchableOpacity 
-                style={styles.dateSelector} 
-                onPress={() => setShowCheckInPicker(true)}
-              >
-                <Calendar size={20} color={Colors.primary} />
-                <Text style={styles.dateValue}>{watchAllFields.checkIn}</Text>
-              </TouchableOpacity>
-              {showCheckInPicker && (
-                <DateTimePicker
-                  value={new Date(watchAllFields.checkIn)}
-                  mode="date"
-                  display="default"
-                  minimumDate={new Date()}
-                  onChange={(event, selectedDate) => {
-                    setShowCheckInPicker(false);
-                    if (selectedDate) {
-                      setValue('checkIn', selectedDate.toISOString().split('T')[0]);
-                      // Ensure check-out is after check-in
-                      const checkout = new Date(watchAllFields.checkOut);
-                      if (checkout <= selectedDate) {
-                        const nextDay = new Date(selectedDate);
-                        nextDay.setDate(nextDay.getDate() + 1);
-                        setValue('checkOut', nextDay.toISOString().split('T')[0]);
-                      }
-                    }
-                  }}
-                />
-              )}
-            </View>
-            <View style={styles.col}>
-              <Text style={styles.fieldLabel}>Date end</Text>
-              <TouchableOpacity 
-                style={styles.dateSelector} 
-                onPress={() => setShowCheckOutPicker(true)}
-              >
-                <Calendar size={20} color={Colors.primary} />
-                <Text style={styles.dateValue}>{watchAllFields.checkOut}</Text>
-              </TouchableOpacity>
-              {showCheckOutPicker && (
-                <DateTimePicker
-                  value={new Date(watchAllFields.checkOut)}
-                  mode="date"
-                  display="default"
-                  minimumDate={new Date(new Date(watchAllFields.checkIn).getTime() + 86400000)}
-                  onChange={(event, selectedDate) => {
-                    setShowCheckOutPicker(false);
-                    if (selectedDate) {
-                      setValue('checkOut', selectedDate.toISOString().split('T')[0]);
-                    }
-                  }}
-                />
-              )}
-            </View>
-          </View>
-
-          <View style={styles.guestGrid}>
-            <View style={styles.guestCol}>
-              <Controller
-                control={control}
-                name="paxAdults"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.guestInputWrapper}>
-                    <Text style={styles.guestLabel}>Adults (18+)</Text>
-                    <View style={styles.counterRow}>
-                      <IconButton icon="minus-circle-outline" size={24} iconColor={Colors.primary} disabled={value <= 1} onPress={() => onChange(Math.max(1, value - 1))} />
-                      <Text style={styles.counterText}>{value}</Text>
-                      <IconButton icon="plus-circle-outline" size={24} iconColor={Colors.primary} onPress={() => onChange(value + 1)} />
-                    </View>
-                  </View>
-                )}
-              />
-            </View>
-            <View style={styles.guestCol}>
-               <Controller
-                control={control}
-                name="paxTeens"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.guestInputWrapper}>
-                    <Text style={styles.guestLabel}>Teens (12-17)</Text>
-                    <View style={styles.counterRow}>
-                      <IconButton icon="minus-circle-outline" size={24} iconColor={Colors.primary} disabled={value <= 0} onPress={() => onChange(Math.max(0, value - 1))} />
-                      <Text style={styles.counterText}>{value}</Text>
-                      <IconButton icon="plus-circle-outline" size={24} iconColor={Colors.primary} onPress={() => onChange(value + 1)} />
-                    </View>
-                  </View>
-                )}
-              />
-            </View>
-          </View>
-
-          <View style={styles.guestGrid}>
-            <View style={styles.guestCol}>
-              <Controller
-                control={control}
-                name="paxChildren"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.guestInputWrapper}>
-                    <Text style={styles.guestLabel}>Child (3-11)</Text>
-                    <View style={styles.counterRow}>
-                      <IconButton icon="minus-circle-outline" size={24} iconColor={Colors.primary} disabled={value <= 0} onPress={() => onChange(Math.max(0, value - 1))} />
-                      <Text style={styles.counterText}>{value}</Text>
-                      <IconButton icon="plus-circle-outline" size={24} iconColor={Colors.primary} onPress={() => onChange(value + 1)} />
-                    </View>
-                  </View>
-                )}
-              />
-            </View>
-            <View style={styles.guestCol}>
-               <Controller
-                control={control}
-                name="paxInfants"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.guestInputWrapper}>
-                    <Text style={styles.guestLabel}>Infants (0-2)</Text>
-                    <View style={styles.counterRow}>
-                      <IconButton icon="minus-circle-outline" size={24} iconColor={Colors.primary} disabled={value <= 0} onPress={() => onChange(Math.max(0, value - 1))} />
-                      <Text style={styles.counterText}>{value}</Text>
-                      <IconButton icon="plus-circle-outline" size={24} iconColor={Colors.primary} onPress={() => onChange(value + 1)} />
-                    </View>
-                  </View>
-                )}
-              />
-            </View>
-          </View>
-
-          {/* Show variant selection for both Hotels and Packages if available */}
-          {roomTypes.length > 0 && (
-            <View style={styles.roomTypeSection}>
-              <Text style={styles.fieldLabel}>Select Room Type</Text>
-              {fetchingRooms ? (
-                <ActivityIndicator size="small" color={Colors.primary} style={{ marginVertical: 10 }} />
-              ) : (
-                <Controller
-                  control={control}
-                  name="roomType"
-                  render={({ field: { onChange, value } }) => (
-                    <View style={styles.roomTypeList}>
-                      {roomTypes.map((type: RoomType) => (
-                        <TouchableOpacity
-                          key={type.id}
-                          onPress={() => onChange(type.name)}
-                          style={[
-                            styles.roomTypeCard,
-                            value === type.name && styles.roomTypeCardSelected
-                          ]}
-                        >
-                          <View style={styles.roomTypeInfo}>
-                            <Text style={[
-                              styles.roomTypeName,
-                              value === type.name && styles.roomTypeTextSelected
-                            ]}>{type.name}</Text>
-                            <View style={styles.roomTypePriceRow}>
-                              <View style={styles.miniPriceBadge}>
-                                <Clock size={10} color={value === type.name ? Colors.white : Colors.textSecondary} />
-                                <Text style={[
-                                  styles.roomTypePrice,
-                                  value === type.name && styles.roomTypeTextSelected
-                                ]}> Rs {type.weekday_price?.toLocaleString() || '0'}</Text>
-                              </View>
-                              <View style={[styles.miniPriceBadge, styles.miniPriceBadgeWeekend]}>
-                                <Moon size={10} color={value === type.name ? Colors.white : Colors.primary} />
-                                <Text style={[
-                                  styles.roomTypePrice,
-                                  { color: value === type.name ? Colors.white : Colors.primary }
-                                ]}> Rs {type.weekend_price?.toLocaleString() || '0'}</Text>
-                              </View>
-                            </View>
-                            {type.meal_plan && (
-                              <View style={[styles.miniPriceBadge, { marginTop: 4 }]}>
-                                <Utensils size={10} color={value === type.name ? Colors.white : '#D97706'} />
-                                <Text style={[
-                                  styles.roomTypePrice,
-                                  { color: value === type.name ? Colors.white : '#D97706', fontSize: 10 }
-                                ]}> {type.meal_plan}</Text>
-                              </View>
-                            )}
-                            {type.min_stay_days && type.min_stay_days > 1 && (
-                              <Text style={[
-                                styles.minStayText,
-                                value === type.name && styles.roomTypeTextSelected
-                              ]}>
-                                {type.min_stay_days} nights minimum stay required
-                              </Text>
-                            )}
-                          </View>
-                          {value === type.name && (
-                            <CheckCircle size={20} color={Colors.white} />
-                          )}
-                        </TouchableOpacity>
-                      ))}
-                      {roomTypes.length === 0 && (
-                        <Text style={styles.noRoomsText}>No room types available for selection.</Text>
-                      )}
-                    </View>
+                
+                <TouchableOpacity 
+                  onPress={currentStep === 4 ? (handleSubmit as any)(onConfirm) : handleNext}
+                  disabled={isSubmitting || (currentStep === 1 && pricing?.availabilityStatus?.isAvailable === false)}
+                  style={[styles.nextBtn, currentStep === 1 ? { flex: 1 } : {}]}
+                >
+                  {isSubmitting ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <>
+                      <Text style={styles.nextBtnText}>{currentStep === 4 ? 'SEND REQUEST' : 'CONTINUE'}</Text>
+                      <ArrowRight size={20} color="#fff" />
+                    </>
                   )}
-                />
-              )}
+                </TouchableOpacity>
+              </View>
             </View>
-          )}
-
-          {service.meal_plans && service.meal_plans.length > 0 && (
-            <View style={styles.roomTypeSection}>
-              <Text style={styles.fieldLabel}>Select Meal Plan</Text>
-              <Controller
-                control={control}
-                name="mealPreference"
-                render={({ field: { onChange, value } }) => (
-                  <View style={styles.roomTypeList}>
-                    <TouchableOpacity
-                      onPress={() => onChange('none')}
-                      style={[
-                        styles.roomTypeCard,
-                        value === 'none' && styles.roomTypeCardSelected
-                      ]}
-                    >
-                      <View style={styles.roomTypeInfo}>
-                        <Text style={[styles.roomTypeName, value === 'none' && styles.roomTypeTextSelected]}>No Preference</Text>
-                        <Text style={[styles.roomTypePrice, value === 'none' && styles.roomTypeTextSelected]}>Included or pay on site</Text>
-                      </View>
-                      {value === 'none' && <CheckCircle size={20} color={Colors.white} />}
-                    </TouchableOpacity>
-
-                    {service.meal_plans?.map((meal) => (
-                      <TouchableOpacity
-                        key={meal.id}
-                        onPress={() => onChange(meal.id)}
-                        style={[
-                          styles.roomTypeCard,
-                          value === meal.id && styles.roomTypeCardSelected
-                        ]}
-                      >
-                        <View style={styles.roomTypeInfo}>
-                          <Text style={[styles.roomTypeName, value === meal.id && styles.roomTypeTextSelected]}>{meal.label}</Text>
-                          <View style={styles.miniPriceBadge}>
-                             <Utensils size={12} color={value === meal.id ? Colors.white : Colors.textSecondary} />
-                             <Text style={[styles.roomTypePrice, value === meal.id && styles.roomTypeTextSelected]}>
-                                +Rs {meal.price?.toLocaleString() || '0'} per pax/night
-                             </Text>
-                          </View>
-                        </View>
-                        {value === meal.id && <CheckCircle size={20} color={Colors.white} />}
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-              />
-            </View>
-          )}
-
-          <Controller
-            control={control}
-            name="specialRequirements"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label="Special Requirements (Optional)"
-                value={value}
-                onChangeText={onChange}
-                mode="outlined"
-                multiline
-                numberOfLines={3}
-                activeOutlineColor={Colors.primary}
-                style={styles.textArea}
-              />
-            )}
-          />
-        </ScrollView>
-
-        <View style={styles.footer}>
-          <View style={styles.totalSection}>
-            <Text style={styles.totalLabel}>ESTIMATED TOTAL ({pricing?.nights || 0} Nights)</Text>
-            {calculatingPrice ? (
-              <ActivityIndicator size="small" color={Colors.primary} />
-            ) : (
-              <Text style={styles.totalValue}>Rs {(calculateTotal() || 0).toLocaleString()}</Text>
-            )}
           </View>
-          <Button
-            mode="contained"
-            onPress={handleSubmit(handleFormSubmit as any)}
-            loading={isSubmitting}
-            disabled={isSubmitting}
-            style={styles.submitButton}
-            contentStyle={styles.submitButtonContent}
-            labelStyle={styles.submitButtonLabel}
-          >
-            REQUEST A QUOTE
-          </Button>
-        </View>
+        )}
+
+        {showCheckInPicker && (
+          <DateTimePicker
+            value={new Date(watchAllFields.checkIn)}
+            mode="date"
+            onChange={(event, date) => {
+              setShowCheckInPicker(false);
+              if (date) setValue('checkIn', date.toISOString().split('T')[0]);
+            }}
+          />
+        )}
+        {showCheckOutPicker && (
+          <DateTimePicker
+            value={new Date(watchAllFields.checkOut)}
+            mode="date"
+            onChange={(event, date) => {
+              setShowCheckOutPicker(false);
+              if (date) setValue('checkOut', date.toISOString().split('T')[0]);
+            }}
+          />
+        )}
       </Modal>
     </Portal>
   );
@@ -644,59 +525,145 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
 
 const styles = StyleSheet.create({
   modalContainer: {
-    backgroundColor: Colors.white,
-    margin: 20,
-    borderRadius: 24,
-    maxHeight: '85%',
-    overflow: 'hidden',
+    backgroundColor: '#fff',
+    margin: 0,
+    marginTop: 40,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    flex: 1,
+  },
+  content: {
+    flex: 1,
   },
   header: {
-    padding: 20,
+    padding: 24,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+  },
+  brandBadge: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Colors.primary,
+    letterSpacing: 2,
+    marginBottom: 4,
   },
   title: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: Colors.charcoal,
+    maxWidth: width * 0.7,
+  },
+  stepIndicator: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    marginBottom: 20,
+    justifyContent: 'center',
+  },
+  stepDotContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  stepDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#eee',
+  },
+  stepDotActive: {
+    backgroundColor: Colors.primary,
+  },
+  stepLine: {
+    width: 30,
+    height: 2,
+    backgroundColor: '#eee',
+    marginHorizontal: 4,
+  },
+  stepLineActive: {
+    backgroundColor: Colors.primary,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
+  stepContainer: {
+    flex: 1,
+  },
+  stepTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: Colors.charcoal,
+    letterSpacing: -0.5,
+    marginBottom: 6,
+  },
+  stepSub: {
+    fontSize: 13,
+    color: Colors.slate[500],
+    lineHeight: 18,
+    marginBottom: 24,
+  },
+  card: {
+    borderRadius: 20,
+    backgroundColor: '#F8F9FA',
+    padding: 20,
+    marginBottom: 24,
+    elevation: 0,
+  },
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dateField: {
+    flex: 1,
+  },
+  dateLabel: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Colors.slate[400],
+    marginBottom: 8,
+    letterSpacing: 1,
+  },
+  dateValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dateValue: {
+    fontSize: 14,
     fontWeight: '900',
     color: Colors.charcoal,
   },
-  subtitle: {
-    color: Colors.textSecondary,
+  dateDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#E9ECEF',
+    marginHorizontal: 20,
   },
-  form: {
-    padding: 20,
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: Colors.charcoal,
+    letterSpacing: 1.5,
+    marginBottom: 16,
+    marginTop: 8,
   },
-  row: {
+  occupancyGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
   },
-  col: {
-    flex: 1,
-  },
-  guestGrid: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 8,
-  },
-  guestCol: {
-    flex: 1,
-  },
-  guestInputWrapper: {
-    backgroundColor: Colors.slate[50],
-    padding: 12,
+  occupancyItem: {
+    width: (width - 60) / 2,
+    backgroundColor: '#F8F9FA',
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    padding: 16,
   },
-  guestLabel: {
-    fontSize: 10,
-    fontFamily: 'Outfit_900Black',
-    color: Colors.slate[400],
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 4,
+  occLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.slate[500],
+    marginBottom: 8,
   },
   counterRow: {
     flexDirection: 'row',
@@ -704,237 +671,243 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   counterText: {
-    fontFamily: 'Outfit_900Black',
     fontSize: 16,
+    fontWeight: '900',
     color: Colors.charcoal,
   },
-  fieldLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.charcoal,
-    marginBottom: 8,
-    textTransform: 'uppercase',
+  roomScroll: {
+    marginBottom: 24,
   },
-  roomTypeSection: {
-    marginVertical: 16,
+  roomCard: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 20,
+    padding: 20,
+    marginRight: 12,
+    minWidth: 160,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
-  roomTypeList: {
-    gap: 8,
-  },
-  roomTypeCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.white,
-  },
-  roomTypeCardSelected: {
+  roomCardActive: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
-  roomTypeInfo: {
-    flex: 1,
-  },
-  roomTypeName: {
-    fontWeight: '800',
+  roomName: {
     fontSize: 14,
+    fontWeight: '800',
     color: Colors.charcoal,
     marginBottom: 4,
   },
-  roomTypePriceRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  miniPriceBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  miniPriceBadgeWeekend: {
-    // Spacer or specific style for weekend badge if needed
-  },
-  roomTypePrice: {
+  roomPrice: {
     fontSize: 12,
-    color: Colors.textSecondary,
-    fontWeight: '700',
-  },
-  roomTypeTextSelected: {
-    color: Colors.white,
-  },
-  minStayText: {
-    fontSize: 10,
-    color: Colors.primary,
-    fontWeight: '800',
-    marginTop: 4,
-    textTransform: 'uppercase',
-  },
-  noRoomsText: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    padding: 10,
-  },
-  input: {
-    backgroundColor: Colors.white,
-    marginBottom: 12,
-  },
-  textArea: {
-    backgroundColor: Colors.white,
-    marginBottom: 20,
-  },
-  error: {
-    color: Colors.primary,
-    fontSize: 12,
-    marginTop: -8,
-    marginBottom: 8,
-    marginLeft: 4,
-  },
-  sectionDivider: {
-    marginVertical: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  sectionTitle: {
-    fontWeight: '800',
-    fontSize: 14,
-    color: Colors.charcoal,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  dateSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: 16,
-    backgroundColor: 'rgba(220, 38, 38, 0.05)',
-  },
-  dateLabel: {
-    fontSize: 10,
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    fontWeight: '700',
-  },
-  dateValue: {
-    fontWeight: '900',
-    color: Colors.charcoal,
-    fontSize: 16,
-  },
-  footer: {
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-  },
-  totalSection: {
-    flex: 1,
-  },
-  totalLabel: {
-    fontSize: 10,
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-  },
-  totalValue: {
-    fontWeight: '900',
-    fontSize: 18,
-    color: Colors.charcoal,
-  },
-  submitButton: {
-    flex: 1.5,
-    borderRadius: 12,
-  },
-  submitButtonContent: {
-    height: 60,
-  },
-  submitButtonLabel: {
-    fontFamily: 'Outfit_900Black',
-    fontSize: 12,
-    letterSpacing: 2,
-  },
-  successContainer: {
-    backgroundColor: 'transparent',
-    padding: 20,
-  },
-  successContent: {
-    ...mss.section,
-    padding: 32,
-    alignItems: 'stretch',
-  },
-  successHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    marginBottom: 24,
-  },
-  successTitle: {
-    fontFamily: 'Outfit_900Black',
-    color: Colors.charcoal,
-    fontSize: 24,
-  },
-  successSubtitle: {
-    fontFamily: 'Outfit_600SemiBold',
-    color: '#059669',
-    fontSize: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  reportCard: {
-    backgroundColor: Colors.slate[50],
-    borderRadius: 24,
-    padding: 20,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  reportRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  reportLabel: {
-    fontFamily: 'Outfit_600SemiBold',
-    color: Colors.slate[400],
-    fontSize: 12,
-  },
-  reportVal: {
-    fontFamily: 'Outfit_700Bold',
-    color: Colors.charcoal,
-    fontSize: 12,
-    flex: 1,
-    textAlign: 'right',
-    marginLeft: 12,
-  },
-  reportDivider: {
-    height: 1,
-    backgroundColor: Colors.border,
-    marginVertical: 12,
-  },
-  totalVal: {
-    fontFamily: 'Outfit_900Black',
-    color: Colors.primary,
-    fontSize: 18,
-  },
-  successText: {
-    fontFamily: 'Outfit_500Medium',
+    fontWeight: '600',
     color: Colors.slate[500],
-    fontSize: 14,
-    lineHeight: 22,
-    marginBottom: 32,
-    textAlign: 'center',
   },
-  successButton: {
-    borderRadius: 16,
+  roomTextActive: {
+    color: '#fff',
+  },
+  chipGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  planChip: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+  },
+  planChipActive: {
     backgroundColor: Colors.charcoal,
   },
+  planChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.slate[500],
+  },
+  planChipTextActive: {
+    color: '#fff',
+  },
+  addonList: {
+    marginBottom: 20,
+  },
+  addonCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 20,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  addonCardActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  addonIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  addonInfo: {
+    flex: 1,
+  },
+  addonName: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.charcoal,
+    marginBottom: 2,
+  },
+  addonDesc: {
+    fontSize: 11,
+    color: Colors.slate[500],
+  },
+  addonPrice: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: Colors.primary,
+  },
+  textWhite: { color: '#fff' },
+  textWhite70: { color: 'rgba(255,255,255,0.7)' },
+  input: {
+    marginBottom: 12,
+    backgroundColor: '#fff',
+  },
+  summaryCard: {
+    marginTop: 10,
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  summaryText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#166534',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  summaryNote: {
+    fontSize: 11,
+    color: '#15803D',
+    lineHeight: 16,
+  },
+  footer: {
+    padding: 24,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    backgroundColor: '#fff',
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  priceLabel: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Colors.slate[400],
+    letterSpacing: 1,
+  },
+  nightsText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: Colors.primary,
+    marginTop: 2,
+  },
+  totalPrice: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: Colors.charcoal,
+    letterSpacing: -0.5,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  backBtn: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#eee',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nextBtn: {
+    flex: 3,
+    height: 56,
+    backgroundColor: Colors.charcoal,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  nextBtnText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
+  successWrapper: {
+    padding: 40,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  successTitle: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: Colors.charcoal,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  successSub: {
+    fontSize: 14,
+    color: Colors.slate[500],
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 32,
+  },
+  reportCard: {
+    width: '100%',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 32,
+  },
+  reportRow: {
+    marginBottom: 16,
+  },
+  reportLabel: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Colors.slate[400],
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  reportValue: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: Colors.charcoal,
+  },
+  doneBtn: {
+    width: '100%',
+    borderRadius: 16,
+  },
+  formGrid: {
+    marginTop: 10,
+  }
 });

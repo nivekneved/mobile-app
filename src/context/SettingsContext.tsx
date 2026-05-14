@@ -10,15 +10,17 @@ interface MobileConfig {
 
 interface GeneralConfig {
   siteTitle?: string;
+  logoUrl?: string;
+  logoHeight?: string;
+  logoWidth?: string;
   contactEmail?: string;
   contactPhone?: string;
   whatsappNumber1?: string;
   whatsappNumber2?: string;
   facebookUrl?: string;
   instagramUrl?: string;
-  logoUrl?: string;
-  logoHeight?: string;
-  logoWidth?: string;
+  ui_labels?: Record<string, string>;
+  [key: string]: any;
 }
 
 interface SettingsContextType {

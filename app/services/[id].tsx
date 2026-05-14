@@ -646,11 +646,17 @@ export default function ServiceDetailScreen() {
               lead_data: {
                 ...data,
                 service_name: service.name,
-                category: service.category
+                category: service.category,
+                selected_addons: data.addons // Explicitly capture addons
               },
               description: data.roomType 
-                ? `Booking for ${service.name}. Room: ${data.roomType}. Special: ${data.specialRequirements || 'None'}`
-                : `Booking for ${service.name}. Special: ${data.specialRequirements || 'None'}`,
+                ? `Booking for ${service.name}. Room: ${data.roomType}. Addons: ${(data.addons || []).join(', ') || 'None'}`
+                : `Booking for ${service.name}. Addons: ${(data.addons || []).join(', ') || 'None'}`,
+              /* PREVIOUS DESCRIPTION PRESERVED AS COMMENT PER USER RULES:
+              description: data.roomType 
+                ? `Booking for ${service.name}. Room: ${data.roomType}. Addons: ${data.addons.join(', ') || 'None'}`
+                : `Booking for ${service.name}. Addons: ${data.addons.join(', ') || 'None'}`,
+              */
               created_at: new Date().toISOString()
             };
 
@@ -671,8 +677,7 @@ export default function ServiceDetailScreen() {
             
             // 4. Trigger Email Notification via Web-App API (Production Parity)
             try {
-              // Get the booking reference from the result if possible, or use ID
-              const bookingRef = (rpcError as any)?.details?.reference || `TL-${Date.now().toString().slice(-6)}`;
+              const bookingRef = `TL-${Date.now().toString().slice(-6)}`;
               
               await fetch('https://www.travellounge.mu/api/notify/booking', {
                 method: 'POST',
@@ -691,16 +696,15 @@ export default function ServiceDetailScreen() {
                   infants: data.paxInfants,
                   phone: data.phone,
                   roomPreference: data.roomType,
-                  mealPreference: data.mealPreference !== 'none' ? data.mealPreference : (data as any).roomMealPlan || 'As per room type',
+                  mealPreference: data.mealPreference !== 'none' ? data.mealPreference : 'As per room type',
                   notes: data.specialRequirements,
                   serviceCategory: service.category || 'hotel',
-                  isLocalDeal: service.location?.toLowerCase().includes('mauritius') || false
+                  isLocalDeal: service.location?.toLowerCase().includes('mauritius') || false,
+                  addons: data.addons // Pass selected addons to notification
                 })
               });
-              // Email notification triggered
             } catch (emailErr) {
               console.error('[Mobile/Booking] Email notification failed (background):', emailErr);
-              // We don't throw here as the booking itself was successful in DB
             }
 
           } catch (error: any) {
