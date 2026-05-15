@@ -2,6 +2,21 @@
 
 ---
 
+## 2026-05-15 — Booking Flow & Pricing Stabilization
+### Task: Mobile Booking Reliability & Pricing Logic Improvement
+**Status: Verified & Deployed**
+- **Changes**:
+  - `app/(tabs)/index.tsx`: Improved occupancy calculation logic. Now correctly extracts `max_adults` and `max_children` from service data, ensuring accurate "Starting From" prices for hotels and packages.
+  - `components/BookingModal.tsx`: Hardened the `handleSubmit` flow.
+    - Updated `create_booking_v1` payload to include `id` and `traveler_details` mapping, matching the production schema.
+    - Moved concierge notification (`notify/booking`) to a non-blocking background task. The user is now redirected to the confirmation screen immediately after database persistence, eliminating the "hanging" spinner.
+- **Validation**:
+  - Verified non-blocking notification flow.
+  - Confirmed pricing logic handles nullish service data gracefully.
+- **Deployment**: Changes committed and pushed to GitHub.
+
+---
+
 ## 2026-05-06 — May 2026 Feature Set Completion
 ### May 2026 Milestone: Mobile Parity, Navigation, & Booking Integration
 **Status: Verified & Deployed**

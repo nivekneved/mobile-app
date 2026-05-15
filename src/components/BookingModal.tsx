@@ -480,7 +480,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                 )}
                 
                 <TouchableOpacity 
-                  onPress={currentStep === 4 ? (handleSubmit as any)(onConfirm) : handleNext}
+                  onPress={currentStep === 4 ? () => (handleSubmit as any)(onConfirm)() : handleNext}
                   disabled={isSubmitting || (currentStep === 1 && pricing?.availabilityStatus?.isAvailable === false)}
                   style={[styles.nextBtn, currentStep === 1 ? { flex: 1 } : {}]}
                 >

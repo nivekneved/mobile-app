@@ -64,15 +64,22 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
     if (!req || !req.serviceId || !req.startDate || !req.endDate) {
       setPricing(null);
       setMealOptions([]);
+      setLoading(false); // Ensure loader clears if req becomes invalid
       return;
     }
 
     const calculate = async () => {
-      setLoading(true);
       try {
+        setLoading(true);
+        setError(null);
+        console.log('--- Starting Pricing Calculation ---');
+        console.log('Request:', JSON.stringify(req));
+
         const { serviceId, variantId, startDate, endDate, participants, baseRates, isPerNight: reqIsPerNight } = req;
         
-        const query = supabase
+        console.log('Fetching pricing data from Supabase...');
+        
+        const baseQuery = supabase
           .from('service_pricing')
           .select('*')
           .eq('service_id', serviceId)
@@ -80,24 +87,26 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
           .lte('date_from', endDate);
 
         if (!variantId || variantId === 'default') {
-          query.is('variant_id', null);
+          baseQuery.is('variant_id', null);
         } else {
-          query.eq('variant_id', variantId);
+          baseQuery.eq('variant_id', variantId);
         }
 
         const [overridesRes, supplementsRes, absRes, serviceRes] = await Promise.all([
-          query,
+          baseQuery,
           supabase
             .from('service_pricing')
             .select('*')
             .eq('service_id', serviceId)
-            .eq('variant_id', 'meal_supplements'),
+            .eq('label', 'Supplement')
+            .gte('date_to', startDate)
+            .lte('date_from', endDate),
           variantId && variantId !== 'default' ? supabase
             .from('service_pricing')
             .select('*, meal_plan_id')
             .eq('service_id', serviceId)
             .eq('variant_id', variantId)
-            .not('meal_plan_id', 'is', null) : Promise.resolve({ data: null }),
+            .not('meal_plan_id', 'is', null) : Promise.resolve({ data: null, error: null }),
           supabase
             .from('services')
             .select('meal_plans')
@@ -105,8 +114,10 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
             .single()
         ]);
 
+        console.log('Data fetched. Processing results...');
+
         if (overridesRes.error) throw overridesRes.error;
-        const overrides = overridesRes.data;
+        const overrides = overridesRes.data || [];
 
         const start = new Date(startDate);
         const end = new Date(endDate);
@@ -117,11 +128,9 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
         let totalChildren = 0;
         let totalInfants = 0;
 
-        // Standard N-Night Hotel behavior
         const loopEnd = startDate === endDate ? new Date(new Date(endDate).getTime() + 86400000) : end;
         const nights = Math.max(1, Math.ceil((loopEnd.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
 
-        let priceAdded = false;
         for (let d = new Date(start); d < loopEnd; d.setDate(d.getDate() + 1)) {
           const currentDateStr = d.toISOString().split('T')[0];
           
