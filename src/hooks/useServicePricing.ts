@@ -131,6 +131,7 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
         const loopEnd = startDate === endDate ? new Date(new Date(endDate).getTime() + 86400000) : end;
         const nights = Math.max(1, Math.ceil((loopEnd.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
 
+        let priceAdded = false;
         for (let d = new Date(start); d < loopEnd; d.setDate(d.getDate() + 1)) {
           const currentDateStr = d.toISOString().split('T')[0];
           
