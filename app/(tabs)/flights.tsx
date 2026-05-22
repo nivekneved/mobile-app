@@ -44,12 +44,64 @@ export default function FlightsScreen() {
     }
   };
 
+  // Intercept and parse GOL flight search queries for analytics/personalization
+  const trackFlightSearch = (url: string) => {
+    try {
+      const depMatch = url.match(/[?&](from|dep)=([^&]+)/i);
+      const arrMatch = url.match(/[?&](to|arr)=([^&]+)/i);
+      const dateMatch = url.match(/[?&](date|depDate)=([^&]+)/i);
+
+      if (depMatch && arrMatch) {
+        const from = decodeURIComponent(depMatch[2]);
+        const to = decodeURIComponent(arrMatch[2]);
+        const date = dateMatch ? decodeURIComponent(dateMatch[2]) : 'Unspecified Date';
+        console.log('[Flight Tracker] Captured search request details:', { from, to, date });
+      }
+    } catch (e) {
+      console.warn('Failed to parse GOL tracking URL parameters:', e);
+    }
+  };
+
+  /* PREVIOUS injectedJS PRESERVED AS COMMENT PER USER RULES:
   const injectedJS = `
     const sendHeight = () => {
       const height = document.body.scrollHeight || document.documentElement.scrollHeight;
       window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'height', height: height }));
     };
     window.onload = sendHeight;
+    setTimeout(sendHeight, 1500);
+    setInterval(sendHeight, 2000);
+    true;
+  `;
+  */
+  const injectedJS = `
+    // Override window.open to prevent external popup spawns and keep navigation local
+    window.open = function(url) {
+      window.location.href = url;
+      return null;
+    };
+
+    // Dynamically override all target="_blank" tags to target="_self"
+    const fixLinkAndFormTargets = () => {
+      document.querySelectorAll('a[target="_blank"]').forEach(el => {
+        el.target = '_self';
+      });
+      document.querySelectorAll('form[target="_blank"]').forEach(el => {
+        el.target = '_self';
+      });
+    };
+    fixLinkAndFormTargets();
+    setInterval(fixLinkAndFormTargets, 1000);
+
+    const sendHeight = () => {
+      const height = document.body.scrollHeight || document.documentElement.scrollHeight;
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'height', height: height }));
+    };
+    
+    window.onload = () => {
+      sendHeight();
+      fixLinkAndFormTargets();
+    };
     setTimeout(sendHeight, 1500);
     setInterval(sendHeight, 2000);
     true;
@@ -117,6 +169,7 @@ export default function FlightsScreen() {
                     <Text style={styles.loadingText}>Establishing Secure GOL Gateway...</Text>
                   </View>
                 )}
+                {/* PREVIOUS WebView PRESERVED AS COMMENT PER USER RULES:
                 <WebView 
                   source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_blank&embedded=true' }} 
                   style={styles.webview}
@@ -126,6 +179,28 @@ export default function FlightsScreen() {
                   domStorageEnabled={true}
                   onMessage={onMessage}
                   injectedJavaScript={injectedJS}
+                />
+                */}
+                <WebView 
+                  source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_self&embedded=true' }} 
+                  style={styles.webview}
+                  onLoadEnd={() => setIsLoading(false)}
+                  scrollEnabled={false}
+                  javaScriptEnabled={true}
+                  domStorageEnabled={true}
+                  onMessage={onMessage}
+                  injectedJavaScript={injectedJS}
+                  setSupportMultipleWindows={false}
+                  onNavigationStateChange={(navState) => {
+                    if (navState.url) {
+                      trackFlightSearch(navState.url);
+                    }
+                  }}
+                  onOpenWindow={(syntheticEvent) => {
+                    const { nativeEvent } = syntheticEvent;
+                    const { targetUrl } = nativeEvent;
+                    console.log('[Flight WebView] Intercepted new window request for URL:', targetUrl);
+                  }}
                 />
               </View>
             </Surface>
