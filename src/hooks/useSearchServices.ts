@@ -17,10 +17,21 @@ export const useSearchServices = () => {
       setIsLoading(true);
       setError(null);
       try {
+        let dbCategorySlug = categorySlug;
+        let activityTypeFilter: string | null = null;
+
+        if (categorySlug === 'activities-land') {
+          dbCategorySlug = 'activities';
+          activityTypeFilter = 'Land';
+        } else if (categorySlug === 'activities-sea') {
+          dbCategorySlug = 'activities';
+          activityTypeFilter = 'Sea';
+        }
+
         let selectString = '*, service_pricing(price, occupancy_pricing), service_categories(categories(id, name, slug))';
 
         // Use !inner joins when filtering by category to ensure the main records are filtered
-        if (categorySlug && categorySlug !== 'all') {
+        if (dbCategorySlug && dbCategorySlug !== 'all') {
           selectString = '*, service_pricing(price, occupancy_pricing), service_categories!inner(categories!inner(id, name, slug))';
         }
 
@@ -38,8 +49,12 @@ export const useSearchServices = () => {
           supabaseQuery = supabaseQuery.ilike('location', `%${region}%`);
         }
 
-        if (categorySlug && categorySlug !== 'all') {
-          supabaseQuery = supabaseQuery.eq('service_categories.categories.slug', categorySlug);
+        if (dbCategorySlug && dbCategorySlug !== 'all') {
+          supabaseQuery = supabaseQuery.eq('service_categories.categories.slug', dbCategorySlug);
+        }
+
+        if (activityTypeFilter) {
+          supabaseQuery = supabaseQuery.eq('activity_type', activityTypeFilter);
         }
 
         const { data, error: searchError } = await supabaseQuery;
