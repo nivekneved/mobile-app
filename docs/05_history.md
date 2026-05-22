@@ -1,5 +1,182 @@
 # Development Log
 
+## Status: 2026-05-22 (Session 35)
+### Task: Client-Side Pagination & Visibility Enhancements
+**Status: Verified & Certified**
+- **Web Listing Pagination Refactor**:
+  - Modified [ServiceListing.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/web-app/components/ServiceListing.tsx) to implement client-side pagination for customer-facing listing pages with default page size of `12` items.
+  - Moved the pagination controls below the grid container and outside `AnimatePresence` to prevent layout collapse and Framer Motion transition compression.
+  - Added smooth scroll-to-top behavior (`window.scrollTo({ top: 0, behavior: 'smooth' })`) on page transitions.
+  - Confirmed auto-pagination coverage for: **Hotels**, **Guided Group Tours**, **Activities**, **Packages**, **Day/Evening Packages**, **Spa**, and **Transfers**.
+- **Always-On Pagination Footer**:
+  - Updated rendering gates in `ServiceListing.tsx` and 11 admin-app pages (`Bookings.jsx`, `Customers.jsx`, `Inquiries.jsx`, `Invoices.jsx`, `MarketingPopups.jsx`, `News.jsx`, `Orders.jsx`, `Reviews.jsx`, `Services.jsx`, `Subscribers.jsx`, `Team.jsx`) to display the controls as long as at least 1 record is present (`items.length > 0`), ensuring controls remain visible but disabled for single-page results.
+- **Admin App List Pagination**:
+  - Modified [Subscribers.jsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/admin-app/src/pages/Subscribers.jsx) (Newsletter list, `perPage = 10`).
+  - Modified [Reviews.jsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/admin-app/src/pages/Reviews.jsx) (Review Moderation table, `perPage = 6`).
+  - Modified [News.jsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/admin-app/src/pages/News.jsx) (Blog post list, `perPage = 6`).
+  - Modified [MarketingPopups.jsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/admin-app/src/pages/MarketingPopups.jsx) (Popup campaign overlays, `perPage = 8`).
+  - Added client-side pagination of 6 items per page in [Inquiries.jsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/admin-app/src/pages/Inquiries.jsx) with search and filter resets, and a fixed footer layout.
+  - Integrated search/filter reset triggers and chevron pagination footers on all pages.
+- **Ecosystem Build Verification**:
+  - Successfully ran `npm run build` in both `apps/admin-app` and `apps/web-app`, confirming 0 errors and complete compile-time compatibility.
+
+---
+
+## Status: 2026-05-22 (Session 34)
+### Task: GOL Flight Search Engine Redirection & Interception
+**Status: Verified & Certified**
+- **WebView Redirection Correction**:
+  - Updated [flights.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/flights.tsx) to use `setSupportMultipleWindows={false}` and updated search target URL parameters to `target=_self`.
+  - Injected JavaScript overrides for `window.open` and dynamically re-targeted all form elements and links containing `target="_blank"` to `_self` to force navigation inside the local WebView rather than launching the external device browser.
+- **Web iframe Redirection Correction**:
+  - Modified [page.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/web-app/app/flights/page.tsx) to configure the GOL flight iframe source query string to use `target=_self` instead of `target=_blank` to prevent opening flight search results in new tabs.
+- **Flight Search Tracking**:
+  - Added `onNavigationStateChange` to the mobile WebView to capture search transitions and implemented `trackFlightSearch` to extract query details (origins, destinations, and dates) using regex parameter capture.
+- **Ecosystem Build & Type Safety Validation**:
+  - Ran both `npm run type-check` (mobile-app) and `npx tsc --noEmit` (web-app), successfully verifying zero compilation or typechecking errors across the codebase.
+
+---
+
+## Status: 2026-05-22 (Session 33)
+### Task: Category E2E Verification & Visual Regression Suite
+**Status: Verified & Certified**
+- **Programmatic CRUD Database Testing**:
+    - Created and executed `scripts/test_all_categories_crud.ts` to perform automated, transaction-wrapped insert, read, update, and delete validation tests for all 10 core service categories (Flights, Hotels, Activities, Travel Packages, Cruises, Group Tours, Rodrigues, Day Packages, Mauritius, Evening Packages) in the PostgreSQL database.
+- **Seeding & Cleanup Automation**:
+    - Created `scripts/seed_test_categories_visual.ts` and `scripts/cleanup_test_categories_visual.ts` to automatically seed mock listings for the 10 service categories, and safely delete them post-test to restore the database to its pristine state.
+- **E2E Visual Verification Suite**:
+    - Designed a headless Puppeteer regression script `scripts/verify_visual_pages.ts` to spin up a local development server, navigate dynamically to each of the 10 service category pages, capture high-resolution desktop screenshots, and verify visual layouts (e.g. hero headers, filter sidebars, listing cards).
+- **Documentation & Walkthrough**:
+    - Exported category screenshot artifacts and embedded them in the system walkthrough file `walkthrough.md` to establish visual baselines.
+- **Production Build and Deployment Check**:
+    - Successfully ran Next.js production build (`npm run build`) ensuring zero compilation or type-checking errors across the entire codebase.
+
+---
+
+## Status: 2026-05-21 (Session 32)
+### Task: Fix Group Tour Visibility & Pricing Save Service Type Override
+**Status: Verified & Certified**
+- **Surgical Price Save Fix**:
+    - Modified [PriceManager.jsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/admin-app/src/pages/PriceManager.jsx) to preserve original service types (like `'tour'`, `'cruise'`, `'transfer'`) when saving pricing. The database `service_type` field is now only updated if transitioning between a `'hotel'` and a non-hotel (activity) model structure.
+    - Commented out the original code block to satisfy the project's strict historical code preservation rules ("Never remove any code, instead comment it").
+- **Database Alignment**:
+    - Executed [update_dubai.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/web-app/scratch/update_dubai.ts) using the service role key to restore the "Dubai & Abu Dhabi" tour (`55503827-8aa7-4bc7-a8a9-2545167a6a87`)'s `service_type` to `'tour'` in the database.
+- **Ecosystem Build & Logical Verification**:
+    - Compiled and built the Admin App production bundle (`npm run build`) successfully with zero errors.
+    - Executed a validation test script [verify_save_logic.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/web-app/scratch/verify_save_logic.ts) which simulated all potential UI save transitions and verified that the `service_type` remains completely unchanged when saving non-hotel services.
+
+---
+
+## Status: 2026-05-20 (Session 31)
+### Task: Deterministic Pricing Reconciliation & Parent Service Fee Sync
+**Status: Verified & Certified**
+- **Deterministic Two-Pass Pricing Reconciler**:
+    - Discovered and fixed a critical SQL string literal parsing regex bug that truncated service names with escaped single quotes (e.g. `Ocean''s Creek Beach Hotel` was parsed as `Ocean`), which had caused 1,815 pricing records to be skipped.
+    - Updated both the test and commit scripts (`reconcile_pricing_by_id_twopass.cjs` and `reconcile_pricing_write_by_id.cjs`) to sort `liveServices` and `liveRoomTypes` by `id` upon retrieval. This ensures deterministic candidate selection when mapping duplicate hotel/service names, regardless of PostgreSQL database query return order.
+    - Re-ran the database reconciliation, successfully inserting the **1,815 missing pricing records** for *Ocean's Creek Beach Hotel*, achieving **100% exact pricing parity** (0 updates/inserts pending) across all 24,698 active pricing slots in the seed backup.
+- **Parent Service Fee Alignment**:
+    - Updated the parent `service_fee` fields in the `services` table to `10` for both **Malaysia Package** and **Ocean's Creek Beach Hotel** to align them with their 10% gross markup pricing grids.
+    - This alignment prevents the database triggers (`fn_sync_service_pricing_gross`) from recalculating and wiping out the 10% markups when pricing records are updated.
+
+---
+
+## Status: 2026-05-20 (Session 30)
+### Task: Pricing Engine Architecture UI & Selector Simplification
+**Status: Verified & Certified**
+- **Pricing Engine Architecture UI Simplification**: Replaced the commented model selector block and the "Activity Classification Sub-Type" buttons in `CreateService.jsx` with exactly two buttons: **Hotel Model** and **Activity / Tours Model**.
+- **Exist-Check Logic**: Implemented check-if-exist logic so that when selecting "Activity / Tours Model", the system checks if a specific non-hotel `service_type` is already set in the form state and preserves it (otherwise falling back to `'tour'`). This allows for dynamic auto-derivation based on categories while safeguarding existing database/routing values.
+- **Itinerary Block Visibility Enforced**: Removed the category-based filtering from the `itinerary` section in `CreateService.jsx`, rendering the "Itinerary & Schedule" management block universally visible for all service listings.
+
+
+---
+
+## Status: 2026-05-20 (Session 29)
+### Task: Database Pricing Audit & Production Backup Cross-Verification
+**Status: Verified & Certified**
+- **Comprehensive Database-to-Seed Audit**:
+    - Compared the live database `service_pricing` table (25,762 rows) against the local `seed.sql` file (27,770 rows).
+    - Accounted for the 2,008-row difference exclusively through 5 legacy test services (e.g., "Test Evening Package", "Test hotel meal plan"), certifying that 100% of production-ready services are fully seeded.
+- **Production SQL Backup Cross-Verification**:
+    - Audited the remote database against the authoritative `admin-app/supabase/tl_comprehensive_backup.sql` file.
+    - Verified exactly zero flat price mismatches, zero occupancy pricing JSON mismatches, and zero missing rows for active services.
+- **Dynamic Pricing Model Clarification**:
+    - Confirmed that flat `price = 0` is expected behavior for hotels/packages that utilize dynamic multi-occupancy JSON configurations (`occupancy_pricing`), with active rates resolved from the JSON rather than flat rates.
+- **Gitignore Optimization**:
+    - Updated `web-app/.gitignore` to ignore the custom ad-hoc pricing audit scripts to prevent repo clutter.
+- **Build Verification & Vercel Deployments**:
+    - Verified compile health with production builds of both `web-app` (Next.js/Turbopack) and `admin-app` (Vite/Rollup) yielding 0 errors.
+    - Pushed `.gitignore` and asset updates to GitHub and triggered production deployments on Vercel for both `web-app` and `admin-app`.
+
+
+---
+
+## Status: 2026-05-20 (Session 28)
+### Task: Database Backup Merging, SQL Consolidation & Cleanup
+**Status: Verified & Certified**
+- **Reconciliation & Merging of Database Backups**:
+    - Checked, compared, and merged all database backup folders and SQL files under `web-app/supabase`.
+    - Gathered and inserted all missing data entries from backup archives into the live Supabase database.
+- **Paginated & Batched Database Seed Generation**:
+    - Modified `scripts/backup_db_sql_today.ts` to implement range-based pagination (fetching chunks of 1000 rows) to circumvent PostgREST limits and fetch all 27,770 `service_pricing` records.
+    - Implemented SQL-compliant batching (inserting in blocks of 100 values) to optimize seed insertion execution.
+    - Successfully generated the final, complete database dump at `supabase/seed.sql` (~12.8 MB).
+- **SQL Consolidation & Folder Cleanup**:
+    - Purged unneeded files (`policy.sql`, `structure.sql`, `core_tables_info.sql`) and subdirectories (`archive`, `backups`, `migrations/backups`) under `web-app/supabase/`.
+    - Consolidated the directory structure to contain exactly three main SQL files: `infrastructure.sql`, `seed.sql`, and `policies.sql`.
+- **Ecosystem Build Validation**:
+    - Verified compile health with a successful Next.js production build (`npm run build`) resulting in 0 compiler errors.
+
+---
+
+## Status: 2026-05-20 (Session 27)
+### Task: Consolidated and Executable Self-Contained SQL Backup Creation
+**Status: Verified & Certified**
+- **Consolidated SQL Backup Generator Script**:
+    - Created and integrated `scripts/generate_comprehensive_backup.ts` under `apps/web-app`. This script dynamically parses custom database functions, extensions, schemas, constraints, Row-Level Security policies, and active Supabase database records.
+- **Self-Contained Executable SQL Backup Generation**:
+    - Generated a single, executable, self-contained SQL setup script at `supabase/tl_comprehensive_backup.sql` in `apps/admin-app`.
+    - The setup script incorporates automatic dropping (`DROP TABLE IF EXISTS ... CASCADE`), extension registration, schema declarations, complete seed inserts wrapped in transactional replica-role constraint bypasses, index/constraint linkages, Row-Level Security policies, and trigger pipelines.
+- **Ecosystem Sync & Git Versioning**:
+    - Staged, committed, and pushed the new SQL backup generator and backup dump to GitHub in both `web-app` and `admin-app` repositories.
+    - Executed the universal orchestrator to capture a full backup snapshot in the `backup/2026-05-20_complete` branch.
+
+---
+
+## Status: 2026-05-20 (Session 26)
+### Task: Universal System Backup (Database, Files, and Branches)
+**Status: Verified & Certified**
+- **Comprehensive Database Backup**:
+    - Ran both SQL (`backup_db_sql_today.ts`) and JSON (`db_backup.js`) database backup scripts, pulling a complete data snapshot of the live Supabase database for all 26 core tables.
+- **Environment & Configuration Backup**:
+    - Consolidating and backing up all active configuration files (`.env`, `.env.local`, `.env.production`) across the `web-app`, `admin-app`, and `mobile-app` workspaces.
+- **Universal Git Branch Snapshot & Remote Push**:
+    - Created a new master backup branch `backup/2026-05-20_complete` capturing the exact project structure, SQL and JSON database dumps, and configuration environment profiles.
+    - Pushed the new backup branch to the remote repository.
+    - Pushed all local Git branches to `origin` to ensure all historical branches are fully synchronized and safely backed up on GitHub.
+- **Backup Script Integration**:
+    - Added the complete universal backup orchestrator script (`scripts/create_complete_backup.ts`) to version control.
+
+---
+
+## Status: 2026-05-19 (Session 25)
+### Task: Universal Database Reconciliation and Backup Relocation
+**Status: Verified & Certified**
+- **Comprehensive Database Reconciliation**:
+    - Developed and executed a robust, recursive database reconciler script (`scripts/reconcile_database.ts`) that scanned all local backup sources (SQL files, folder backups, and JSON dumps) as well as 40+ Git branches containing historical backups.
+    - Successfully parsed, compared, and synchronized services, room types, and pricing structures against the live active Supabase database.
+    - Non-destructively restored/duplicated 39 missing or pricing-mismatched services complete with their room configurations and categories.
+- **SQL Parser Improvements & Nested Construct Handling**:
+    - Implemented advanced bracket (`[ ]`) and parentheses (`( )`) depth tracking within the SQL statement values-block tokenizer to support postgres array constructors (like `ARRAY['Guide', 'Lunch']`) and SQL function calls without breaking field alignment.
+- **JSONB Column Sanitization**:
+    - Automatically sanitized `occupancy_pricing` and `net_occupancy_pricing` values during insert, converting empty JSON arrays (`[]`) and empty JSON strings (`"[]"`) to `null` to prevent PostgreSQL constraint trigger errors (`cannot call jsonb_each on a non-object`).
+- **Standardized Backup Directory Relocation**:
+    - Successfully scanned, audited, and processed 15 historical database seed and JSON backup files.
+    - Moved all processed backup files from `supabase/` to `supabase/backups/processed_backups/` using high-integrity node file operations to organize the repository and safeguard historical data.
+- **Production Build Integrity**:
+    - Verified 100% build health and compilation compatibility for both `web-app` (Next.js/Turbopack) and `admin-app` (Vite/Rollup) with zero errors.
+
+---
+
 ## Status: 2026-05-19 (Session 24)
 ### Task: Database Pricing Audit, Rodrigues Model Fix, and Meal Plan Sync Stabilization
 **Status: Verified & Certified**
@@ -1617,4 +1794,31 @@
 - **Double Occupancy Standard**: Refined the hotel lead price and room type price computations to derive the "AS FROM" starting price strictly from the lowest double occupancy price (occupancy key `"2"`) across active meal plans and room overrides.
 - **Graceful Fallback**: Implemented a highly resilient fallback structure that defaults to base pricing or alternative occupancies if double occupancy pricing is absent.
 - **Multi-Override Support**: Overhauled the room type pricing parsing in `app/hotels/[id]/page.tsx` to search across all active pricing overrides representing different meal plans, resolving the bug that only returned the first matched override.
+
+---
+
+## 2026-05-19 — Hotel Pricing Display & Meal Plan Fallback Refinements
+- **Room Pricing Grid Integration in Booking Page**: Replaced the obsolete `weekday_price` fallback mapping in `app/book/BookingPageClient.tsx` with dynamic pricing resolution from the `service_pricing` grid. This ensures each room variant displays its active starting price based on double occupancy.
+- **Meal Plan Fallback Resolution**: Updated `lib/pricingEngine.ts` to allow base rates (where `meal_plan_id` is null) to act as a fallback in overrides query and loop matching when specific meal plan overrides do not exist.
+- **Database Price Adjustment**: Corrected the database override record for Le Palmiste Resort & Spa's *Standard Room* to set its double occupancy starting price to `MUR 4,000` (instead of `3,500`), achieving the correct minimum display price.
+
+## 2026-05-20 — Remote Database Seeding, Parser Refinement & Service Fee Cascade
+- **Ecosystem Data Integrity & Seed Verification**: Successfully executed the consolidated SQL seed data (`seed.sql`) containing 28,000+ entries onto the remote Supabase database.
+- **Robust Semicolon Parser Integration**: Implemented a quote-aware, parenthesis-depth-aware semicolon scanner inside the Node-based seed runner (`run_seed_sql.ts`) to prevent premature statement cuts when encountering HTML character entities (`&nbsp;`, `&#39;`) or inline CSS stylings inside service descriptions.
+- **Type Cast Precision Fix**: Resolved an off-by-one index mismatch error when parsing PostgreSQL type cast suffixes (`::jsonb`), restoring proper JSON deserialization for array-backed columns (`amenities`, `gallery_images`, `special_features`, etc.) and resolving syntax errors during insert operations.
+- **Database Restoration Parity**: Audited and confirmed database consistency across 19+ tables including `services` (309 rows), `room_types` (415 rows), and `service_pricing` (27,770 rows), leaving the active remote database fully restored and in parity with the production backups.
+- **Markup Cascade Recalculation Triggers**: Added database triggers (`tr_recalc_service_pricing_on_svc_fee_change` and `tr_recalc_service_pricing_on_room_fee_change`) to synchronize remote schema and propagate parent markup percent updates (`service_fee`) to all child daily pricing grids.
+- **Admin Dashboard Visualization**: Integrated clear, responsive "Fee: X%" badge overlays on both grid and list catalog cards inside the administrative panel (`Services.jsx`), highlighting active markup percentages.
+- **Form Controls Verification**: Checked and verified standard forms (`CreateService.jsx`), confirming administrators can natively edit the default service-level fee which propagates changes to Supabase correctly.
+- **Production Build & Deployment**: Confirmed 100% build compatibility on Next.js (Turbopack) and Vite platforms, committing and pushing changes to trigger direct deployment to Vercel production environments.
+- **Pricing Engine Alignment Parity**: Identified key-collision issues in daily pricing records where duplicate records shared names/dates but had different IDs. Built a two-pass matching algorithm mapping UUIDs first, then falling back to unused logical key candidates. Applied 1,037 inserts and 313 updates, verifying 100% exact parity (0 updates/inserts remaining) for 22,883 active service pricing records.
+
+---
+
+## 2026-05-22 — Email Template Adjustment & Outlook Compliance Formatting
+- **Admin Email Template Refinement**: Commented out the "View in Dashboard" action button inside the `admin_new_inquiry` template body in all 4 database/seed SQL files (`web-app/seed.sql`, `web-app/supabase/seed.sql`, `admin-app/supabase/tl_comprehensive_backup.sql`, `admin-app/seed.sql`) to keep lines intact as per code-preservation guidelines.
+- **Dynamic Outlook-Compliant Formatter**: Created a dedicated, modular helper file `lib/emailUtils.ts` containing the `formatMessageToHtml` utility. This utility parses multiline plaintext inquiries (e.g. from Tailor-Made and Plan-My-Trip forms) into physical Outlook-compliant HTML tables with inline styling, and strips newlines to prevent formatting collapse or massive spacing bugs.
+- **Ecosystem Integration & Validation**: Integrated the formatter into the `notifyInquiryReceived` action in `lib/emailActions.ts` and updated the mock test suite in `scripts/test_all_emails_final.ts` to simulate realistic multiline inquiry payloads.
+- **Automated Verification**: Ran TypeScript compilation (`tsc --noEmit`) and the automated email test suite successfully, delivering 12/12 test emails to the triple-desk distribution list without errors.
+- **Production Deployment**: Committed all changes and successfully deployed the updated web application and admin panel to Vercel production.
 
