@@ -55,7 +55,7 @@ export default function FlightsScreen() {
         const from = decodeURIComponent(depMatch[2]);
         const to = decodeURIComponent(arrMatch[2]);
         const date = dateMatch ? decodeURIComponent(dateMatch[2]) : 'Unspecified Date';
-        console.log('[Flight Tracker] Captured search request details:', { from, to, date });
+        if (__DEV__) console.log('[Flight Tracker] Captured search request details:', { from, to, date });
       }
     } catch (e) {
       console.warn('Failed to parse GOL tracking URL parameters:', e);
@@ -199,7 +199,7 @@ export default function FlightsScreen() {
                   onOpenWindow={(syntheticEvent) => {
                     const { nativeEvent } = syntheticEvent;
                     const { targetUrl } = nativeEvent;
-                    console.log('[Flight WebView] Intercepted new window request for URL:', targetUrl);
+                    if (__DEV__) console.log('[Flight WebView] Intercepted new window request for URL:', targetUrl);
                   }}
                 />
               </View>

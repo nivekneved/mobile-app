@@ -72,12 +72,12 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
       try {
         setLoading(true);
         setError(null);
-        console.log('--- Starting Pricing Calculation ---');
-        console.log('Request:', JSON.stringify(req));
+        // console.log('--- Starting Pricing Calculation ---');
+        // console.log('Request:', JSON.stringify(req));
 
         const { serviceId, variantId, startDate, endDate, participants, baseRates, isPerNight: reqIsPerNight } = req;
         
-        console.log('Fetching pricing data from Supabase...');
+        // console.log('Fetching pricing data from Supabase...');
         
         const baseQuery = supabase
           .from('service_pricing')
@@ -114,7 +114,7 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
             .single()
         ]);
 
-        console.log('Data fetched. Processing results...');
+        // console.log('Data fetched. Processing results...');
 
         if (overridesRes.error) throw overridesRes.error;
         const overrides = overridesRes.data || [];

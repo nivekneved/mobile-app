@@ -630,20 +630,20 @@ export default function ServiceDetailScreen() {
             if (!customerId) throw new Error('Could not identify or create customer');
 
             // 2. Prepare payload for the transactional booking RPC (Web-App Parity)
-            console.log('--- Submitting Mobile Booking ---');
-            console.log('Payload:', JSON.stringify({
-              customer_id: customerId,
-              check_in_date: data.checkIn,
-              check_out_date: data.checkOut,
-              pax_adults: data.paxAdults,
-              pax_infants: data.paxInfants,
-              pax_children: data.paxChildren,
-              pax_teens: data.paxTeens,
-              amount: data.totalAmount,
-              service_type: service.category || 'General',
-              service_name: service.name,
-              description: `Room: ${data.roomType}, Meal: ${data.mealPreference}, Special: ${data.specialRequirements}`
-            }, null, 2));
+            // console.log('--- Submitting Mobile Booking ---');
+            // console.log('Payload:', JSON.stringify({
+            //   customer_id: customerId,
+            //   check_in_date: data.checkIn,
+            //   check_out_date: data.checkOut,
+            //   pax_adults: data.paxAdults,
+            //   pax_infants: data.paxInfants,
+            //   pax_children: data.paxChildren,
+            //   pax_teens: data.paxTeens,
+            //   amount: data.totalAmount,
+            //   service_type: service.category || 'General',
+            //   service_name: service.name,
+            //   description: `Room: ${data.roomType}, Meal: ${data.mealPreference}, Special: ${data.specialRequirements}`
+            // }, null, 2));
 
             const bookingPayload = {
               customer_id: customerId,
