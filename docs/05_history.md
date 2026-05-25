@@ -1,10 +1,12 @@
 # Development Log
 
 ## Status: 2026-05-25 (Session 39)
-### Task: Remove Action Buttons from System Email Templates
+### Task: Remove Action Buttons and Fix Newsletter Admin Template
 **Status: Verified & Certified**
 - **Database & Script Synchronization**: Updated the template setup script `apps/web-app/scripts/update_email_templates.ts` to comment out action buttons on `booking_confirmation`, `admin_new_inquiry`, and added `inquiry_received` database update with the action button commented out.
 - **SQL Seed/Backup Modifications**: Modified both `apps/web-app/supabase/seed.sql` and `apps/admin-app/supabase/tl_comprehensive_backup.sql` to comment out action buttons on the requested templates using HTML comment tags (`<!-- -->`) to keep the codebase synchronised with database seeds.
+- **Logo Resolution Fix**: Modified `lib/emailService.ts` to automatically detect relative database logo paths and format them as full, absolute Supabase storage URLs, preventing broken image tags in emails (e.g. `[Travel Lounge]`).
+- **Subscription Email Formatting**: Added `admin_new_subscription` layout to `update_email_templates.ts` using CSS styling matching other premium emails to resolve the literal `\n` character format bug.
 - **Execution & Database Application**: Executed the `update_email_templates.ts` script using the dynamic `SUPABASE_SERVICE_ROLE_KEY` bypass, successfully updating the live database email templates table.
 - **Email Delivery Verification**: Executed `scripts/test_email_booking.ts` to verify the correct rendering and successful SMTP delivery of all updated templates, achieving 100% test coverage with zero rendering errors.
 
