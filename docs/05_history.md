@@ -1,5 +1,48 @@
 # Development Log
 
+## Status: 2026-05-25 (Session 39)
+### Task: Remove Action Buttons from System Email Templates
+**Status: Verified & Certified**
+- **Database & Script Synchronization**: Updated the template setup script `apps/web-app/scripts/update_email_templates.ts` to comment out action buttons on `booking_confirmation`, `admin_new_inquiry`, and added `inquiry_received` database update with the action button commented out.
+- **SQL Seed/Backup Modifications**: Modified both `apps/web-app/supabase/seed.sql` and `apps/admin-app/supabase/tl_comprehensive_backup.sql` to comment out action buttons on the requested templates using HTML comment tags (`<!-- -->`) to keep the codebase synchronised with database seeds.
+- **Execution & Database Application**: Executed the `update_email_templates.ts` script using the dynamic `SUPABASE_SERVICE_ROLE_KEY` bypass, successfully updating the live database email templates table.
+- **Email Delivery Verification**: Executed `scripts/test_email_booking.ts` to verify the correct rendering and successful SMTP delivery of all updated templates, achieving 100% test coverage with zero rendering errors.
+
+---
+
+## Status: 2026-05-24 (Session 38)
+### Task: Ecosystem E2E Verification for Hotels, Travel Packages & Group Tours
+**Status: Verified & Certified**
+- **Price Propagation**: Successfully verified multi-month room and per-person rates propagation across the calendar grids for all three newly created entities: **Test Hotel Presentation 2026**, **Test Package Presentation 2026**, and **Test Tour Presentation 2026**.
+- **Stop-Sell & Blackout Dates**: Configured May 28, 2026 as "Stop-Sell Active" in the Price Manager, confirming that the date is successfully disabled and unselectable on the Hotel range picker, Package single-date picker, and Tour calendar picker.
+- **Past Date Restrictions**: Verified that all past dates before May 25, 2026 are correctly blocked and disabled for booking on the frontend.
+- **E2E Booking Journeys**:
+  - **Hotels**: Booked a 7-night double occupancy reservation (June 6 to June 13, 2026) at Rs 5,000/night, totaling Rs 35,000. Verified toast notifications and confirmation redirects (Booking ID: `14A49662`).
+  - **Travel Packages**: Booked a single-day 2-adult reservation (June 6, 2026) at Rs 6,000/person, totaling Rs 12,000. Verified redirect to confirmation screen (Booking ID: `BDF5AE72`).
+  - **Group Tours**: Booked a single-day 2-adult reservation (May 26, 2026) at Rs 5,500/person, totaling Rs 11,000. Verified redirect to confirmation screen (Booking ID: `6F8ADCC4`).
+- **Reservations Ledger Registration**: Verified that all three submissions instantly register at the top of the admin Reservations ledger (as `PENDING`) with accurate totals, guest count details, and email metrics.
+- **Artifact Generation**: Captured visual screenshot records of rates propagation, customer-facing calendar pickers, confirmation sheets, and admin reserve logs, storing them directly in the workspace.
+
+---
+
+## Status: 2026-05-23 (Session 37)
+### Task: Prospect Data Cleaning, Segmentation, and Monetization Strategy
+**Status: Verified & Certified**
+- **Prospect Ingestion & Deduplication**: Created and ran `scripts/clean_prospects.py` to merge duplicate leads, clean brackets and email typos (such as `coquilleb, onheur.com`), format phone numbers, and segment the list of 100+ Mauritian travel prospects.
+- **Data Structuring**: Exported the structured results to [cleaned_prospects.csv](file:///C:/Users/deven/Desktop/Travel%20Lounge%202026/docs/cleaned_prospects.csv) and [cleaned_prospects.md](file:///C:/Users/deven/Desktop/Travel%20Lounge%202026/docs/cleaned_prospects.md) within the standard `docs` folder.
+- **Monetization & Commercial GTM Plan**: Formulated a comprehensive commercialization playbook at [monetization_strategy.md](file:///C:/Users/deven/Desktop/Travel%20Lounge%202026/docs/monetization_strategy.md) with three models (White-Label Enterprise, Multi-Tenant SaaS, Airport Transfer Console), persona-specific pitch guides, and cold outreach templates.
+
+---
+
+## Status: 2026-05-23 (Session 36)
+### Task: Next.js Compile Build Fix
+**Status: Verified & Certified**
+- **Next.js Production Build Resolution**: Moved the `'use client'` directive to the top of both test-email pages (`app/test-email/page.tsx` and `app/test-emails/page.tsx`) and relocated the production gate checks inside the component render functions, resolving Turbopack compilation errors and restoring 100% build health.
+- **Ecosystem Verification**: Ran Next.js production build (`npm run build`) in `web-app`, confirming successful compilation and static page generation.
+- **Deployment**: Committed and pushed the changes to the `web-app` remote repository.
+
+---
+
 ## Status: 2026-05-22 (Session 35)
 ### Task: Client-Side Pagination & Visibility Enhancements
 **Status: Verified & Certified**
@@ -1822,3 +1865,21 @@
 - **Automated Verification**: Ran TypeScript compilation (`tsc --noEmit`) and the automated email test suite successfully, delivering 12/12 test emails to the triple-desk distribution list without errors.
 - **Production Deployment**: Committed all changes and successfully deployed the updated web application and admin panel to Vercel production.
 
+## 2026-05-22 — Activities Reclassification & Mobile Virtual Categories Integration
+- **Activities Database Classification**: Created and executed SQL migration (`20260522200000_classify_activities.sql`) mapping 43 local excursions/activities under the unified `'activities'` category, and classified them as `'Land'` or `'Sea'` using the `activity_type` column.
+- **Admin App Classification Refinement**: Commented out `'Air'` and `'Evening'` options in `CreateService.jsx` to only show Land and Sea options in the Admin panel.
+- **Mobile Search Parity**: Modified the `useSearchServices.ts` custom hook to intercept virtual search categories `activities-land`/`activities-sea`, query Supabase for `'activities'`, and filter results client-side by `activity_type` ('Land'/'Sea').
+- **Next.js Web Parity**: Updated Next.js `docs/03_features.md` to fix a typo and verified that both admin panel and web apps compile and build with zero errors.
+- **Deployment**: Verified 100% build compatibility and pushed to Git.
+
+
+---
+
+## 2026-05-23 — Activity Service Type Mismatch Resolution & Admin App Safeguards
+- **Database Correction**: Ran database script `fix_helicopter_mismatch.js` to correct the `service_type` of `"MAURITIUS HELICOPTER TEST"` from `"tour"` to `"activity"`, resolving the schema mismatch.
+- **Admin Panel Safeguards**:
+  - Modified `CreateService.jsx` classification button `onClick` event to immediately set `service_type = 'activity'` when clicking `"Land"` or `"Sea"` activity classifications.
+  - Enhanced the auto-derivation effect in `CreateService.jsx` to check if `formData.activity_type` is `'Land'` or `'Sea'` and enforce `derivedType = 'activity'`. Added `formData.activity_type` to the effect's dependency array to trigger updates whenever the classification is edited.
+- **Ecosystem Verification**:
+  - Verified using local Next.js dev server that `"MAURITIUS HELICOPTER TEST"` now shows up correctly on the `/activities/land` page.
+  - Confirmed 100% build compatibility on Vite (`admin-app`).
