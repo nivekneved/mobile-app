@@ -1,15 +1,65 @@
-import React from 'react';
-import { View, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
-import { Text, ActivityIndicator, Surface, Chip } from 'react-native-paper';
+import React, { useState } from 'react';
+import { View, StyleSheet, FlatList, Image, TouchableOpacity, Alert } from 'react-native';
+import { Text, ActivityIndicator, Surface, Chip, TextInput, Button } from 'react-native-paper';
 import { useCustomerBookings, Booking } from '../../src/hooks/useCustomerBookings';
 import { Colors } from '../../src/theme/colors';
-import { MapPin, Calendar, Clock, ChevronRight, Plane } from 'lucide-react-native';
+import { MapPin, Calendar, Clock, ChevronRight, Plane, Search, Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { supabase } from '../../src/lib/supabase';
 
 export default function BookingsScreen() {
-  const { bookings, isLoading, error } = useCustomerBookings();
+  const { bookings, isLoading, error, addGuestCustomerId } = useCustomerBookings();
   const router = useRouter();
+
+  // Search/Lookup states
+  const [showLookup, setShowLookup] = useState(false);
+  const [lookupEmail, setLookupEmail] = useState('');
+  const [lookupRef, setLookupRef] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleLookup = async () => {
+    if (!lookupEmail.trim() || !lookupRef.trim()) {
+      Alert.alert('Required Fields', 'Please enter both email and booking reference.');
+      return;
+    }
+    try {
+      setIsSearching(true);
+      const { data, error: queryError } = await supabase
+        .from('bookings')
+        .select(`
+          customer_id,
+          booking_reference,
+          customers (
+            email
+          )
+        `)
+        .eq('booking_reference', lookupRef.trim().toUpperCase())
+        .single();
+
+      if (queryError || !data) {
+        Alert.alert('Not Found', 'No booking found with this reference.');
+        return;
+      }
+
+      const customerEmail = (data.customers as any)?.email;
+      if (customerEmail?.toLowerCase() !== lookupEmail.trim().toLowerCase()) {
+        Alert.alert('Verification Failed', 'The email address does not match this booking reference.');
+        return;
+      }
+
+      await addGuestCustomerId(data.customer_id);
+      Alert.alert('Success', 'Booking retrieved and saved successfully!');
+      setLookupEmail('');
+      setLookupRef('');
+      setShowLookup(false);
+    } catch (err) {
+      console.error('Error during lookup:', err);
+      Alert.alert('Error', 'Failed to retrieve booking. Please try again.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const getStatusColor = (status: Booking['status']) => {
     switch (status) {
@@ -42,6 +92,10 @@ export default function BookingsScreen() {
               </Text>
             </View>
           </View>
+
+          {item.booking_reference && (
+            <Text style={styles.refText}>Ref: {item.booking_reference}</Text>
+          )}
 
           <View style={styles.infoRow}>
             <MapPin size={12} color={Colors.textSecondary} />
@@ -87,8 +141,53 @@ export default function BookingsScreen() {
     <View style={styles.root}>
       <StatusBar style="dark" />
       <View style={styles.header}>
-        <Text variant="headlineMedium" style={styles.title}>My Bookings</Text>
-        <Text variant="bodyMedium" style={styles.subtitle}>Your travel history and inquiries</Text>
+        <View style={styles.headerRow}>
+          <View>
+            <Text variant="headlineMedium" style={styles.title}>My Bookings</Text>
+            <Text variant="bodyMedium" style={styles.subtitle}>Your travel history and inquiries</Text>
+          </View>
+          <TouchableOpacity 
+            style={[styles.importBtn, showLookup && styles.importBtnActive]} 
+            onPress={() => setShowLookup(!showLookup)}
+          >
+            <Plus size={20} color={showLookup ? Colors.white : Colors.charcoal} />
+          </TouchableOpacity>
+        </View>
+
+        {showLookup && (
+          <Surface style={styles.lookupCard} elevation={1}>
+            <Text style={styles.lookupTitle}>Import Guest Booking</Text>
+            <TextInput
+              label="Email Address"
+              value={lookupEmail}
+              onChangeText={setLookupEmail}
+              mode="outlined"
+              activeOutlineColor={Colors.primary}
+              style={styles.lookupInput}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <TextInput
+              label="Booking Reference (e.g. TL-XXXXXX)"
+              value={lookupRef}
+              onChangeText={setLookupRef}
+              mode="outlined"
+              activeOutlineColor={Colors.primary}
+              style={styles.lookupInput}
+              autoCapitalize="characters"
+            />
+            <Button 
+              mode="contained" 
+              onPress={handleLookup} 
+              loading={isSearching}
+              disabled={isSearching}
+              buttonColor={Colors.charcoal}
+              style={styles.lookupBtn}
+            >
+              FIND & IMPORT
+            </Button>
+          </Surface>
+        )}
       </View>
 
       {isLoading ? (
@@ -247,5 +346,49 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  importBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  importBtnActive: {
+    backgroundColor: Colors.primary,
+  },
+  lookupCard: {
+    marginTop: 16,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: Colors.white,
+  },
+  lookupTitle: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: Colors.charcoal,
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  lookupInput: {
+    marginBottom: 8,
+    backgroundColor: Colors.white,
+  },
+  lookupBtn: {
+    marginTop: 8,
+    borderRadius: 8,
+  },
+  refText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primary,
+    marginBottom: 4,
   },
 });

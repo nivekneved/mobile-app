@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, Image, useWindowDimensions, TouchableOpac
 import { Text, ActivityIndicator, Surface } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../../src/theme/colors';
 import { useServiceDetails } from '../../src/hooks/useServiceDetails';
 import { useRoomTypes, RoomType } from '../../src/hooks/useRoomTypes';
@@ -631,22 +632,22 @@ export default function ServiceDetailScreen() {
             if (customerError) throw customerError;
             if (!customerId) throw new Error('Could not identify or create customer');
 
-            // 2. Prepare payload for the transactional booking RPC (Web-App Parity)
-            // console.log('--- Submitting Mobile Booking ---');
-            // console.log('Payload:', JSON.stringify({
-            //   customer_id: customerId,
-            //   check_in_date: data.checkIn,
-            //   check_out_date: data.checkOut,
-            //   pax_adults: data.paxAdults,
-            //   pax_infants: data.paxInfants,
-            //   pax_children: data.paxChildren,
-            //   pax_teens: data.paxTeens,
-            //   amount: data.totalAmount,
-            //   service_type: service.category || 'General',
-            //   service_name: service.name,
-            //   description: `Room: ${data.roomType}, Meal: ${data.mealPreference}, Special: ${data.specialRequirements}`
-            // }, null, 2));
+            // Cache guest customer ID to AsyncStorage for historical lookup
+            try {
+              const guestIdsString = await AsyncStorage.getItem('guest_customer_ids');
+              let guestIds = [];
+              if (guestIdsString) {
+                guestIds = JSON.parse(guestIdsString);
+              }
+              if (!guestIds.includes(customerId)) {
+                guestIds.push(customerId);
+                await AsyncStorage.setItem('guest_customer_ids', JSON.stringify(guestIds));
+              }
+            } catch (storageErr) {
+              console.error('Failed to save guest customer ID to storage:', storageErr);
+            }
 
+            // 2. Prepare payload for the transactional booking RPC (Web-App Parity)
             const bookingPayload = {
               customer_id: customerId,
               check_in_date: new Date(data.checkIn).toISOString(),
@@ -667,13 +668,8 @@ export default function ServiceDetailScreen() {
                 selected_addons: data.addons // Explicitly capture addons
               },
               description: data.roomType 
-                ? `Booking for ${service.name}. Room: ${data.roomType}. Addons: ${(data.addons || []).join(', ') || 'None'}`
-                : `Booking for ${service.name}. Addons: ${(data.addons || []).join(', ') || 'None'}`,
-              /* PREVIOUS DESCRIPTION PRESERVED AS COMMENT PER USER RULES:
-              description: data.roomType 
-                ? `Booking for ${service.name}. Room: ${data.roomType}. Addons: ${data.addons.join(', ') || 'None'}`
-                : `Booking for ${service.name}. Addons: ${data.addons.join(', ') || 'None'}`,
-              */
+                ? `Booking for ${service.name}. Room: ${data.roomType}. Addons: ${(data.addons || []).join(', ') || 'None'}. Travelers: ${JSON.stringify(data.travelers || [])}`
+                : `Booking for ${service.name}. Addons: ${(data.addons || []).join(', ') || 'None'}. Travelers: ${JSON.stringify(data.travelers || [])}`,
               created_at: new Date().toISOString()
             };
 
@@ -718,7 +714,8 @@ export default function ServiceDetailScreen() {
                   notes: data.specialRequirements,
                   serviceCategory: service.category || 'hotel',
                   isLocalDeal: service.location?.toLowerCase().includes('mauritius') || false,
-                  addons: data.addons // Pass selected addons to notification
+                  addons: data.addons, // Pass selected addons to notification
+                  travelers: data.travelers // Pass travelers list to notification
                 })
               });
             } catch (emailErr) {
