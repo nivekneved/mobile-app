@@ -13,14 +13,14 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.travellounge.mobile",
+      "bundleIdentifier": "com.travellounge.mu",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "versionCode": 3,
-      "package": "com.travellounge.mobile",
+      "package": "com.travellounge.mu",
       "adaptiveIcon": {
         "backgroundColor": "#DC2626",
         "foregroundImage": "./assets/android-icon-foreground.png",
