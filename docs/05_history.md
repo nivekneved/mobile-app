@@ -1885,3 +1885,8 @@
 - **Ecosystem Verification**:
   - Verified using local Next.js dev server that `"MAURITIUS HELICOPTER TEST"` now shows up correctly on the `/activities/land` page.
   - Confirmed 100% build compatibility on Vite (`admin-app`).
+
+## 2026-05-26 — Disabled Popup Ad Manager on Mobile
+- **Popup Ad Manager Dismissal**: Commented out the `<PopupManager />` component in the root layout file `app/_layout.tsx` to disable startup database advertisement popups in the mobile application per user instruction.
+- **Verification**: Verified that the React Native application type checks successfully (`tsc --noEmit`) and lints successfully with zero errors.
+

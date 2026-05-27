@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity, Share } from 'react-native';
+import { View, StyleSheet, ScrollView, Image, useWindowDimensions, TouchableOpacity, Share } from 'react-native';
 import { Text, ActivityIndicator, Surface } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
 import { useServiceDetails } from '../../src/hooks/useServiceDetails';
@@ -27,7 +28,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useWishlist } from '../../src/context/WishlistContext';
 import { stripHtml } from '../../src/utils/textUtils';
 
-const { width } = Dimensions.get('window');
 const HEADER_HEIGHT = 450;
 
 const AMENITY_ICONS: Record<string, any> = {
@@ -87,6 +87,8 @@ function getAmenityIcon(amenity: string) {
 }
 
 export default function ServiceDetailScreen() {
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { mobileConfig, generalConfig } = useSettings();
@@ -586,12 +588,12 @@ export default function ServiceDetailScreen() {
             </View>
           )}
 
-          <View style={{ height: 160 }} />
+          <View style={{ height: 100 + insets.bottom }} />
         </View>
       </ScrollView>
 
       {/* Elite Sticky Footer Conversion */}
-      <Surface style={styles.footerBar} elevation={5}>
+      <Surface style={[styles.footerBar, { height: 74 + insets.bottom, paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }]} elevation={5}>
           <View style={styles.footerInfo}>
               <Text style={styles.footerPriceLabel}>AS FROM</Text>
               <Text style={styles.footerPriceVal}>Rs {service.price?.toLocaleString() || '0'}</Text>
@@ -763,8 +765,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1, 
     shadowRadius: 20, 
     elevation: 5,
-    width: width - 48,
-    alignSelf: 'center'
+    alignSelf: 'stretch'
   },
   actionItem: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 4 },
   actionText: { fontFamily: 'Outfit_900Black', fontSize: 9, color: Colors.charcoal, letterSpacing: 1 },
@@ -832,7 +833,7 @@ const styles = StyleSheet.create({
   journeyTitle: { fontFamily: 'Outfit_900Black', fontSize: 18, color: Colors.charcoal, marginBottom: 8 },
   journeyDesc: { fontFamily: 'Outfit_500Medium', fontSize: 14, color: Colors.slate[500], lineHeight: 22 },
   journeyImage: { width: '100%', height: 180, borderRadius: 20, marginVertical: 12, backgroundColor: Colors.slate[50] },
-  footerBar: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 110, backgroundColor: Colors.white, borderTopWidth: 1, borderTopColor: Colors.border, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 20 },
+  footerBar: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: Colors.white, borderTopWidth: 1, borderTopColor: Colors.border, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   footerInfo: { flex: 1 },
   footerPriceLabel: { fontFamily: 'Outfit_900Black', fontSize: 10, letterSpacing: 1.5, color: Colors.slate[400], textTransform: 'uppercase' },
   footerPriceVal: { fontFamily: 'Outfit_900Black', fontSize: 24, color: Colors.charcoal, letterSpacing: -0.5 },

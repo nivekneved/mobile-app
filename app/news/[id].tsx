@@ -4,7 +4,6 @@ import {
   StyleSheet,
   ScrollView,
   Image,
-  Dimensions,
   TouchableOpacity,
   Share,
 } from 'react-native';
@@ -19,8 +18,6 @@ import { Colors } from '../../src/theme/colors';
 import { ArrowLeft, Share2, Clock, User, Tag } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width } = Dimensions.get('window');
 
 type Post = {
   id: string;

@@ -97,25 +97,25 @@ export default function HomeScreen() {
            <View style={styles.searchBarWrapper}>
              <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
                <MapPin size={18} color={Colors.primary} />
-               <View>
-                 <Text style={styles.searchLabel}>Where to?</Text>
-                 <Text style={styles.searchValue}>Anywhere</Text>
+               <View style={{ flex: 1 }}>
+                 <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">Where to?</Text>
+                 <Text style={styles.searchValue} numberOfLines={1} ellipsizeMode="tail">Anywhere</Text>
                </View>
              </TouchableOpacity>
              <View style={styles.searchDivider} />
              <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
                <CalendarIcon size={18} color={Colors.primary} />
-               <View>
-                 <Text style={styles.searchLabel}>When?</Text>
-                 <Text style={styles.searchValue}>Select Date</Text>
+               <View style={{ flex: 1 }}>
+                 <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">When?</Text>
+                 <Text style={styles.searchValue} numberOfLines={1} ellipsizeMode="tail">Select Date</Text>
                </View>
              </TouchableOpacity>
              <View style={styles.searchDivider} />
              <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
                <Users size={18} color={Colors.primary} />
-               <View>
-                 <Text style={styles.searchLabel}>Guests</Text>
-                 <Text style={styles.searchValue}>Add</Text>
+               <View style={{ flex: 1 }}>
+                 <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">Guests</Text>
+                 <Text style={styles.searchValue} numberOfLines={1} ellipsizeMode="tail">Add</Text>
                </View>
              </TouchableOpacity>
            </View>
@@ -318,14 +318,14 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 5,
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
   },
   searchSegment: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 8,
+    gap: 6,
+    paddingHorizontal: 4,
   },
   searchLabel: {
     fontFamily: 'Outfit_900Black',

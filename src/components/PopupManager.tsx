@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Modal, Image, TouchableOpacity, Dimensions, Linking } from 'react-native';
+import { View, StyleSheet, Modal, Image, TouchableOpacity, Linking } from 'react-native';
 import { Text, IconButton } from 'react-native-paper';
 import { Colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { X, ExternalLink } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { resolveImageUrl } from '../utils/imageUtils';
-
-const { width, height } = Dimensions.get('window');
 
 export const PopupManager = () => {
   const [activeAd, setActiveAd] = useState<any>(null);

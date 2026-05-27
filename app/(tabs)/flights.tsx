@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Text, Surface } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
@@ -7,8 +7,6 @@ import { MessageCircle, Plane, ArrowRight, ShieldCheck, Headphones, MapPin, Spar
 import * as Linking from 'expo-linking';
 import { useSettings } from '../../src/context/SettingsContext';
 import { StatusBar } from 'expo-status-bar';
-
-const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 260;
 
 export default function FlightsScreen() {

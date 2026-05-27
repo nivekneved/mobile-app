@@ -113,7 +113,8 @@ function RootLayoutNav() {
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <PaperProvider theme={theme}>
-        <PopupManager />
+        {/* PopupManager disabled per user request */}
+        {/* <PopupManager /> */}
         <AIConcierge />
         <Stack
           screenOptions={{

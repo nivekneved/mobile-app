@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, Dimensions, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking, ActivityIndicator, TextInput } from 'react-native';
 import { MapPin, Phone, Mail, Facebook, Instagram, MessageCircle, CheckCircle, Loader2 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { resolveImageUrl } from '../utils/imageUtils';
 import { useRouter } from 'expo-router';
-
-const { width } = Dimensions.get('window');
 
 interface GeneralConfig {
   siteTitle?: string;

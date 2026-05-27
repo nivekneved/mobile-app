@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Image, Dimensions, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { StyleSheet, View, Image, useWindowDimensions, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Text, Button, ActivityIndicator, useTheme } from 'react-native-paper';
 import { supabase } from '../lib/supabase';
 import { HeroSlide } from '../hooks/useHomeData';
 import { resolveImageUrl } from '../utils/imageUtils';
 
-const { width } = Dimensions.get('window');
-
 export default function Hero() {
+  const { width } = useWindowDimensions();
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -57,7 +56,7 @@ export default function Hero() {
         scrollEventThrottle={16}
       >
         {slides.map((slide) => (
-          <View key={slide.id} style={styles.slide}>
+          <View key={slide.id} style={[styles.slide, { width }]}>
             <Image
               source={resolveImageUrl(slide.image_url)}
               style={styles.image}
@@ -113,7 +112,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   slide: {
-    width,
     height: 500,
   },
   image: {

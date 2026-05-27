@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Text, ActivityIndicator, Surface } from 'react-native-paper';
 import { useWishlist } from '../../src/context/WishlistContext';
 import { Colors } from '../../src/theme/colors';
@@ -7,8 +7,6 @@ import { Heart, MapPin, Star, Sparkles } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { resolveImageUrl } from '../../src/utils/imageUtils';
-
-const { width } = Dimensions.get('window');
 
 export default function WishlistScreen() {
   const { wishlist, toggleWishlist } = useWishlist();

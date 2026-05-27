@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, useWindowDimensions, KeyboardAvoidingView, Platform } from 'react-native';
 import { Modal, Portal, Text, TextInput, Button, IconButton, Surface, Chip } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,8 +9,6 @@ import { mss } from '../styles/mss';
 import { Calendar, X, CheckCircle, Moon, Clock, Utensils, Users, ArrowRight, ArrowLeft, ShieldCheck, Car, Smartphone, Plus, Trash2, Info } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useServicePricing } from '../hooks/useServicePricing';
-
-const { width } = Dimensions.get('window');
 
 const bookingSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -59,6 +57,7 @@ const AVAILABLE_ADDONS = [
 ];
 
 export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialData }: BookingModalProps) => {
+  const { width } = useWindowDimensions();
   const [currentStep, setCurrentStep] = useState(1);
   const [showCheckInPicker, setShowCheckInPicker] = useState(false);
   const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
@@ -236,7 +235,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
           { label: 'Children', key: 'paxChildren', min: 0 },
           { label: 'Infants', key: 'paxInfants', min: 0 }
         ].map(item => (
-          <View key={item.key} style={styles.occupancyItem}>
+          <View key={item.key} style={[styles.occupancyItem, { width: (width - 60) / 2 }]}>
             <Text style={styles.occLabel}>{item.label}</Text>
             <View style={styles.counterRow}>
               <IconButton 
@@ -440,15 +439,20 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
   return (
     <Portal>
       <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles.modalContainer}>
-        {isSuccess ? renderSuccess() : (
-          <View style={styles.content}>
-            <View style={styles.header}>
-              <View>
-                <Text style={styles.brandBadge}>ELITE CONCIERGE</Text>
-                <Text style={styles.title}>{service.name}</Text>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
+          {isSuccess ? renderSuccess() : (
+            <View style={styles.content}>
+              <View style={styles.header}>
+                <View style={{ flex: 1, marginRight: 16 }}>
+                  <Text style={styles.brandBadge}>ELITE CONCIERGE</Text>
+                  <Text style={styles.title} numberOfLines={2}>{service.name}</Text>
+                </View>
+                <IconButton icon="close" onPress={onDismiss} />
               </View>
-              <IconButton icon="close" onPress={onDismiss} />
-            </View>
 
             {renderStepIndicator()}
 
@@ -518,6 +522,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
             }}
           />
         )}
+        </KeyboardAvoidingView>
       </Modal>
     </Portal>
   );
@@ -552,7 +557,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '900',
     color: Colors.charcoal,
-    maxWidth: width * 0.7,
   },
   stepIndicator: {
     flexDirection: 'row',
@@ -654,7 +658,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   occupancyItem: {
-    width: (width - 60) / 2,
     backgroundColor: '#F8F9FA',
     borderRadius: 16,
     padding: 16,
