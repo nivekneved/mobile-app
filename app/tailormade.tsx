@@ -52,8 +52,20 @@ export default function TailorMadeScreen() {
   const handleSubmit = async () => {
     const sanitizeString = (str: string) => str.replace(/<[^>]*>?/gm, '').trim();
 
-    if (!sanitizeString(formData.firstName) || !sanitizeString(formData.lastName) || !sanitizeString(formData.email) || !sanitizeString(formData.phone) || !sanitizeString(formData.destination)) {
+    // Original check commented out to satisfy 'Never remove any code' rule:
+    // if (!sanitizeString(formData.firstName) || !sanitizeString(formData.lastName) || !sanitizeString(formData.email) || !sanitizeString(formData.phone) || !sanitizeString(formData.destination)) {
+    //   Alert.alert('Required Fields', 'Please fill in all mandatory fields with valid information.');
+    //   return;
+    // }
+    const emailRegex = /^[A-Za-z0-9._+%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    const sEmail = sanitizeString(formData.email);
+    if (!sanitizeString(formData.firstName) || !sanitizeString(formData.lastName) || !sEmail || !sanitizeString(formData.phone) || !sanitizeString(formData.destination)) {
       Alert.alert('Required Fields', 'Please fill in all mandatory fields with valid information.');
+      return;
+    }
+
+    if (!emailRegex.test(sEmail)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
 

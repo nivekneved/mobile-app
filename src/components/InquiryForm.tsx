@@ -31,8 +31,18 @@ export default function InquiryForm({ visible, onDismiss, serviceId, serviceName
     const sMessage = sanitizeString(message);
     const sPhone = sanitizeString(phone);
 
+    // Original check commented out to satisfy 'Never remove any code' rule:
+    // if (!sName || !sEmail || !sMessage) {
+    //   Alert.alert('Missing Fields', 'Please fill in all required fields (Name, Email, Message).');
+    //   return;
+    // }
+    const emailRegex = /^[A-Za-z0-9._+%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     if (!sName || !sEmail || !sMessage) {
       Alert.alert('Missing Fields', 'Please fill in all required fields (Name, Email, Message).');
+      return;
+    }
+    if (!emailRegex.test(sEmail)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
 
