@@ -7,8 +7,10 @@ import { MapPin, Calendar, Clock, ChevronRight, Plane, Search, Plus } from 'luci
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { supabase } from '../../src/lib/supabase';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function BookingsScreen() {
+  const insets = useSafeAreaInsets();
   const { bookings, isLoading, error, addGuestCustomerId } = useCustomerBookings();
   const router = useRouter();
 
@@ -140,7 +142,7 @@ export default function BookingsScreen() {
   return (
     <View style={styles.root}>
       <StatusBar style="dark" />
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 16 : 40 }]}>
         <View style={styles.headerRow}>
           <View>
             <Text variant="headlineMedium" style={styles.title}>My Bookings</Text>
@@ -214,7 +216,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   header: {
-    paddingTop: 80,
     paddingHorizontal: 24,
     paddingBottom: 24,
     backgroundColor: Colors.white,

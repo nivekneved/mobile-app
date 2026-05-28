@@ -53,6 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
+          headerShown: false,
           title: 'Explore',
           tabBarIcon: ({ color }) => <Search size={24} color={color} />,
         }}
@@ -60,6 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="flights"
         options={{
+          headerShown: false,
           title: 'Flights',
           tabBarIcon: ({ color }) => <Plane size={24} color={color} />,
         }}
@@ -67,6 +69,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="wishlist"
         options={{
+          headerShown: false,
           title: 'Wishlist',
           tabBarIcon: ({ color }) => <Heart size={24} color={color} />,
         }}
@@ -74,6 +77,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="bookings"
         options={{
+          headerShown: false,
           title: 'Bookings',
           tabBarIcon: ({ color }) => <Calendar size={24} color={color} />,
         }}
@@ -89,6 +93,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="news"
         options={{
+          headerShown: false,
           title: 'Insights',
           tabBarIcon: ({ color }) => <Newspaper size={24} color={color} />,
         }}

@@ -13,10 +13,12 @@ import { validateOccupancy, validateAmenities, FilterState } from '../../src/uti
 import { ServiceCard } from '../../src/components/ServiceCard';
 import { InteractiveMap } from '../../src/components/InteractiveMap';
 import { Map as MapIcon, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 
 export default function ExploreScreen() {
+  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
@@ -107,7 +109,7 @@ export default function ExploreScreen() {
   return (
     <View style={styles.root}>
       <StatusBar style="dark" />
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 16 : 40 }]}>
         <Text variant="headlineMedium" style={styles.title}>Explore</Text>
         <View style={styles.searchContainer}>
           <Search size={20} color={Colors.textSecondary} style={styles.searchIcon} />
@@ -211,7 +213,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   header: {
-    paddingTop: 80,
     paddingHorizontal: 24,
     paddingBottom: 20,
     backgroundColor: Colors.white,

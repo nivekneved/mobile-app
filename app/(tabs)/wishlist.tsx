@@ -7,8 +7,10 @@ import { Heart, MapPin, Star, Sparkles } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { resolveImageUrl } from '../../src/utils/imageUtils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function WishlistScreen() {
+  const insets = useSafeAreaInsets();
   const { wishlist, toggleWishlist } = useWishlist();
   const router = useRouter();
 
@@ -85,7 +87,7 @@ export default function WishlistScreen() {
   return (
     <View style={styles.root}>
       <StatusBar style="dark" />
-      <View style={styles.screenHeader}>
+      <View style={[styles.screenHeader, { paddingTop: insets.top > 0 ? insets.top + 16 : 40 }]}>
         <Text style={styles.screenTitle}>My Wishlist</Text>
         <Text style={styles.screenSubtitle}>{wishlist.length} saved experiences</Text>
       </View>
@@ -108,7 +110,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   screenHeader: {
-    paddingTop: 80,
     paddingHorizontal: 24,
     paddingBottom: 24,
     backgroundColor: '#FFFFFF',

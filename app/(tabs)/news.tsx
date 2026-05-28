@@ -3,11 +3,11 @@ import {
   View,
   StyleSheet,
   FlatList,
-  SafeAreaView,
   Image,
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { 
   ActivityIndicator, 
@@ -31,6 +31,7 @@ type Post = {
 };
 
 export default function NewsScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,7 +119,7 @@ export default function NewsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <FlatList
         data={posts}
         renderItem={renderPostItem}
@@ -128,7 +129,7 @@ export default function NewsScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#DC2626" />
         }
         ListHeaderComponent={
-          <View style={styles.header}>
+          <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 16 : 24 }]}>
             <Text style={styles.preHeader}>EDITORIAL</Text>
             <Text style={styles.mainHeader}>Travel Insights</Text>
           </View>
@@ -139,7 +140,7 @@ export default function NewsScreen() {
           </View>
         }
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -150,7 +151,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 24,
-    paddingVertical: 32,
+    paddingBottom: 32,
     backgroundColor: '#FFF',
     marginBottom: 16,
   },
