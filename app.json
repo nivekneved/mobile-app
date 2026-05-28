@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "versionCode": 3,
+      "versionCode": 4,
       "package": "com.travellounge.mu",
       "adaptiveIcon": {
         "backgroundColor": "#DC2626",
