@@ -58,3 +58,7 @@ coverage/
 *.mobileprovision
 *.com.apple.InterfaceBuilder.v3.plist
 eas-build-err.txt
+
+# Runtime-generated / dev-only files
+agent.md
+scratch/
