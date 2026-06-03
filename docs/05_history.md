@@ -1,5 +1,23 @@
 # Development Log
 
+## 2026-06-03 — Email Pricing Row Fix, Document Consolidation & Gitignore Optimization
+- **Email Booking Price Fix**:
+  - [update_email_templates.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/web-app/scripts/update_email_templates.ts): Added the missing "Estimated Price" row displaying `{{total_price}}` to the `RESERVATION_DETAILS_TABLE`.
+  - Executed `npx tsx scripts/update_email_templates.ts` to update the active templates in the live Supabase database.
+- **Database Backup Verification**:
+  - [generate_comprehensive_backup.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/web-app/scripts/generate_comprehensive_backup.ts): Corrected database backup paths for `infrastructure.sql` and `policies.sql` to reference the root `supabase/` folder directly.
+  - Successfully regenerated the comprehensive database backup [tl_comprehensive_backup.sql](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/admin-app/supabase/tl_comprehensive_backup.sql).
+- **Document Consolidation & Alignment**:
+  - Synchronized all unified markdown files (`01_overview.md` to `11_mobile_roadmap.md`, `PROJECT_ISOLATION.md`, `MIGRATION_GUIDE.md`) across root `docs/` and all three sub-apps' `docs/` directories.
+  - Created a master developer log by merging 84 unique sessions from `web-app`, `admin-app`, and `mobile-app` into `docs/05_history.md`.
+- **Gitignore Optimization (File Retention)**:
+  - Ensured no files or folders are physically deleted. Instead, untracked obsolete/duplicate documentation files from sub-apps are ignored in `.gitignore` files (`web-app/.gitignore`, `admin-app/.gitignore`, `mobile-app/.gitignore`) while keeping them intact in the local filesystem.
+- **Verification**:
+  - Dispatched 12/12 comprehensive test emails successfully to verify pricing rendering.
+  - Compiled and built both `web-app` (Next.js/Turbopack) and `admin-app` (Vite) successfully with zero compiler or lint errors.
+
+---
+
 ## 2026-06-03 — Tamassa Resorts Family Room Occupancy Pricing Fix
 - **Database Occupancy Price Migration**:
   - Created [migrate_tamassa_occupancy.cjs](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/admin-app/scripts/migrate_tamassa_occupancy.cjs): Migrated 754 pricing records for `TAMASSA FAMILY ROOM` (max 2 adults capacity) and `TAMASSA ROOM` in Supabase. Copied pricing from invalid triple occupancy tier (`"3"`) to double occupancy tier (`"2"`) and removed the invalid key `"3"` to match the room capacity constraints.
