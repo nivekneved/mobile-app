@@ -62,3 +62,7 @@ eas-build-err.txt
 # Runtime-generated / dev-only files
 agent.md
 scratch/
+
+# Obsolete docs kept locally but ignored
+/docs/11_mobile_parity_audit.md
+

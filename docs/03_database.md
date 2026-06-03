@@ -1,39 +1,58 @@
 # 03 Database Schema (PostgreSQL)
 
-> [!NOTE]
-> The canonical Database Schema is maintained in the **web-app** repository to avoid duplication.
-> Please refer to: **[web-app/docs/03_database.md](../../web-app/docs/03_database.md)**
+## Core Relational Tables
+Travel Lounge 2026 utilizes a high-integrity relational schema optimized for multi-occupancy travel services and daily pricing grids.
+
+### 1. `services`
+The authoritative catalog for all travel offerings.
+- **Key Columns**: `id`, `name`, `description`, `service_type`, `activity_type`, `location`, `region`.
+- **Media**: `image_url`, `banner_url`, `thumbnail_url`, `gallery_images` (TEXT[]).
+- **Metadata**: `itinerary`, `highlights`, `included`, `not_included`, `meal_plans` (all JSONB).
+- **Flags**: `is_active`, `is_seasonal_deal`, `is_coming_soon`, `featured`.
+- **Policy**: `cancellation_policy`, `terms_and_conditions`.
+- **Capacity**: `max_adults`, `max_children`, `child_age_limit`.
+
+### 2. `room_types` (Variants)
+Defines specific configurations or room categories for a parent service.
+- **Key Columns**: `id`, `service_id`, `name`, `description`, `image_url`.
+- **Occupancy Constraints**: `max_adults`, `max_teens`, `max_children`, `max_infants`, `max_occupancy`.
+- **Rules**: `min_stay_days`, `meal_plan`, `service_fee`.
+
+### 3. `service_pricing` (The Pricing Grid)
+The central engine for seasonal overrides, daily availability, and tiered pricing.
+- **Key Columns**: `service_id`, `variant_id` (Room Type), `date_from`, `date_to`, `price` (Adult Selling).
+- **Tiered Pricing**: `price_teen`, `price_child`, `price_infant`.
+- **Net Pricing**: `net_price`, `net_price_teen`, `net_price_child`, `net_price_infant`.
+- **Occupancy Mapping**: `occupancy_pricing` (JSONB) for mapping rates to specific counts (e.g., {"1": {"price": 5000}, "2": {"price": 8500}}).
+- **Availability**: `units_available`, `is_stop_sell`.
+- **Supplements**: `meal_plan_id`.
+
+### 4. `bookings`
+Transactional tracking of reservations with auto-calculating totals.
+- **Key Columns**: `customer_id`, `service_name`, `service_type`, `check_in_date`, `check_out_date`.
+- **Calculations**: `amount`, `tax_amount`, `total_price` (Generated: `amount + tax_amount`).
+- **Status**: `status` (Pending, Confirmed, Cancelled), `payment_status`.
+
+### 5. `site_settings`
+Global configuration hub for administrative control.
+- **Structure**: `key` (PK), `value` (JSONB), `category`.
+- **Usage**: Toggles for `popupAdsActive`, `searchBarVisible`, SMTP credentials, and social media URLs.
+
+### 6. `popup_ads`
+Promotional engine for high-conversion flash sales.
+- **Key Columns**: `title`, `content`, `media_url`, `media_type`.
 
 ---
 
-## Mobile App — Supabase Usage Notes
+## Security & Access (RLS)
+Row Level Security is strictly enforced via Supabase:
+- **Public**: `SELECT` access to `services`, `service_pricing`, `categories`, and `cms_pages`.
+- **Authenticated (Admin)**: Full `ALL` access to manage the ecosystem.
+- **Authenticated (User)**: `SELECT`/`UPDATE` access restricted to their own `profiles` and `bookings`.
 
-The Mobile App is a **read-heavy consumer** of the shared Supabase backend.
+---
 
-### Key Tables Consumed
-| Table | Usage |
-|---|---|
-| `services` | Listing pages, detail pages, search |
-| `service_pricing` | Room pricing display in booking modal |
-| `room_types` | Room type cards with meal plan display |
-| `cms_content` | Hero carousel content, CMS sections |
-| `site_settings` | App branding, WhatsApp number, contact info |
-| `bookings` | Customer booking history (authenticated) |
-| `editorial_posts` | Insights/News section |
-| `popup_ads` | Promotional modals on launch |
-
-### RPCs Used
-- **`get_or_create_customer_v1`** — Upserts a customer profile before booking.
-- **`create_booking_v1`** — Atomic booking creation with item insertion.
-
-### Environment Variables
-```env
-EXPO_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-EXPO_PUBLIC_API_URL=https://<web-app>.vercel.app
-```
-
-### Auth Pattern
-- Anonymous users can browse and submit bookings.
-- Authenticated users see their personal booking history.
-- No admin-level operations are performed from the mobile app.
+## Authoritative Logic (RPC)
+- **`calculate_lead_price`**: Database-side logic for extracting the lowest available price for a service.
+- **`create_booking_v1`**: Atomically creates booking records and handles customer unification.
+- **`get_table_columns`**: Diagnostic helper for schema discovery.

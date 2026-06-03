@@ -1,19 +1,19 @@
-# Travel Lounge Ecosystem: Professional Sales Kit
+# 09 Sales Kit & Monetization Strategy
 
-> [!NOTE]
-> The canonical Sales Kit is maintained in the **web-app** repository to avoid duplication.
-> Please refer to: **[web-app/docs/09_sales_kit.md](../../web-app/docs/09_sales_kit.md)**
+## Sales Kit & Lead Generation
+The Travel Lounge platform is commercialized as a premium Multi-tenant Travel SaaS ERP system designed to optimize travel agency operations.
+
+- **Leads Directory**: Authoritative lead lists are preserved in the root documentation directory:
+  - [Cleaned Prospects Data File (CSV)](file:///C:/Users/deven/Desktop/Travel%20Lounge%202026/docs/cleaned_prospects.csv)
+  - [Cleaned Prospects Reference (Markdown)](file:///C:/Users/deven/Desktop/Travel%20Lounge%202026/docs/cleaned_prospects.md)
 
 ---
 
-## Quick Reference (Mobile Context)
+## Monetization Playbooks
+The commercial playbook is documented in:
+- [Commercialization and Monetization Strategy](file:///C:/Users/deven/Desktop/Travel%20Lounge%202026/docs/monetization_strategy.md)
 
-The Mobile App is **The Pocket Concierge** of the Travel Lounge ecosystem:
-
-- **On-the-Go Discovery** — Glassmorphism-enhanced listing pages with floating CTAs for immediate WhatsApp/Email inquiry.
-- **Hero Carousel** — Reanimated-driven banners with actionable navigation to destination routes.
-- **Booking Modal** — Transactional RPC integration (`create_booking_v1`) with meal plan display.
-- **Real-Time Itineraries** — 100% Supabase-synchronized booking status and timeline.
-- **Performance Optimized** — `expo-image` with server-side resizing for variable network conditions.
-
-For the full ecosystem Sales Kit, see the canonical document linked above.
+### Three Core Commercial Models
+1. **White-Label Enterprise**: Fully customized deployments for high-volume local agencies.
+2. **Multi-Tenant SaaS**: Tier-based monthly subscriptions for boutique travel planners.
+3. **Airport Transfer Console**: Modular access for transport companies to automate bookings.

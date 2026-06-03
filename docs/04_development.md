@@ -1,65 +1,70 @@
-# 04 Development & DevOps Guide
+# 04 Development Guide & Workspace Setup
 
-## Local Setup
-1. **System Requirements**: Node.js 18+ LTS, Expo CLI.
-2. **Dependencies**:
-   ```bash
-   npm install
-   ```
-3. **Launch**:
-   ```bash
-   npx expo start
-   ```
+## Getting Started
+
+### 1. Clone the Project
+The project contains three sub-applications inside the `apps/` directory:
+- `apps/web-app` (Guest Next.js App)
+- `apps/admin-app` (Vite Admin App)
+- `apps/mobile-app` (Expo Mobile App)
+
+### 2. Install Dependencies
+Run `npm install` inside the respective application folders:
+```bash
+cd apps/web-app && npm install
+cd ../admin-app && npm install
+cd ../mobile-app && npm install
+```
 
 ---
 
-## Environment Configuration
-Configure `.env` with the following variables for local development:
+## Common Development Commands
+
+### Web App (web-app/)
+```bash
+cd apps/web-app
+npm run dev          # Start development server
+npm run build        # Production compile build check
+npm run lint         # Check lints
+```
+
+### Admin App (admin-app/)
+```bash
+cd apps/admin-app
+npm run dev          # Start Vite dev server
+npm run build        # Production build compile
+npm run lint         # Check lints
+```
+
+### Mobile App (mobile-app/)
+```bash
+cd apps/mobile-app
+npx expo start       # Start Expo bundler
+npx expo prebuild    # Generate native code (iOS/Android)
+```
+
+---
+
+## Environment Configuration (.env.local)
+
+### web-app
 ```env
-EXPO_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-EXPO_PUBLIC_API_URL=https://<web-app>.vercel.app
+NEXT_PUBLIC_SUPABASE_URL=https://tbyudagfjspedeqtlgjv.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+```
+
+### admin-app
+```env
+VITE_SUPABASE_URL=https://tbyudagfjspedeqtlgjv.supabase.co
+VITE_SUPABASE_ANON_KEY=...
 ```
 
 ---
 
-## EAS Build & Deployment
-- **Account**: `devenweb` (devenpawaray@gmail.com).
-- **Pre-Build Checks**:
-  - Re-link project: `eas init`
-  - Ensure `app.json` has `owner: "devenweb"`.
-- **Android APK Build (Preview)**:
-  ```bash
-  npx eas build --profile preview --platform android
-  ```
-- **Production iOS Build**:
-  ```bash
-  npx eas build --profile production --platform ios
-  ```
-
----
-
-## Troubleshooting
-
-### Android Device Authorization Error
-If the device shows "not authorized" when connecting via Expo Go:
-```bash
-npx expo start --localhost
-```
-This forces a local tunnel that bypasses the authorization check. Alternatively, open Expo Go on the device, scan the QR code, and approve the prompt.
-
-### `react-native-screens` Patch Conflict
-Current version: **4.4.0**. If `patch-package` fails during `npm install`:
-```bash
-npx patch-package react-native-screens
-```
-This regenerates the patch file for the current installed version.
-
-### AAPT Build Errors
-- Do **not** name JPEG files with `.png` extensions — EAS will fail during Android resource merging.
-- Check `lib/imageUtils.ts` if images or icons are missing in production builds.
-
-### Metro Bundler Cache Issues
-```bash
-npx expo start --clear
-```
+## Code Quality Standards
+- **Components**: PascalCase filenames (e.g., `BookingWizard.tsx`).
+- **Utilities**: camelCase filenames.
+- **Constants**: UPPER_SNAKE_CASE naming.
+- **Comments**: Maintain inline code comments coverage $\ge 10\%$.
+- **Database Modifiers**: Avoid direct database writes from the UI; route actions through checked services or Supabase transactions.
