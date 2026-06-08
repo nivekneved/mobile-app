@@ -1,5 +1,19 @@
 import React, { useEffect, useCallback } from 'react';
-import { Platform } from 'react-native';
+import { Platform, Text as RNText, TextInput as RNTextInput } from 'react-native';
+
+// GLOBAL FIX: Cap system font scaling to maintain pixel-perfect UI designs
+interface TextWithDefaultProps extends RNText {
+    defaultProps?: { maxFontSizeMultiplier?: number };
+}
+interface TextInputWithDefaultProps extends RNTextInput {
+    defaultProps?: { maxFontSizeMultiplier?: number };
+}
+
+((RNText as unknown) as TextWithDefaultProps).defaultProps = ((RNText as unknown) as TextWithDefaultProps).defaultProps || {};
+((RNText as unknown) as TextWithDefaultProps).defaultProps!.maxFontSizeMultiplier = 1.1;
+
+((RNTextInput as unknown) as TextInputWithDefaultProps).defaultProps = ((RNTextInput as unknown) as TextInputWithDefaultProps).defaultProps || {};
+((RNTextInput as unknown) as TextInputWithDefaultProps).defaultProps!.maxFontSizeMultiplier = 1.1;
 
 // POLYFILL: Hermes in some environments (SDK 52) may lack WeakRef
 // L-05 FIX: Use WeakRef with proper GC behavior via FinalizationRegistry if available

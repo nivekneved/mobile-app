@@ -2,7 +2,7 @@
   "expo": {
     "name": "Travel Lounge",
     "slug": "mobile-app",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "versionCode": 4,
+      "versionCode": 5,
       "package": "com.travellounge.mu",
       "adaptiveIcon": {
         "backgroundColor": "#DC2626",
