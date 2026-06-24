@@ -20,6 +20,15 @@ function isConfiguredOverride(r) {
   return false;
 }
 
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+  return dateStr;
+}
+
 // Replicate hook calculation logic for exact parity simulation
 async function calculatePricing(req) {
   const { serviceId, variantId, startDate, endDate, participants, baseRates, isPerNight: reqIsPerNight } = req;
@@ -267,7 +276,7 @@ async function runScenarios() {
       isPerNight: true
     });
     console.log(`Hotel: "${resNormal.serviceName}"`);
-    console.log(`Booking Period: 2026-08-01 to 2026-08-04 (${resNormal.nights} Nights)`);
+    console.log(`Booking Period: ${formatDate('2026-08-01')} to ${formatDate('2026-08-04')} (${resNormal.nights} Nights)`);
     console.log(`Participants: 2 Adults`);
     console.log(`Calculated Total: Rs ${resNormal.total.toLocaleString()}`);
     console.log(`Availability Status: ${resNormal.availabilityStatus.isAvailable ? 'AVAILABLE' : 'STOP_SELL'}`);
@@ -292,7 +301,7 @@ async function runScenarios() {
     
     console.log(`Daily Rates:`);
     resStopSell.dailyRates.forEach(r => {
-      console.log(`  - Date: ${r.date} | Rate: Rs ${r.adult} | Stop Sell: ${r.is_stop_sell ? 'YES (BLOCKED)' : 'NO'}`);
+      console.log(`  - Date: ${formatDate(r.date)} | Rate: Rs ${r.adult} | Stop Sell: ${r.is_stop_sell ? 'YES (BLOCKED)' : 'NO'}`);
     });
     console.log(`Availability Status: ${resStopSell.availabilityStatus.isAvailable ? 'AVAILABLE' : 'STOP_SELL (BLOCKED)'}`);
     console.log(`Reason: ${resStopSell.availabilityStatus.reason}`);
@@ -315,7 +324,7 @@ async function runScenarios() {
     console.log(`Tour: "${resTour.serviceName}" (Type: ${resTour.serviceType}, Override: ${resTour.pricingModelOverride})`);
     console.log(`Lodging Status (isHotel): ${resTour.isHotel}`);
     console.log(`Booking: 2 Adults`);
-    console.log(`Daily Rates details:`, resTour.dailyRates.map(r => ({ date: r.date, adultRate: r.adult, source: r.source })));
+    console.log(`Daily Rates details:`, resTour.dailyRates.map(r => ({ date: formatDate(r.date), adultRate: r.adult, source: r.source })));
     console.log(`Calculated Total: Rs ${resTour.total.toLocaleString()} (Correctly evaluated as per-person)`);
     console.log(`Revenue Protected vs Flat Room Rate (Rs 23,800): YES! Saved Rs ${(resTour.total - 23800).toLocaleString()}`);
   } catch (err) {
@@ -340,7 +349,7 @@ async function runScenarios() {
     });
     console.log(`Single Booking (1 Adult):`);
     console.log(`- Service: "${resSingle.serviceName}"`);
-    console.log(`- Daily Rates:`, resSingle.dailyRates.map(r => ({ date: r.date, rate: r.adult })));
+    console.log(`- Daily Rates:`, resSingle.dailyRates.map(r => ({ date: formatDate(r.date), rate: r.adult })));
     console.log(`- Total Cost: Rs ${resSingle.total.toLocaleString()}`);
 
     // 3.2: Double Adult Occupancy Booking
@@ -354,7 +363,7 @@ async function runScenarios() {
       isPerNight: true
     });
     console.log(`\nDouble Booking (2 Adults):`);
-    console.log(`- Daily Rates:`, resDouble.dailyRates.map(r => ({ date: r.date, rate: r.adult })));
+    console.log(`- Daily Rates:`, resDouble.dailyRates.map(r => ({ date: formatDate(r.date), rate: r.adult })));
     console.log(`- Total Cost: Rs ${resDouble.total.toLocaleString()}`);
   } catch (err) {
     console.error('Scenario 3 failed:', err);
