@@ -109,7 +109,7 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
             .not('meal_plan_id', 'is', null) : Promise.resolve({ data: null, error: null }),
           supabase
             .from('services')
-            .select('meal_plans')
+            .select('meal_plans, service_type, pricing_model_override')
             .eq('id', serviceId)
             .single()
         ]);
@@ -118,6 +118,11 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
 
         if (overridesRes.error) throw overridesRes.error;
         const overrides = overridesRes.data || [];
+
+        const serviceDetails = serviceRes.data;
+        const isHotel = serviceDetails?.pricing_model_override 
+          ? serviceDetails.pricing_model_override === 'hotel' 
+          : serviceDetails?.service_type === 'hotel';
 
         const start = new Date(startDate);
         const end = new Date(endDate);
@@ -161,7 +166,9 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
             }
           }
 
-          const isPerNight = activePricing ? activePricing.price_type === 'per_night' : !!reqIsPerNight;
+          // PRESERVED: Old isPerNight logic
+          // const isPerNight = activePricing ? activePricing.price_type === 'per_night' : !!reqIsPerNight;
+          const isPerNight = isHotel && (activePricing ? activePricing.price_type === 'per_night' : !!reqIsPerNight);
 
           const rates: DailyRate = {
             date: currentDateStr,

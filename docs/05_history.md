@@ -1,6 +1,6 @@
 # Development Log
 
-## 2026-06-24 — Booking Add-ons & Parity Integration
+## 2026-06-24 — Booking Add-ons, Parity Integration & Pricing Engine Safety Alignment
 - **Occupancy-Based Booking Add-ons**:
   - [BookingModal.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/BookingModal.tsx): Configured mock add-ons (Airport Transfer, SIM Card, Spa Voucher, Early Check-in) with flat vs. per-person multipliers.
   - Updated `calculateTotal()` to dynamically scale per-person add-on prices by the total traveler count, while maintaining flat-rate charges.
@@ -10,8 +10,16 @@
   - Wired canGoBack/canGoForward disable handlers based on browser state changes.
 - **Advanced Search Matching**:
   - [useSearchServices.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useSearchServices.ts): Upgraded Supabase query matching logic from name-only matching to check name, location, region, short_description, and description.
+- **Pricing Engine Safety Alignment**:
+  - [useServicePricing.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useServicePricing.ts): Aligned the mobile pricing hook safety checks with the web app to resolve the group tour pricing discrepancy & revenue leakage issue.
+  - Selected `service_type` and `pricing_model_override` fields from the `services` table.
+  - Configured lodging status (`isHotel`) and restricted the `isPerNight` calculation to only apply when the service is a hotel/lodging:
+    `const isPerNight = isHotel && (activePricing ? activePricing.price_type === 'per_night' : !!reqIsPerNight);`
+  - Preserved the legacy `isPerNight` check within inline commented structures using a `// PRESERVED:` tag.
 - **Validation**:
   - Validated all code paths, achieving 0 ESLint errors.
+  - Ran typecheck (`tsc --noEmit`) with 0 errors and linting checks (`npm run lint`) with 0 errors.
+  - Validated that a simulated double-occupancy booking for Rodrigues tour property "Villa Ti Zil" (with `price_type` set to `'per_night'`) correctly evaluates to a per-person rate of Rs 47,600 (instead of flat Rs 23,800), saving Rs 23,800 in pricing leakage.
 
 ---
 
