@@ -48,11 +48,13 @@ export default function HomeScreen() {
   
   const { heroSlides, categories, destinations, featuredServices, isLoading } = useHomeData();
   const { mobileConfig, generalConfig, contentBlocks } = useSettings();
+  const labels = generalConfig?.ui_labels || {};
   const router = useRouter();
 
   const handleInquiry = (method: 'whatsapp' | 'email' | 'call') => {
     const contact = {
-      phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5940 7701',
+      // PRESERVED: phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5940 7701',
+      phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5509 7701',
       email: generalConfig?.contactEmail || 'office@travel-lounge.com'
     };
     if (method === 'whatsapp') Linking.openURL(`https://wa.me/${contact.phone.replace(/\+/g, '')}`);
@@ -98,100 +100,103 @@ export default function HomeScreen() {
              <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
                <MapPin size={18} color={Colors.primary} />
                <View style={{ flex: 1 }}>
-                 <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">Where to?</Text>
-                 <Text style={styles.searchValue} numberOfLines={1} ellipsizeMode="tail">Anywhere</Text>
+                 <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">{labels.search_destination_label || 'Where to?'}</Text>
+                 <Text style={styles.searchValue} numberOfLines={1} ellipsizeMode="tail">{labels.search_destination_value || 'Anywhere'}</Text>
                </View>
              </TouchableOpacity>
              <View style={styles.searchDivider} />
              <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
                <CalendarIcon size={18} color={Colors.primary} />
                <View style={{ flex: 1 }}>
-                 <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">When?</Text>
-                 <Text style={styles.searchValue} numberOfLines={1} ellipsizeMode="tail">Select Date</Text>
+                 <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">{labels.search_when_label || 'When?'}</Text>
+                 <Text style={styles.searchValue} numberOfLines={1} ellipsizeMode="tail">{labels.search_when_value || 'Select Date'}</Text>
                </View>
              </TouchableOpacity>
              <View style={styles.searchDivider} />
              <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
                <Users size={18} color={Colors.primary} />
                <View style={{ flex: 1 }}>
-                 <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">Guests</Text>
-                 <Text style={styles.searchValue} numberOfLines={1} ellipsizeMode="tail">Add</Text>
+                 <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">{labels.search_guests_label || 'Guests'}</Text>
+                 <Text style={styles.searchValue} numberOfLines={1} ellipsizeMode="tail">{labels.search_guests_value || 'Add'}</Text>
                </View>
              </TouchableOpacity>
            </View>
 
            <View style={styles.servicesHeader}>
-              <Text style={styles.labelTitle}>OUR SERVICES</Text>
-              <Text style={[styles.sectionTitle, { fontSize: 32 }]}>Helping You Plan{"\n"}<Text style={{color: Colors.slate[300]}}>Perfect Holidays.</Text></Text>
+              <Text style={styles.labelTitle}>{labels.our_services || 'OUR SERVICES'}</Text>
+              <Text style={[styles.sectionTitle, { fontSize: 32 }]}>
+                 {labels.helping_you_plan_title || 'Helping You Plan'}{"\n"}
+                 <Text style={{color: Colors.slate[300]}}>{labels.helping_you_plan_subtitle || 'Perfect Holidays.'}</Text>
+              </Text>
            </View>
+        </View>
 
-           {/* Mobile Elite Category Slider (Reference Image Align) */}
-           <View style={styles.categoriesWrapper}>
-              <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false} 
-                contentContainerStyle={styles.categoryScroll}
-              >
-                {categories.length > 0 ? [
-                  ...categories.filter(cat => cat.slug !== 'activities'),
-                  ...(!categories.find(c => c.slug === 'sea-activities') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea', image_url: '' }] : []),
-                  ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land', image_url: '' }] : [])
-                ].map((cat: any) => (
-                  <CategoryCard 
-                    key={cat.id} 
-                    name={cat.name} 
-                    slug={cat.slug}
-                    image_url={cat.image_url} 
-                    onPress={() => {
-                      if (cat.slug === 'flights') {
-                        router.push('/flights');
-                      } else {
-                        router.push({
-                          pathname: '/explore',
-                          params: { category: cat.slug }
-                        });
-                      }
-                    }} 
-                  />
-                )) : [1,2,3,4].map(k => <View key={k} style={[styles.categorySkeleton, {width: 156, height: 240}]} />)}
-              </ScrollView>
-           </View>
+        {/* Mobile Elite Category Slider (Reference Image Align) */}
+        <View style={styles.categoriesWrapper}>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false} 
+              contentContainerStyle={styles.categoryScroll}
+            >
+              {categories.length > 0 ? [
+                ...categories.filter(cat => cat.slug !== 'activities'),
+                ...(!categories.find(c => c.slug === 'sea-activities') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea', image_url: '' }] : []),
+                ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land', image_url: '' }] : [])
+              ].map((cat: any) => (
+                <CategoryCard 
+                  key={cat.id} 
+                  name={cat.name} 
+                  slug={cat.slug}
+                  image_url={cat.image_url} 
+                  onPress={() => {
+                    if (cat.slug === 'flights') {
+                      router.push('/flights');
+                    } else {
+                      router.push({
+                        pathname: '/explore',
+                        params: { category: cat.slug }
+                      });
+                    }
+                  }} 
+                />
+              )) : [1,2,3,4].map(k => <View key={k} style={[styles.categorySkeleton, {width: 156, height: 240}]} />)}
+            </ScrollView>
+        </View>
 
-           {/* Premium Quick Filters (Restored with Better UI) */}
-           <View style={styles.quickFiltersContainer}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickFiltersScroll}>
-                <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#FEF2F2' }]} onPress={() => router.push('/explore?benefits=all-inclusive')}>
-                  <View style={[styles.quickFilterIcon, { backgroundColor: Colors.primary }]}>
-                    <Sparkles size={18} color={Colors.white} />
-                  </View>
-                  <View>
-                    <Text style={styles.quickFilterLabel}>ALL-INCLUSIVE</Text>
-                    <Text style={styles.quickFilterSublabel}>Luxury Stays</Text>
-                  </View>
-                </TouchableOpacity>
+        {/* Premium Quick Filters (Restored with Better UI) */}
+        <View style={styles.quickFiltersContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickFiltersScroll}>
+            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#FEF2F2' }]} onPress={() => router.push('/explore?benefits=all-inclusive')}>
+              <View style={[styles.quickFilterIcon, { backgroundColor: Colors.primary }]}>
+                <Sparkles size={18} color={Colors.white} />
+              </View>
+              <View>
+                <Text style={styles.quickFilterLabel}>ALL-INCLUSIVE</Text>
+                <Text style={styles.quickFilterSublabel}>Luxury Stays</Text>
+              </View>
+            </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#F0FDF4' }]} onPress={() => router.push('/local-deals')}>
-                  <View style={[styles.quickFilterIcon, { backgroundColor: '#10B981' }]}>
-                    <Percent size={18} color={Colors.white} />
-                  </View>
-                  <View>
-                    <Text style={styles.quickFilterLabel}>BEST PRICES</Text>
-                    <Text style={styles.quickFilterSublabel}>Local Resident Deals</Text>
-                  </View>
-                </TouchableOpacity>
+            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#F0FDF4' }]} onPress={() => router.push('/local-deals')}>
+              <View style={[styles.quickFilterIcon, { backgroundColor: '#10B981' }]}>
+                <Percent size={18} color={Colors.white} />
+              </View>
+              <View>
+                <Text style={styles.quickFilterLabel}>BEST PRICES</Text>
+                <Text style={styles.quickFilterSublabel}>Local Resident Deals</Text>
+              </View>
+            </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#EFF6FF' }]} onPress={() => router.push('/flights')}>
-                  <View style={[styles.quickFilterIcon, { backgroundColor: '#3B82F6' }]}>
-                    <Plane size={18} color={Colors.white} />
-                  </View>
-                  <View>
-                    <Text style={styles.quickFilterLabel}>FLIGHTS</Text>
-                    <Text style={styles.quickFilterSublabel}>Global Routes</Text>
-                  </View>
-                </TouchableOpacity>
-              </ScrollView>
-            </View>
-         </View>
+            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#EFF6FF' }]} onPress={() => router.push('/flights')}>
+              <View style={[styles.quickFilterIcon, { backgroundColor: '#3B82F6' }]}>
+                <Plane size={18} color={Colors.white} />
+              </View>
+              <View>
+                <Text style={styles.quickFilterLabel}>FLIGHTS</Text>
+                <Text style={styles.quickFilterSublabel}>Global Routes</Text>
+              </View>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
 
         {/* Exclusive Deals with Benefit Visibility */}
         <View style={[styles.section, styles.featuredSection]}>
@@ -256,17 +261,14 @@ export default function HomeScreen() {
                     </Text>
                 </View>
                 <View style={styles.ctaActions}>
-                    <TouchableOpacity style={styles.primaryCta} onPress={() => router.push('/tailormade')}>
-                        <Sparkles size={20} color={Colors.white} />
-                        <Text style={styles.primaryCtaText}>
-                            {contentBlocks.support?.cta || 'START PLANNING'}
-                        </Text>
+                    <TouchableOpacity style={[styles.ctaBtn, { backgroundColor: '#25D366' }]} onPress={() => handleInquiry('whatsapp')}>
+                        <Text style={styles.ctaBtnText}>{labels.whatsapp || 'WHATSAPP'}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.secondaryCta} onPress={() => handleInquiry('whatsapp')}>
-                         <MessageCircle size={18} color={Colors.charcoal} />
-                         <Text style={styles.secondaryCtaText}>
-                            {contentBlocks.support?.whatsapp || 'WHATSAPP'}
-                         </Text>
+                    <TouchableOpacity style={[styles.ctaBtn, { backgroundColor: Colors.white }]} onPress={() => handleInquiry('email')}>
+                        <Text style={[styles.ctaBtnText, { color: Colors.charcoal }]}>{labels.email || 'EMAIL'}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.ctaBtn, { backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' }]} onPress={() => handleInquiry('call')}>
+                        <Text style={styles.ctaBtnText}>{labels.call || 'CALL'}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -410,4 +412,17 @@ const styles = StyleSheet.create({
   partnerLine: { flex: 1, height: 1, backgroundColor: Colors.borderLight },
   partnerLabel: { fontFamily: 'Outfit_900Black', fontSize: 9, letterSpacing: 4, color: Colors.slate[400] },
   footerSpacing: { height: 120 },
+  ctaBtn: {
+    flex: 1,
+    height: 54,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ctaBtnText: {
+    color: Colors.white,
+    fontFamily: 'Outfit_900Black',
+    fontSize: 10,
+    letterSpacing: 1,
+  },
 });

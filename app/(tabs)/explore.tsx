@@ -14,12 +14,13 @@ import { ServiceCard } from '../../src/components/ServiceCard';
 import { InteractiveMap } from '../../src/components/InteractiveMap';
 import { Map as MapIcon, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-
+import { useSettings } from '../../src/context/SettingsContext';
 
 export default function ExploreScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
+  const { generalConfig } = useSettings();
+  const labels = generalConfig?.ui_labels || {};
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
   const [isFilterVisible, setIsFilterVisible] = useState(false);
@@ -110,11 +111,13 @@ export default function ExploreScreen() {
     <View style={styles.root}>
       <StatusBar style="dark" />
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 16 : 40 }]}>
-        <Text variant="headlineMedium" style={styles.title}>Explore</Text>
+        {/* PRESERVED: <Text variant="headlineMedium" style={styles.title}>Explore</Text> */}
+        <Text variant="headlineMedium" style={styles.title}>{labels.explore_title || 'Explore'}</Text>
         <View style={styles.searchContainer}>
           <Search size={20} color={Colors.textSecondary} style={styles.searchIcon} />
           <TextInput
-            placeholder="Search experiences..."
+            // PRESERVED: placeholder="Search experiences..."
+            placeholder={labels.search_placeholder || 'Search experiences...'}
             style={styles.searchInput}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -135,9 +138,9 @@ export default function ExploreScreen() {
       {isMapVisible && (
         <View style={styles.mapSection}>
            <View style={styles.mapHeader}>
-              <Text style={styles.mapTitle}>REGIONAL DISCOVERY</Text>
+              <Text style={styles.mapTitle}>{labels.regional_discovery || 'REGIONAL DISCOVERY'}</Text>
               <TouchableOpacity onPress={() => setSelectedRegion(null)}>
-                 <Text style={styles.resetMap}>RESET MAP</Text>
+                 <Text style={styles.resetMap}>{labels.reset_map || 'RESET MAP'}</Text>
               </TouchableOpacity>
            </View>
            <InteractiveMap 
@@ -155,7 +158,7 @@ export default function ExploreScreen() {
             style={[styles.categoryChip, selectedCategory === 'all' && styles.selectedChip]}
             textStyle={[styles.chipText, selectedCategory === 'all' && styles.selectedChipText]}
           >
-            All
+            {labels.all || 'All'}
           </Chip>
           {[
             ...categories.filter(cat => cat.slug !== 'activities' && cat.slug !== 'flight' && cat.slug !== 'flights'),
@@ -188,9 +191,9 @@ export default function ExploreScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text variant="titleMedium" style={styles.emptyText}>No services found</Text>
-              <Text style={styles.emptySubtext}>Try adjusting your search or filters</Text>
-              <Button mode="text" onPress={() => setFilters({ adults: 2, teenagers: 0, children: 0, infants: 0, priceRange: [0, 200000], amenities: [] })}>Reset Filters</Button>
+              <Text variant="titleMedium" style={styles.emptyText}>{labels.no_services_found || 'No services found'}</Text>
+              <Text style={styles.emptySubtext}>{labels.adjust_filters || 'Try adjusting your search or filters'}</Text>
+              <Button mode="text" onPress={() => setFilters({ adults: 2, teenagers: 0, children: 0, infants: 0, priceRange: [0, 200000], amenities: [] })}>{labels.reset_filters || 'Reset Filters'}</Button>
             </View>
           }
         />

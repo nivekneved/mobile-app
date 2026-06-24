@@ -52,12 +52,19 @@ interface BookingModalProps {
   initialData?: Partial<BookingFormData>;
 }
 
-// Mock Addons for Parity (Transfers, Spa, etc.)
+// PRESERVED: old flat-rate addons list
+// const AVAILABLE_ADDONS = [
+//   { id: 'airport_transfer', name: 'Airport Transfer', price: 2500, icon: Car, description: 'Private VIP pickup from SSR Airport' },
+//   { id: 'sim_card', name: 'Local SIM Card', price: 500, icon: Smartphone, description: '100GB 5G Data pre-activated' },
+//   { id: 'spa_voucher', name: 'Premium Spa', price: 3500, icon: Moon, description: '60-min Holistic Mauritian Massage' },
+//   { id: 'early_checkin', name: 'Early Check-in', price: 1500, icon: Clock, description: 'Arrival from 09:00 (Subject to availability)' },
+// ];
+
 const AVAILABLE_ADDONS = [
-  { id: 'airport_transfer', name: 'Airport Transfer', price: 2500, icon: Car, description: 'Private VIP pickup from SSR Airport' },
-  { id: 'sim_card', name: 'Local SIM Card', price: 500, icon: Smartphone, description: '100GB 5G Data pre-activated' },
-  { id: 'spa_voucher', name: 'Premium Spa', price: 3500, icon: Moon, description: '60-min Holistic Mauritian Massage' },
-  { id: 'early_checkin', name: 'Early Check-in', price: 1500, icon: Clock, description: 'Arrival from 09:00 (Subject to availability)' },
+  { id: 'airport_transfer', name: 'Airport Transfer', price: 2500, icon: Car, description: 'Private VIP pickup from SSR Airport', type: 'flat' },
+  { id: 'sim_card', name: 'Local SIM Card', price: 500, icon: Smartphone, description: '100GB 5G Data pre-activated', type: 'per_person' },
+  { id: 'spa_voucher', name: 'Premium Spa', price: 3500, icon: Moon, description: '60-min Holistic Mauritian Massage', type: 'per_person' },
+  { id: 'early_checkin', name: 'Early Check-in', price: 1500, icon: Clock, description: 'Arrival from 09:00 (Subject to availability)', type: 'flat' },
 ];
 
 export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialData }: BookingModalProps) => {
@@ -126,11 +133,20 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
     const selectedMealOption = mealOptions.find(m => m.label === watchAllFields.mealPreference);
     const mealPlanTotal = selectedMealOption?.total || 0;
 
-    // Addons
+    // PRESERVED: Old flat-rate addons sum
+    // const currentAddons = watchAllFields.addons || [];
+    // const addonTotal = currentAddons.reduce((sum, id) => {
+    //   const addon = AVAILABLE_ADDONS.find(a => a.id === id);
+    //   return sum + (addon?.price || 0);
+    // }, 0);
+
     const currentAddons = watchAllFields.addons || [];
+    const totalPax = (watchAllFields.paxAdults || 0) + (watchAllFields.paxTeens || 0) + (watchAllFields.paxChildren || 0);
     const addonTotal = currentAddons.reduce((sum, id) => {
       const addon = AVAILABLE_ADDONS.find(a => a.id === id);
-      return sum + (addon?.price || 0);
+      if (!addon) return sum;
+      const itemPrice = addon.type === 'per_person' ? addon.price * totalPax : addon.price;
+      return sum + itemPrice;
     }, 0);
 
     return base + mealPlanTotal + addonTotal;
@@ -327,7 +343,12 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                 <Text style={[styles.addonName, isSelected && styles.textWhite]}>{addon.name}</Text>
                 <Text style={[styles.addonDesc, isSelected && styles.textWhite70]}>{addon.description}</Text>
               </View>
+              {/* PRESERVED: Old flat-rate price layout label
               <Text style={[styles.addonPrice, isSelected && styles.textWhite]}>+Rs {addon.price}</Text>
+              */}
+              <Text style={[styles.addonPrice, isSelected && styles.textWhite]}>
+                +Rs {addon.price}{addon.type === 'per_person' ? ' / person' : ''}
+              </Text>
             </TouchableOpacity>
           );
         })}

@@ -8,8 +8,11 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { supabase } from '../../src/lib/supabase';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSettings } from '../../src/context/SettingsContext';
 
 export default function BookingsScreen() {
+  const { generalConfig } = useSettings();
+  const labels = generalConfig?.ui_labels || {};
   const insets = useSafeAreaInsets();
   const { bookings, isLoading, error, addGuestCustomerId } = useCustomerBookings();
   const router = useRouter();
@@ -22,7 +25,8 @@ export default function BookingsScreen() {
 
   const handleLookup = async () => {
     if (!lookupEmail.trim() || !lookupRef.trim()) {
-      Alert.alert('Required Fields', 'Please enter both email and booking reference.');
+      // PRESERVED: Alert.alert('Required Fields', 'Please enter both email and booking reference.');
+      Alert.alert(labels.required_fields || 'Required Fields', labels.enter_email_ref || 'Please enter both email and booking reference.');
       return;
     }
     try {
@@ -40,24 +44,28 @@ export default function BookingsScreen() {
         .single();
 
       if (queryError || !data) {
-        Alert.alert('Not Found', 'No booking found with this reference.');
+        // PRESERVED: Alert.alert('Not Found', 'No booking found with this reference.');
+        Alert.alert(labels.not_found || 'Not Found', labels.no_booking_found || 'No booking found with this reference.');
         return;
       }
 
       const customerEmail = (data.customers as any)?.email;
       if (customerEmail?.toLowerCase() !== lookupEmail.trim().toLowerCase()) {
-        Alert.alert('Verification Failed', 'The email address does not match this booking reference.');
+        // PRESERVED: Alert.alert('Verification Failed', 'The email address does not match this booking reference.');
+        Alert.alert(labels.verification_failed || 'Verification Failed', labels.email_mismatch || 'The email address does not match this booking reference.');
         return;
       }
 
       await addGuestCustomerId(data.customer_id);
-      Alert.alert('Success', 'Booking retrieved and saved successfully!');
+      // PRESERVED: Alert.alert('Success', 'Booking retrieved and saved successfully!');
+      Alert.alert(labels.success || 'Success', labels.booking_imported || 'Booking retrieved and saved successfully!');
       setLookupEmail('');
       setLookupRef('');
       setShowLookup(false);
     } catch (err) {
       console.error('Error during lookup:', err);
-      Alert.alert('Error', 'Failed to retrieve booking. Please try again.');
+      // PRESERVED: Alert.alert('Error', 'Failed to retrieve booking. Please try again.');
+      Alert.alert(labels.error || 'Error', labels.retrieve_failed || 'Failed to retrieve booking. Please try again.');
     } finally {
       setIsSearching(false);
     }
@@ -112,7 +120,7 @@ export default function BookingsScreen() {
               </Text>
             </View>
             <View style={styles.priceContainer}>
-              <Text style={styles.priceLabel}>Total</Text>
+              <Text style={styles.priceLabel}>{labels.total_label || 'Total'}</Text>
               <Text style={styles.price}>Rs {(item.total_amount ?? 0).toLocaleString()}</Text>
             </View>
           </View>
@@ -126,15 +134,15 @@ export default function BookingsScreen() {
       <View style={styles.emptyIconContainer}>
         <Plane size={48} color={Colors.textSecondary} strokeWidth={1} />
       </View>
-      <Text variant="titleLarge" style={styles.emptyTitle}>No adventures yet</Text>
+      <Text variant="titleLarge" style={styles.emptyTitle}>{labels.no_bookings || 'No adventures yet'}</Text>
       <Text variant="bodyMedium" style={styles.emptySubtitle}>
-        Your travel inquiries and bookings will appear here. Start exploring our premium destinations!
+        {labels.bookings_empty_subtitle || 'Your travel inquiries and bookings will appear here. Start exploring our premium destinations!'}
       </Text>
       <TouchableOpacity 
         style={styles.exploreButton}
         onPress={() => router.push('/explore')}
       >
-        <Text style={styles.exploreButtonText}>Discover Experiences</Text>
+        <Text style={styles.exploreButtonText}>{labels.discover_experiences || 'Discover Experiences'}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -145,8 +153,10 @@ export default function BookingsScreen() {
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 16 : 40 }]}>
         <View style={styles.headerRow}>
           <View>
-            <Text variant="headlineMedium" style={styles.title}>My Bookings</Text>
-            <Text variant="bodyMedium" style={styles.subtitle}>Your travel history and inquiries</Text>
+            {/* PRESERVED: <Text variant="headlineMedium" style={styles.title}>My Bookings</Text> */}
+            {/* PRESERVED: <Text variant="bodyMedium" style={styles.subtitle}>Your travel history and inquiries</Text> */}
+            <Text variant="headlineMedium" style={styles.title}>{labels.my_bookings_title || 'My Bookings'}</Text>
+            <Text variant="bodyMedium" style={styles.subtitle}>{labels.my_bookings_subtitle || 'Your travel history and inquiries'}</Text>
           </View>
           <TouchableOpacity 
             style={[styles.importBtn, showLookup && styles.importBtnActive]} 
@@ -158,9 +168,9 @@ export default function BookingsScreen() {
 
         {showLookup && (
           <Surface style={styles.lookupCard} elevation={1}>
-            <Text style={styles.lookupTitle}>Import Guest Booking</Text>
+            <Text style={styles.lookupTitle}>{labels.import_booking_title || 'Import Guest Booking'}</Text>
             <TextInput
-              label="Email Address"
+              label={labels.email_address_placeholder || 'Email Address'}
               value={lookupEmail}
               onChangeText={setLookupEmail}
               mode="outlined"
@@ -170,7 +180,7 @@ export default function BookingsScreen() {
               keyboardType="email-address"
             />
             <TextInput
-              label="Booking Reference (e.g. TL-XXXXXX)"
+              label={labels.booking_ref_placeholder || 'Booking Reference (e.g. TL-XXXXXX)'}
               value={lookupRef}
               onChangeText={setLookupRef}
               mode="outlined"
@@ -186,7 +196,7 @@ export default function BookingsScreen() {
               buttonColor={Colors.charcoal}
               style={styles.lookupBtn}
             >
-              FIND & IMPORT
+              {labels.find_import_btn || 'FIND & IMPORT'}
             </Button>
           </Surface>
         )}

@@ -41,8 +41,13 @@ export const useSearchServices = () => {
           .order('priority', { ascending: false })
           .order('created_at', { ascending: false });
 
+        // PRESERVED: old name-only search matching:
+        // if (query) {
+        //   supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
+        // }
+
         if (query) {
-          supabaseQuery = supabaseQuery.ilike('name', `%${query}%`);
+          supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,location.ilike.%${query}%,region.ilike.%${query}%,short_description.ilike.%${query}%,description.ilike.%${query}%`);
         }
 
         if (region && region !== 'All') {

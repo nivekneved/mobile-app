@@ -27,6 +27,16 @@ interface ServiceCardProps {
   short_description?: string;
 }
 
+const getMealPlanAbbreviation = (label: string) => {
+  const clean = label.toLowerCase().trim();
+  if (clean.includes('breakfast') && clean.includes('bed')) return 'BB';
+  if (clean.includes('half board') || clean.includes('half-board')) return 'HB';
+  if (clean.includes('full board') || clean.includes('full-board')) return 'FB';
+  if (clean.includes('all inclusive') || clean.includes('all-inclusive') || clean === 'ai') return 'AI';
+  if (clean.includes('room only') || clean.includes('room-only') || clean === 'ro') return 'RO';
+  return label.substring(0, 12).toUpperCase();
+};
+
 export const ServiceCard = ({ 
   name, image_url, price, category, location, onPress, fullWidth,
   rating, duration, amenities, meal_plans, activity_type, is_seasonal, deal_note, description, short_description 
@@ -100,7 +110,11 @@ export const ServiceCard = ({
           )}
 
           <View style={styles.metaRow}>
-            <StarRating rating={rating || 0} size={12} />
+            {/* PRESERVED: <StarRating rating={rating || 0} size={12} /> */}
+            <View style={styles.ratingContainer}>
+              <StarRating rating={rating || 0} size={12} />
+              {rating ? <Text style={styles.ratingText}>{rating.toFixed(1)}</Text> : null}
+            </View>
             {duration && (
               <View style={styles.durationRow}>
                 <Clock size={12} color={Colors.slate[400]} />
@@ -137,11 +151,16 @@ export const ServiceCard = ({
 
              {/* Meal Plan Badges */}
              <View style={styles.mealPlansRow}>
-                {Array.isArray(meal_plans) && meal_plans.slice(0, 2).map((mp: any, idx) => (
-                    <View key={idx} style={styles.mealBadge}>
-                        <Text style={styles.mealText}>{typeof mp === 'string' ? mp : mp.label}</Text>
-                    </View>
-                ))}
+                {Array.isArray(meal_plans) && meal_plans.slice(0, 2).map((mp: any, idx) => {
+                    const mealLabel = typeof mp === 'string' ? mp : mp.label;
+                    const displayLabel = getMealPlanAbbreviation(mealLabel);
+                    return (
+                        <View key={idx} style={styles.mealBadge}>
+                            {/* PRESERVED: <Text style={styles.mealText}>{typeof mp === 'string' ? mp : mp.label}</Text> */}
+                            <Text style={styles.mealText}>{displayLabel}</Text>
+                        </View>
+                    );
+                })}
              </View>
           </View>
           
@@ -257,6 +276,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  ratingText: {
+    fontFamily: 'Outfit_700Bold',
+    fontSize: 10,
+    color: '#F59E0B',
+    lineHeight: 12,
   },
   durationRow: {
     flexDirection: 'row',

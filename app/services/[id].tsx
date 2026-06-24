@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Image, useWindowDimensions, TouchableOpacity, Share } from 'react-native';
-import { Text, ActivityIndicator, Surface } from 'react-native-paper';
+import { Text, ActivityIndicator, Surface, Chip } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -140,7 +140,8 @@ export default function ServiceDetailScreen() {
 
   const handleInquiry = (method: 'whatsapp' | 'email') => {
     const contact = {
-      phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5940 7701',
+      // PRESERVED: phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5940 7701',
+      phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5509 7701',
       email: generalConfig?.contactEmail || 'office@travel-lounge.com'
     };
     const message = `Inquiry for: ${service?.name} (ID: ${id})`;
@@ -509,6 +510,30 @@ export default function ServiceDetailScreen() {
                     ))}
                   </View>
                 )}
+              </View>
+            </View>
+          )}
+
+          {/* Available Meal Plans */}
+          {service.meal_plans && Array.isArray(service.meal_plans) && service.meal_plans.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Available Meal Plans</Text>
+              <View style={styles.mealPlansContainer}>
+                {service.meal_plans.map((mp: any, idx: number) => {
+                  const label = typeof mp === 'string' ? mp : (mp as any).label || '';
+                  if (!label) return null;
+                  return (
+                    <Chip
+                      key={idx}
+                      style={styles.mealPlanChip}
+                      textStyle={styles.mealPlanChipText}
+                      icon={() => <Utensils size={14} color="#D97706" />}
+                      mode="outlined"
+                    >
+                      {label.toUpperCase()}
+                    </Chip>
+                  );
+                })}
               </View>
             </View>
           )}
@@ -883,4 +908,21 @@ const styles = StyleSheet.create({
   variantPriceBadge: { position: 'absolute', top: 24, right: 24, backgroundColor: Colors.white, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
   variantPriceLabel: { fontFamily: 'Outfit_900Black', fontSize: 8, color: Colors.slate[400], letterSpacing: 1 },
   variantPriceVal: { fontFamily: 'Outfit_900Black', fontSize: 13, color: Colors.charcoal },
+  mealPlansContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  mealPlanChip: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#FDE68A',
+    borderWidth: 1,
+    borderRadius: 12,
+  },
+  mealPlanChipText: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 10,
+    color: '#D97706',
+    letterSpacing: 1,
+  },
 });

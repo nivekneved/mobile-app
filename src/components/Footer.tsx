@@ -77,11 +77,13 @@ const Footer = () => {
     }
   };
 
-  const contactPhone = settings?.contactPhone || '+230 5940 7701';
+  // PRESERVED: const contactPhone = settings?.contactPhone || '+230 5940 7701';
+  const contactPhone = settings?.contactPhone || '+230 5509 7701';
   const facebookUrl = settings?.facebookUrl || 'https://www.facebook.com/travellounge.mu';
   const instagramUrl = settings?.instagramUrl || 'https://www.instagram.com/travellounge_ltd';
   const tiktokUrl = settings?.tiktokUrl || '';
-  const whatsappNumber = settings?.whatsappNumber1 || '23059407701';
+  // PRESERVED: const whatsappNumber = settings?.whatsappNumber1 || '23059407701';
+  const whatsappNumber = settings?.whatsappNumber1 || '23055097701';
   const labels = settings?.ui_labels || {};
 
   const handlePress = (url: string) => {

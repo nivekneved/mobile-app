@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, TouchableOpacity, Dimensions, Animated, TextInput, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, View, TouchableOpacity, Dimensions, Animated, TextInput, KeyboardAvoidingView, Platform, Image, ScrollView } from 'react-native';
 import { Text, Surface, Portal, Modal, ActivityIndicator } from 'react-native-paper';
 import { MessageSquare, X, Mic, Send, Volume2, Sparkles, Headphones } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
@@ -8,6 +8,13 @@ import { useSettings } from '../context/SettingsContext';
 
 const { width, height } = Dimensions.get('window');
 
+interface ChatMessage {
+  id: string;
+  text: string;
+  sender: 'user' | 'bot';
+  timestamp: Date;
+}
+
 export const AIConcierge = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -15,6 +22,17 @@ export const AIConcierge = () => {
   const { mobileConfig, generalConfig } = useSettings();
   const fadeAnim = useState(new Animated.Value(0))[0];
   const slideAnim = useState(new Animated.Value(20))[0];
+
+  const scrollRef = useRef<ScrollView>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: 'welcome',
+      text: 'Welcome to Travel Lounge Elite Concierge. How can I assist you with your dream Mauritius holiday today?',
+      sender: 'bot',
+      timestamp: new Date(),
+    }
+  ]);
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -30,20 +48,66 @@ export const AIConcierge = () => {
     }
   }, [isOpen]);
 
+  // PRESERVED: Old handleSend that immediately redirected to WhatsApp
+  // const handleSend = () => {
+  //   if (!message.trim()) return;
+  //   const phone = mobileConfig?.supportPhone || generalConfig?.contactPhone || '23055097701';
+  //   const encodedMessage = encodeURIComponent(message);
+  //   const whatsappUrl = `https://wa.me/${phone.replace(/\+/g, '').replace(/\s+/g, '')}?text=${encodedMessage}`;
+  //   Linking.openURL(whatsappUrl);
+  //   setMessage('');
+  //   setIsOpen(false);
+  // };
+
   const handleSend = () => {
     if (!message.trim()) return;
-    const phone = mobileConfig?.supportPhone || generalConfig?.contactPhone || '23055097701';
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${phone.replace(/\+/g, '').replace(/\s+/g, '')}?text=${encodedMessage}`;
-    Linking.openURL(whatsappUrl);
+
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      text: message,
+      sender: 'user',
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    const currentInput = message;
     setMessage('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      setIsTyping(false);
+      let replyText = "I've noted your request. To coordinate your bespoke arrangements, click 'Connect to WhatsApp' below to dispatch your inquiry and full transcript directly to our concierge desk.";
+      
+      const lower = currentInput.toLowerCase();
+      if (lower.includes('hotel') || lower.includes('resort') || lower.includes('stay') || lower.includes('room')) {
+        replyText = "I can highly recommend our premier properties like Anelia Resort & Spa or Tamassa Resorts. Would you like to explore our hotels and room availability?";
+      } else if (lower.includes('transfer') || lower.includes('airport') || lower.includes('car') || lower.includes('pickup')) {
+        replyText = "We offer private VIP airport pickups and flight booking assistance. You can book airport transfers directly inside the booking modal add-ons selection!";
+      } else if (lower.includes('deal') || lower.includes('promo') || lower.includes('offer')) {
+        replyText = "We have active seasonal deals for Mauritian stays! You can discover them on the Explore page or by tapping the help widgets.";
+      }
+
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        text: replyText,
+        sender: 'bot',
+        timestamp: new Date(),
+      }]);
+    }, 1000);
+  };
+
+  const handleWhatsAppRedirect = () => {
+    const phone = mobileConfig?.supportPhone || generalConfig?.contactPhone || '23055097701';
+    const transcript = messages.map(m => `${m.sender === 'user' ? 'Client' : 'Concierge'}: ${m.text}`).join('\n\n');
+    const intro = "Hello, I am requesting concierge assistance regarding my inquiry:\n\n";
+    const encodedMessage = encodeURIComponent(intro + transcript);
+    const whatsappUrl = `https://wa.me/${phone.replace(/\s+/g, '').replace('+', '')}?text=${encodedMessage}`;
+    Linking.openURL(whatsappUrl);
     setIsOpen(false);
   };
 
   const toggleVoice = () => {
     setIsListening(!isListening);
-    // In a real app, integrate expo-speech-recognition
-    // For now, we simulate the 'listening' state as a visual feature
     if (!isListening) {
       setTimeout(() => {
         setIsListening(false);
@@ -107,19 +171,36 @@ export const AIConcierge = () => {
               behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               style={styles.body}
             >
-              <View style={styles.suggestionCard}>
-                 <Text style={styles.suggestionLabel}>HOW CAN I HELP?</Text>
-                 <Text style={styles.suggestionText}>
-                   "I'm looking for a premium hotel in the North for 3 nights next week..."
-                 </Text>
-              </View>
+              <ScrollView 
+                style={styles.messageList} 
+                contentContainerStyle={styles.messageListContent}
+                ref={scrollRef}
+                onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+              >
+                {messages.map(m => (
+                  <View key={m.id} style={[styles.bubbleContainer, m.sender === 'user' ? styles.bubbleUserContainer : styles.bubbleBotContainer]}>
+                    <View style={[styles.bubble, m.sender === 'user' ? styles.bubbleUser : styles.bubbleBot]}>
+                      <Text style={[styles.bubbleText, m.sender === 'user' ? styles.bubbleUserText : styles.bubbleBotText]}>
+                        {m.text}
+                      </Text>
+                    </View>
+                    <Text style={styles.bubbleTime}>{m.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                  </View>
+                ))}
+                {isTyping && (
+                  <View style={styles.bubbleBotContainer}>
+                    <View style={[styles.bubble, styles.bubbleBot]}>
+                      <ActivityIndicator size="small" color={Colors.primary} />
+                    </View>
+                  </View>
+                )}
+              </ScrollView>
 
               <View style={styles.inputContainer}>
                 <TextInput
                   placeholder="Tell me your requirements..."
                   placeholderTextColor={Colors.slate[400]}
-                  style={styles.input}
-                  multiline
+                  style={styles.inputField}
                   value={message}
                   onChangeText={setMessage}
                 />
@@ -129,21 +210,22 @@ export const AIConcierge = () => {
                 >
                   {isListening ? <Volume2 size={20} color="#fff" /> : <Mic size={20} color={Colors.slate[400]} />}
                 </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.sendIconBtn, !message.trim() && styles.sendIconBtnDisabled]}
+                  onPress={handleSend}
+                  disabled={!message.trim()}
+                >
+                  <Send size={18} color="#fff" />
+                </TouchableOpacity>
               </View>
 
               <TouchableOpacity 
-                style={[styles.sendBtn, !message.trim() && styles.sendBtnDisabled]}
-                onPress={handleSend}
-                disabled={!message.trim()}
+                style={styles.whatsappActionBtn}
+                onPress={handleWhatsAppRedirect}
               >
-                 <Send size={16} color="#fff" />
-                 <Text style={styles.sendBtnText}>START AI BOOKING</Text>
+                 <MessageSquare size={16} color="#fff" />
+                 <Text style={styles.whatsappActionText}>CONNECT TO WHATSAPP</Text>
               </TouchableOpacity>
-
-              <View style={styles.footer}>
-                 <Headphones size={12} color={Colors.slate[400]} />
-                 <Text style={styles.footerText}>CONNECTS TO WHATSAPP BUSINESS</Text>
-              </View>
             </KeyboardAvoidingView>
           </Animated.View>
         </Modal>
@@ -274,51 +356,78 @@ const styles = StyleSheet.create({
   body: {
     padding: 24,
   },
-  suggestionCard: {
-    backgroundColor: Colors.slate[50],
-    padding: 20,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: 20,
+  messageList: {
+    height: 280,
+    backgroundColor: '#fff',
+    marginBottom: 16,
   },
-  suggestionLabel: {
-    fontSize: 9,
-    fontWeight: '900',
-    color: Colors.slate[400],
-    letterSpacing: 2,
-    marginBottom: 8,
+  messageListContent: {
+    paddingVertical: 8,
   },
-  suggestionText: {
+  bubbleContainer: {
+    marginBottom: 12,
+    maxWidth: '85%',
+  },
+  bubbleUserContainer: {
+    alignSelf: 'flex-end',
+    alignItems: 'flex-end',
+  },
+  bubbleBotContainer: {
+    alignSelf: 'flex-start',
+    alignItems: 'flex-start',
+  },
+  bubble: {
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  bubbleUser: {
+    backgroundColor: Colors.primary,
+    borderBottomRightRadius: 4,
+  },
+  bubbleBot: {
+    backgroundColor: Colors.slate[100],
+    borderBottomLeftRadius: 4,
+  },
+  bubbleText: {
     fontSize: 13,
-    fontWeight: '500',
+    lineHeight: 18,
+    fontFamily: 'Outfit_500Medium',
+  },
+  bubbleUserText: {
+    color: '#fff',
+  },
+  bubbleBotText: {
     color: Colors.charcoal,
-    fontStyle: 'italic',
-    lineHeight: 20,
+  },
+  bubbleTime: {
+    fontSize: 8,
+    color: Colors.slate[400],
+    marginTop: 4,
+    fontWeight: '700',
+    fontFamily: 'Outfit_700Bold',
   },
   inputContainer: {
     position: 'relative',
-    marginBottom: 20,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  input: {
+  inputField: {
     backgroundColor: Colors.slate[50],
-    borderRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
-    paddingRight: 60,
-    fontSize: 14,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 13,
     color: Colors.charcoal,
     fontWeight: '600',
     borderWidth: 1,
     borderColor: Colors.border,
-    minHeight: 120,
-    textAlignVertical: 'top',
+    flex: 1,
+    fontFamily: 'Outfit_500Medium',
   },
   micBtn: {
-    position: 'absolute',
-    right: 12,
-    bottom: 12,
     width: 44,
     height: 44,
     borderRadius: 14,
@@ -332,40 +441,36 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
-  sendBtn: {
-    height: 60,
+  sendIconBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     backgroundColor: Colors.charcoal,
-    borderRadius: 20,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
-  sendBtnDisabled: {
+  sendIconBtnDisabled: {
     opacity: 0.3,
   },
-  sendBtnText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '900',
-    letterSpacing: 2,
-  },
-  footer: {
+  whatsappActionBtn: {
+    height: 54,
+    backgroundColor: '#10B981',
+    borderRadius: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 20,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  footerText: {
-    fontSize: 8,
+  whatsappActionText: {
+    color: '#fff',
+    fontSize: 11,
     fontWeight: '900',
-    color: Colors.slate[400],
-    letterSpacing: 1,
+    letterSpacing: 1.5,
+    fontFamily: 'Outfit_700Bold',
   }
 });

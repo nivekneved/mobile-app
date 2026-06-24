@@ -60,7 +60,7 @@ const centers: Record<string, {x: number, y: number}> = {
   central: { x: 62, y: 62 }
 };
 
-export const InteractiveMap: React.FC<InteractiveMapProps> = ({ onSelectRegion, selectedRegion }) => {
+export const InteractiveMap = ({ onSelectRegion, selectedRegion }: InteractiveMapProps) => {
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
 
   return (

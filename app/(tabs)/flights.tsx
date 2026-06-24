@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { StyleSheet, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { Text, Surface } from 'react-native-paper';
+import { Text, Surface, IconButton } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
 import { MessageCircle, Plane, ArrowRight, ShieldCheck, Headphones, MapPin, Sparkles, PhoneCall, Compass } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
@@ -14,6 +14,10 @@ export default function FlightsScreen() {
   const [webViewHeight, setWebViewHeight] = useState(850);
   const [activeTab, setActiveTab] = useState<'commercial' | 'charter'>('commercial');
   const { mobileConfig, generalConfig } = useSettings();
+
+  const webViewRef = useRef<WebView>(null);
+  const [canGoBack, setCanGoBack] = useState(false);
+  const [canGoForward, setCanGoForward] = useState(false);
 
   const handleSupport = (method: 'whatsapp' | 'email' | 'call', context: string = 'flight arrangements') => {
     const contact = {
@@ -160,6 +164,33 @@ export default function FlightsScreen() {
                 <Text style={styles.searchLabel}>LIVE ACCREDITED IBE RESERVATION DESK</Text>
               </View>
               
+              {/* WebView navigation control header */}
+              <View style={styles.webViewHeader}>
+                <View style={styles.webControls}>
+                  <IconButton 
+                    icon="arrow-left" 
+                    size={20} 
+                    iconColor={canGoBack ? Colors.charcoal : Colors.slate[300]}
+                    disabled={!canGoBack}
+                    onPress={() => webViewRef.current?.goBack()} 
+                  />
+                  <IconButton 
+                    icon="arrow-right" 
+                    size={20} 
+                    iconColor={canGoForward ? Colors.charcoal : Colors.slate[300]}
+                    disabled={!canGoForward}
+                    onPress={() => webViewRef.current?.goForward()} 
+                  />
+                  <IconButton 
+                    icon="refresh" 
+                    size={20} 
+                    iconColor={Colors.charcoal}
+                    onPress={() => webViewRef.current?.reload()} 
+                  />
+                </View>
+                <Text style={styles.webHeaderTitle}>Flight Portal</Text>
+              </View>
+              
               <View style={{ height: webViewHeight, overflow: 'hidden', position: 'relative' }}>
                 {isLoading && (
                   <View style={styles.loaderContainer}>
@@ -179,6 +210,7 @@ export default function FlightsScreen() {
                   injectedJavaScript={injectedJS}
                 />
                 */}
+                {/* PREVIOUS WebView PRESERVED AS COMMENT:
                 <WebView 
                   source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_self&embedded=true' }} 
                   style={styles.webview}
@@ -190,6 +222,31 @@ export default function FlightsScreen() {
                   injectedJavaScript={injectedJS}
                   setSupportMultipleWindows={false}
                   onNavigationStateChange={(navState) => {
+                    if (navState.url) {
+                      trackFlightSearch(navState.url);
+                    }
+                  }}
+                  onOpenWindow={(syntheticEvent) => {
+                    const { nativeEvent } = syntheticEvent;
+                    const { targetUrl } = nativeEvent;
+                    if (__DEV__) console.log('[Flight WebView] Intercepted new window request for URL:', targetUrl);
+                  }}
+                />
+                */}
+                <WebView 
+                  ref={webViewRef}
+                  source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_self&embedded=true' }} 
+                  style={styles.webview}
+                  onLoadEnd={() => setIsLoading(false)}
+                  scrollEnabled={false}
+                  javaScriptEnabled={true}
+                  domStorageEnabled={true}
+                  onMessage={onMessage}
+                  injectedJavaScript={injectedJS}
+                  setSupportMultipleWindows={false}
+                  onNavigationStateChange={(navState) => {
+                    setCanGoBack(navState.canGoBack);
+                    setCanGoForward(navState.canGoForward);
                     if (navState.url) {
                       trackFlightSearch(navState.url);
                     }
@@ -446,6 +503,29 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontFamily: 'Outfit_700Bold',
     letterSpacing: 2,
+  },
+  webViewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    backgroundColor: '#f8f9fa',
+  },
+  webControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  webHeaderTitle: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: Colors.slate[400],
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+    fontFamily: 'Outfit_700Bold',
+    marginRight: 12,
   },
   webview: {
     backgroundColor: 'transparent',

@@ -1,5 +1,20 @@
 # Development Log
 
+## 2026-06-24 — Booking Add-ons & Parity Integration
+- **Occupancy-Based Booking Add-ons**:
+  - [BookingModal.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/BookingModal.tsx): Configured mock add-ons (Airport Transfer, SIM Card, Spa Voucher, Early Check-in) with flat vs. per-person multipliers.
+  - Updated `calculateTotal()` to dynamically scale per-person add-on prices by the total traveler count, while maintaining flat-rate charges.
+  - Refined checklist item labels in Step 3 to clearly reflect per-person pricing structures.
+- **WebView Navigation Header Panel**:
+  - [flights.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/flights.tsx): Integrated browser control headers above the flight booking WebView with back, forward, and refresh controls.
+  - Wired canGoBack/canGoForward disable handlers based on browser state changes.
+- **Advanced Search Matching**:
+  - [useSearchServices.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useSearchServices.ts): Upgraded Supabase query matching logic from name-only matching to check name, location, region, short_description, and description.
+- **Validation**:
+  - Validated all code paths, achieving 0 ESLint errors.
+
+---
+
 ## 2026-06-03 — Email Pricing Row Fix, Document Consolidation & Gitignore Optimization
 - **Email Booking Price Fix**:
   - [update_email_templates.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/web-app/scripts/update_email_templates.ts): Added the missing "Estimated Price" row displaying `{{total_price}}` to the `RESERVATION_DETAILS_TABLE`.
@@ -1300,6 +1315,25 @@
 - **Booking Quote "0" Fix**:
   - `web-app/lib/pricingEngine.ts`: Implemented fallback `baseRates` in `calculateServicePricing` to ensure valid quotes are returned even when specific `service_pricing` grid records are missing.
   - `web-app/lib/pricingEngine.ts`: Added `isPerNight` logic to the fallback engine to correctly handle Hotel vs Activity pricing without multiplicative regressions.
+## Status: 2026-05-05 (Session 1)
+### Task: UI Standardization & Branding (Team Section)
+**Status: Verified & Deployed**
+- **Team Job Title Standardization**:
+  - `app/about/team/page.tsx`: Wrapped team job titles in a high-visibility red rectangle UI component.
+  - Applied bold white text with uppercase tracking to all job titles to ensure readability and professional consistency.
+  - Refined card overlay logic to maintain styling while preserving hover transitions.
+- **Validation**:
+  - Verified UI consistency across the team grid.
+  - Confirmed changes are synchronized with the GitHub `main` branch.
+- **HTML Bio Rendering Fix**:
+  - `web-app/app/about/team/page.tsx`: Implemented `sanitizeHtml` and `dangerouslySetInnerHTML` to correctly render rich text bios from the CMS.
+  - `admin-app/src/pages/Team.jsx`: Added tag-stripping logic to the team list preview to prevent raw HTML display in the dashboard.
+
+### Task: Booking Quote Resolution & Email Infrastructure Hardening
+**Status: Verified & Deployed**
+- **Booking Quote "0" Fix**:
+  - `web-app/lib/pricingEngine.ts`: Implemented fallback `baseRates` in `calculateServicePricing` to ensure valid quotes are returned even when specific `service_pricing` grid records are missing.
+  - `web-app/lib/pricingEngine.ts`: Added `isPerNight` logic to the fallback engine to correctly handle Hotel vs Activity pricing without multiplicative regressions.
   - `web-app/components/BookingWizard.tsx`: Updated the pricing fetch effect to pass room-specific or service-wide base rates and the `isPerNight` flag based on the service category.
 - **Email Delivery Resiliency**:
   - `web-app/lib/emailService.ts`: Sanitized SMTP environment variables by trimming hidden whitespaces/newlines, resolving persistent authentication failures.
@@ -1310,3 +1344,19 @@
   - Verified logic stability for both "Per Night" (Hotel) and "Per Person" (Activity) pricing scenarios.
   - Confirmed 100% build health and successfully pushed changes to GitHub.
 
+### Task: Mobile Roadmap Implementation (Phase 1, 2 & 3)
+**Status: Verified & Deployed**
+- **Phase 1: Native Branding & Consistency**:
+  - Synced UI labels to CMS settings context (`generalConfig?.ui_labels`).
+  - Standardized support and WhatsApp numbers to `55097701`.
+  - Refined `ServiceCard` rating layouts and meal plan abbreviations.
+- **Phase 2: Functional Parity**:
+  - Implemented dynamic occupancy multipliers and checkout add-ons inside the booking modal.
+  - Built custom back/forward/reload navigation controls directly above the flight WebView component.
+  - Expanded search query matching across all primary service fields.
+- **Phase 3: Premium "Wow" Features**:
+  - Ported AI Concierge chat into a local interactive native thread with simulated bot delays, typing indicators, and a WhatsApp handover export script.
+  - Integrated available meal plans rendering as compact Paper Chips with Utensils icons.
+  - Resolved TypeScript React typings conflicts and index.tsx missing styles.
+- **Validation**:
+  - Achieved exactly 0 errors and warnings in TypeScript (`npx tsc --noEmit`) and ESLint (`npm run lint`).
