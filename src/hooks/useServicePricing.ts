@@ -54,6 +54,21 @@ export interface MealOption {
   mealPlanId?: string;
 }
 
+function isConfiguredOverride(r: any): boolean {
+  if (r.is_stop_sell) return true;
+  if (Number(r.price) > 0) return true;
+  if (r.occupancy_pricing && typeof r.occupancy_pricing === 'object') {
+    return Object.values(r.occupancy_pricing).some((tier: any) => {
+      if (typeof tier === 'object' && tier !== null) {
+        const p = (tier as any).price || (tier as any).adult || 0;
+        return Number(p) > 0;
+      }
+      return Number(tier || 0) > 0;
+    });
+  }
+  return false;
+}
+
 export const useServicePricing = (req: ServicePricingRequest | null) => {
   const [pricing, setPricing] = useState<CalculatedPricing | null>(null);
   const [mealOptions, setMealOptions] = useState<MealOption[]>([]);
@@ -141,29 +156,42 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
           const currentDateStr = d.toISOString().split('T')[0];
           
           const activePricing = overrides?.find(o => 
-            currentDateStr >= o.date_from && currentDateStr <= o.date_to
+            currentDateStr >= o.date_from && currentDateStr <= o.date_to && isConfiguredOverride(o)
           );
 
           // Deep Search Parity: Handle occupancy-based pricing (JSONB)
-          let adultRate = activePricing ? Number(activePricing.price) : baseRates.adult;
-          let teenRate = activePricing ? Number(activePricing.price_teen) : baseRates.teen;
-          let childRate = activePricing ? Number(activePricing.price_child) : baseRates.child;
-          let infantRate = activePricing ? Number(activePricing.price_infant) : baseRates.infant;
+          let adultRate = (activePricing && Number(activePricing.price) > 0) ? Number(activePricing.price) : baseRates.adult;
+          let teenRate = (activePricing && Number(activePricing.price_teen) > 0) ? Number(activePricing.price_teen) : baseRates.teen;
+          let childRate = (activePricing && Number(activePricing.price_child) > 0) ? Number(activePricing.price_child) : baseRates.child;
+          let infantRate = (activePricing && Number(activePricing.price_infant) > 0) ? Number(activePricing.price_infant) : baseRates.infant;
 
-          const occ = activePricing?.occupancy_pricing;
-          if (occ && typeof occ === 'object') {
-            const numAdults = participants.adults || 1;
-            const tierData = occ[numAdults.toString()] ?? occ[numAdults];
-            if (tierData !== undefined && tierData !== null) {
-              if (typeof tierData === 'object') {
-                adultRate = Number(tierData.price || 0);
-                if (tierData.teen !== undefined) teenRate = Number(tierData.teen);
-                if (tierData.child !== undefined) childRate = Number(tierData.child);
-                if (tierData.infant !== undefined) infantRate = Number(tierData.infant);
-              } else {
-                adultRate = Number(tierData);
-              }
+          const occupancyKey = isHotel ? (participants.adults || 1) : 1;
+          let occData = activePricing?.occupancy_pricing?.[occupancyKey] || activePricing?.occupancy_pricing?.[String(occupancyKey)];
+          
+          // Fallback: search for keys starting with the occupancy key (e.g. "1_adult")
+          if (!occData && activePricing?.occupancy_pricing) {
+            const keys = Object.keys(activePricing.occupancy_pricing);
+            const matchingKey = keys.find(k => k === String(occupancyKey) || k.startsWith(`${occupancyKey}_`));
+            if (matchingKey) {
+              occData = activePricing.occupancy_pricing[matchingKey];
             }
+          }
+          
+          if (occData && typeof occData === 'object') {
+            // New structure: { price: X, teen: Y, child: Z, infant: I }
+            adultRate = Number(occData.price || 0);
+            teenRate = Number(occData.teen ?? teenRate);
+            childRate = Number(occData.child ?? childRate);
+            infantRate = Number(occData.infant ?? infantRate);
+          } else if (occData) {
+            // Legacy support: occupancy_pricing[adultCount] was just a number
+            adultRate = Number(occData);
+          }
+
+          // CRITICAL SAFETY: If the calculated price for this date is 0 but we have a valid lead price,
+          // fallback to the lead price to prevent "MUR 0" regressions.
+          if (adultRate === 0 && baseRates.adult > 0) {
+            adultRate = baseRates.adult;
           }
 
           // PRESERVED: Old isPerNight logic

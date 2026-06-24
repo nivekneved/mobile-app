@@ -10,16 +10,21 @@
   - Wired canGoBack/canGoForward disable handlers based on browser state changes.
 - **Advanced Search Matching**:
   - [useSearchServices.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useSearchServices.ts): Upgraded Supabase query matching logic from name-only matching to check name, location, region, short_description, and description.
-- **Pricing Engine Safety Alignment**:
-  - [useServicePricing.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useServicePricing.ts): Aligned the mobile pricing hook safety checks with the web app to resolve the group tour pricing discrepancy & revenue leakage issue.
-  - Selected `service_type` and `pricing_model_override` fields from the `services` table.
-  - Configured lodging status (`isHotel`) and restricted the `isPerNight` calculation to only apply when the service is a hotel/lodging:
-    `const isPerNight = isHotel && (activePricing ? activePricing.price_type === 'per_night' : !!reqIsPerNight);`
-  - Preserved the legacy `isPerNight` check within inline commented structures using a `// PRESERVED:` tag.
-- **Validation**:
-  - Validated all code paths, achieving 0 ESLint errors.
-  - Ran typecheck (`tsc --noEmit`) with 0 errors and linting checks (`npm run lint`) with 0 errors.
-  - Validated that a simulated double-occupancy booking for Rodrigues tour property "Villa Ti Zil" (with `price_type` set to `'per_night'`) correctly evaluates to a per-person rate of Rs 47,600 (instead of flat Rs 23,800), saving Rs 23,800 in pricing leakage.
+- **Pricing Engine Safety Alignment & Parity**:
+  - [useServicePricing.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useServicePricing.ts): Aligned the mobile pricing hook safety checks and lookup rules with the web app's `pricingEngine.ts` to resolve group tour pricing discrepancy, configured override selection, and revenue leakage.
+  - Selected `service_type` and `pricing_model_override` fields from the `services` table to accurately establish lodging status (`isHotel`).
+  - Restricted the `isPerNight` rate flag logic to only apply to hotels/lodging.
+  - Ported the web app's `isConfiguredOverride` helper logic to skip unconfigured (zero-valued) price overrides in the date grid, allowing proper fallback to base rates.
+  - Integrated the exact fallback mechanism for sub-tier rates, adult/teen/child/infant pricing, and fallback to lead pricing if an active grid rate resolves to 0.
+  - Preserved the legacy checks within inline commented structures using a `// PRESERVED:` tag.
+- **Validation & End-to-End Simulation**:
+  - Validated all code paths, achieving 0 ESLint errors and 0 TypeScript compilation errors (`tsc --noEmit`).
+  - Added an automated end-to-end pricing simulation suite [test_pricing_scenarios.js](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/tests/test_pricing_scenarios.js) executing 5 complex daily scenarios across different user types, stop-sell dates, tour overrides, meal supplements, and family occupancy limits:
+    - **Scenario 1**: Hotel Booking with Stop-Sell Active (successfully blocks booking on stop dates).
+    - **Scenario 2**: Group Tour Pricing with misconfigured `price_type` (correctly calculates as per-person Rs 47,600, saving Rs 23,800).
+    - **Scenario 3**: Single vs. Double occupancy hotel rates (selects appropriate tier pricing).
+    - **Scenario 4**: Hotel Meal Plan supplements/deltas calculation.
+    - **Scenario 5**: Family bookings on Day Packages (handles multiple participant age-groups and falls back to base rates when overrides are unconfigured).
 
 ---
 
