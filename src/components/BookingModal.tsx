@@ -102,6 +102,11 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
   });
 
   const watchAllFields = watch();
+  const formatToDDMMYYYY = (dateStr: string) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    return parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : dateStr;
+  };
   const selectedRoom = roomTypes.find(r => r.name === watchAllFields.roomType);
 
   const pricingRequest = useMemo(() => ({
@@ -197,7 +202,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
             <Text style={styles.dateLabel}>DEPARTURE</Text>
             <View style={styles.dateValueContainer}>
               <Calendar size={16} color={Colors.primary} />
-              <Text style={styles.dateValue}>{watchAllFields.checkIn}</Text>
+              {/* PRESERVED: <Text style={styles.dateValue}>{watchAllFields.checkIn}</Text> */}
+              <Text style={styles.dateValue}>{formatToDDMMYYYY(watchAllFields.checkIn)}</Text>
             </View>
           </TouchableOpacity>
           <View style={styles.dateDivider} />
@@ -205,7 +211,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
             <Text style={styles.dateLabel}>RETURN</Text>
             <View style={styles.dateValueContainer}>
               <Calendar size={16} color={Colors.primary} />
-              <Text style={styles.dateValue}>{watchAllFields.checkOut}</Text>
+              {/* PRESERVED: <Text style={styles.dateValue}>{watchAllFields.checkOut}</Text> */}
+              <Text style={styles.dateValue}>{formatToDDMMYYYY(watchAllFields.checkOut)}</Text>
             </View>
           </TouchableOpacity>
         </View>

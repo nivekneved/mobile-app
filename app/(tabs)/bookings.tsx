@@ -17,6 +17,15 @@ export default function BookingsScreen() {
   const { bookings, isLoading, error, addGuestCustomerId } = useCustomerBookings();
   const router = useRouter();
 
+  const formatToDDMMYYYY = (dateStr: string) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    return `${day}-${month}-${d.getFullYear()}`;
+  };
+
   // Search/Lookup states
   const [showLookup, setShowLookup] = useState(false);
   const [lookupEmail, setLookupEmail] = useState('');
@@ -116,7 +125,8 @@ export default function BookingsScreen() {
             <View style={styles.infoRow}>
               <Calendar size={12} color={Colors.textSecondary} />
               <Text style={styles.infoText}>
-                {new Date(item.created_at).toLocaleDateString()}
+                {/* PRESERVED: {new Date(item.created_at).toLocaleDateString()} */}
+                {formatToDDMMYYYY(item.created_at)}
               </Text>
             </View>
             <View style={styles.priceContainer}>
