@@ -1,94 +1,56 @@
 # PROJECT_RULES.md
-## Revised Project Rules – Current Project Compliance
-Generated: 2025-11-06
-Version: 3.1 – Enforcement & Compliance
+## Unified Project Rules & Compliance Framework
+Generated: 2026-05-12
+Version: 4.0 — Consolidated & Authoritative
 
-### Purpose
-These rules define a strict enforcement framework for the current project. They ensure that all ongoing work, commits, fixes, and modifications adhere to the highest standards of structure, code quality, UI, performance, security, and validation.
+### 1. MISSION CRITICAL CONSTRAINTS
+- **GEMINI.md**: Never delete, edit, or change this file.
+- **Protected Folders**: Never delete `docs/`, `postman/`, `scripts/`, or `tests/`.
+- **Code Removal**: Never remove existing code; comment it out instead and ensure no other agent deletes it.
+- **Consent**: Do not implement any updates, changes, or edits without explicit user consent.
+- **Environment**: OS is Windows 11. Use PowerShell/CMD commands only (e.g., `del` not `rm`).
+- **Session History Retention**: Retain only the last 7 sessions of conversation databases, protobufs, brains, and browser recordings in the App Data folder. Execute `scripts/clean_agent_history.ps1` to clean up older data.
 
----
+### 2. CODE QUALITY & STANDARDS
+- **Rule 1: Documentation Integrity**: Maintain 100% current docs. Every change must be logged in `docs/05_history.md`.
+- **Rule 2: Automated Validation**: All code must pass linting and `npm run build`.
+- **Rule 3: Pattern Restrictions**: Prohibit `var`, `eval`, `innerHTML`, `document.write`. Use `const/let` and Zod.
+- **Rule 4: Clean Production**: Remove all `console.log` statements before deployment.
 
-### GROUP 1: CODE QUALITY & DOCUMENTATION
-**Rule 1: Keep all documentation complete, concise, and current.**
-- Maintain a clear, up-to-date README.
-- Document all public APIs as applicable.
-- Include inline code comments (≥10% coverage).
-- Ensure package.json contains a correct description.
-- Keep documentation under version control.
+### 3. FILE ORGANIZATION & STRUCTURE
+- **Standard Directories**: `app/`, `components/`, `assets/`, `tests/`, `docs/`, `scripts/`, `constants/`, `lib/`, `hooks/`, `supabase/`.
+- **Naming Conventions**:
+  - `PascalCase` → Components (`BookingWizard.tsx`)
+  - `camelCase` → Utilities/Hooks (`usePageContent.ts`)
+  - `UPPER_SNAKE_CASE` → Constants
+- **Placement**:
+  - `.tsx` → `components/` or `app/`
+  - `.ts` → `lib/` or `types/`
+  - `.sql` → `supabase/migrations/`
 
-**Rule 2: Enforce automated quality and security checks.**
-- Lint, test, and verify code automatically.
-- Detect and resolve style, quality, and complexity issues.
-- Flag deprecated or unsafe patterns (var, eval, with, innerHTML, document.write).
-- Remove console statements in production.
+### 4. UI/UX & AESTHETIC STANDARDS
+- **Boutique Branding**: Standardize on `Red-600` primary theme, `Outfit` typography, and `Slate-300` palette.
+- **Visual Excellence**: Use glassmorphism, vibrant colors, and smooth micro-animations. Avoid generic browser defaults.
+- **Full-Page Experience**: **MANDATORY**: Use dedicated routes/pages instead of modals or popups for primary booking and inquiry forms.
+- **Mobile First**: Minimum font size for labels is `11px`. Ensure all elements fit 320px viewports without overflow.
+- **Assets**: Use authoritative production assets (e.g., `https://travellounge.mu/assets/logo.png`).
 
-**Rule 3: Maintain clean and up-to-date dependencies.**
-- Detect deprecated or unmaintained packages.
-- Ensure consistent import/export usage.
-- Monitor cross-file reference integrity.
+### 5. STATE & PERFORMANCE
+- **State Management**: Use React Context for global state and React Query for server state.
+- **Optimization**: Use `useMemo` and `useCallback` to prevent unnecessary re-renders. Maintain existing image handling and splash screen behavior.
+- **Performance**: Maintain fast load times and smooth transitions using `framer-motion`.
 
----
+### 6. SECURITY & DATA HANDLING
+- **Supabase**: Adhere to strict Row Level Security (RLS). Never bypass RLS in frontend code.
+- **Sanitization**: Sanitize all user inputs and follow existing authentication rules.
+- **Persistence**: Use the `create_booking_v1` RPC for all booking submissions.
 
-### GROUP 2: FILE ORGANIZATION & STRUCTURE
-**Rule 4: Maintain a unified file structure based on project type.**
-- **React Native/Expo**: app/, components/, assets/, tests/, docs/, scripts/, constants/, lib/, hooks/
-- **Web Projects**: src/, tests/, docs/, scripts/, config/, public/
-
-**Rule 5: Maintain consistent project layout.**
-- PascalCase → Components
-- camelCase → Utilities
-- UPPER_SNAKE_CASE → Constants
-
----
-
-### GROUP 3: CHANGE MANAGEMENT
-**Rule 6: Evaluate every change before applying.**
-- Review affected code, configs, and tests.
-- Map dependencies and imports.
-
-**Rule 7: Simulate and validate changes.**
-- Run dry-run simulations before committing.
-- Backup files with timestamps.
-- Validate syntax and compatibility.
-
-**Rule 8: Maintain clear and reversible change history.**
-- Log all changes in AGENTS.md with timestamps.
-- Use Git branching for versioning.
-- Support instant rollback to stable states.
-
----
-
-### GROUP 4: VALIDATION & QUALITY CONTROL
-**Rule 9: Ensure all tasks are fully validated.**
-- Track tasks from initiation to closure.
-- Verify task-specific criteria before marking complete.
-
-**Rule 10: Verify every modification immediately.**
-- Confirm file operations and command execution results.
-- Check syntax, quality, and regression compliance.
-
-**Rule 11: Enforce mandatory quality gates.**
-- Minimum success rate: ≥80% on defined metrics.
-- Document and review critical or security-sensitive changes manually.
-
----
-
-### GROUP 5: FINAL VERIFICATION & STABILITY
-**Rule 12: Ensure project-wide stability.**
-- Validate file permissions, syntax, and functionality.
-- Detect and remove leftover debug or temporary code.
-
-**Rule 13: Certify task completion.**
-- Cross-verify via unified validation tools.
-- Maintain logs, summaries, and audit history.
-
----
-
-### IMPLEMENTATION WORKFLOW
-1. `./scripts/unified-quality-system.sh` (Rules 1–3)
-2. `./scripts/file-structure-manager.sh` (Rules 4–5)
-3. `./scripts/change-manager.sh` (Rules 6–8)
-4. `./scripts/validation-suite.sh` (Rules 9–11)
+### 7. CHANGE MANAGEMENT WORKFLOW
+1. **Analyze**: Map dependencies and review current file states.
+2. **Simulate**: Perform dry-runs and validate syntax.
+3. **Implement**: Apply targeted changes without destructive side effects.
+4. **Verify & Regression Prevention**: Run automated tests, manual UI checks, and verify that prior completed features (as documented in logs/docs) are unaffected. Verify full project compilation (`npm run build` or `tsc`).
+5. **Log**: Update `docs/05_history.md` and commit with descriptive messages.
 
 ---
 
@@ -98,13 +60,15 @@ These rules define a strict enforcement framework for the current project. They 
 
 ## 1. Think Before Coding
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+**Don't assume. Don't hide confusion. Surface tradeoffs. Ask clarifying questions first.**
 
 Before implementing:
 - State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
+- If multiple interpretations exist, present them - don't pick silently. Do not assume or jump straight to fetching answers when the solution space is wide.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
+- **Alignment Directive**: Prioritize interactive alignment. Present 2-3 distinct implementation paths for user selection before touching code.
+- **Slash Command Synergy**: Recommend `/grill-me` for design alignment, `/learn` to capture successful correction patterns, and `/goal` for thorough E2E verification tasks.
 
 ## 2. Simplicity First
 
