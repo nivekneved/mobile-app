@@ -3,7 +3,7 @@
 ## 2026-06-29 — iOS App Store Submission Preparation
 - **Build & Submission Configurations**:
   - [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json): Configured `ios.buildNumber` to `"1.0.2"` and updated iOS `bundleIdentifier` to `"com.travellounge.mobile"` to match the App Store Connect application registry.
-  - [eas.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/eas.json): Added `EXPO_PUBLIC_API_URL` to `production` environment profile, pointing to `https://www.travellounge.mu`.
+  - [eas.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/eas.json): Added `EXPO_PUBLIC_API_URL` to `production` environment profile, and configured App Store Connect submission profile with `ascAppId` (`"6785522609"`) and `appleId` (`"devenpawaray@gmail.com"`).
 - **Dynamic API Endpoints & Environment Best Practices**:
   - [[id].tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/services/%5Bid%5D.tsx): Refactored the booking notification API call. Commented out the hardcoded production API endpoint URL `https://www.travellounge.mu/api/notify/booking` to satisfy code preservation constraints, and replaced it with a dynamic call using `process.env.EXPO_PUBLIC_API_URL` with a fallback.
 - **Verification & Compliance Checks**:
