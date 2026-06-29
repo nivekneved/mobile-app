@@ -10,11 +10,12 @@ module.exports = function withFmtFix(config) {
       let podfile = fs.readFileSync(podfilePath, 'utf8');
 
       if (!podfile.includes('Workaround for fmt consteval errors')) {
-        const lastEndIndex = podfile.lastIndexOf('end');
-        if (lastEndIndex !== -1) {
-          console.log('[withFmtFix] Found closing end keyword of the post_install block. Inserting build setting patch...');
+        const regex = /react_native_post_install\([\s\S]*?\)/;
+        if (regex.test(podfile)) {
+          console.log('[withFmtFix] Found react_native_post_install call. Injecting C++17 patch after it...');
           
           const patch = `
+
   # Workaround for fmt consteval errors with Xcode 16+ / Xcode 26+
   installer.pods_project.targets.each do |target|
     if target.name == 'fmt'
@@ -25,11 +26,11 @@ module.exports = function withFmtFix(config) {
   end
 `;
 
-          podfile = podfile.slice(0, lastEndIndex) + patch + '\n' + podfile.slice(lastEndIndex);
+          podfile = podfile.replace(regex, (match) => match + patch);
           fs.writeFileSync(podfilePath, podfile);
           console.log('[withFmtFix] Podfile successfully patched.');
         } else {
-          console.warn('[withFmtFix] WARNING: Could not find any "end" keyword in Podfile!');
+          console.warn('[withFmtFix] WARNING: Could not find react_native_post_install in Podfile!');
         }
       } else {
         console.log('[withFmtFix] Podfile already contains the fmt patch.');
