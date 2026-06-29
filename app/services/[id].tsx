@@ -718,7 +718,9 @@ export default function ServiceDetailScreen() {
               const bookingRef = `TL-${Date.now().toString().slice(-6)}`;
               
               // Note: Non-blocking fetch to prevent UI hang on slow production networks
-              fetch('https://www.travellounge.mu/api/notify/booking', {
+              // fetch('https://www.travellounge.mu/api/notify/booking', {
+              const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL || 'https://www.travellounge.mu';
+              fetch(`${apiBaseUrl}/api/notify/booking`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
