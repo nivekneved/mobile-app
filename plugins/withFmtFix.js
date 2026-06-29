@@ -21,8 +21,23 @@ module.exports = function withFmtFix(config) {
 `;
 
       if (!podfile.includes('Workaround for fmt consteval errors')) {
-        podfile = podfile.replace(/post_install do \|installer\|/, `post_install do |installer|${patch}`);
-        fs.writeFileSync(podfilePath, podfile);
+        const regex = /post_install\s+do\s*\|\s*installer\s*\|/;
+        if (regex.test(podfile)) {
+          console.log('[withFmtFix] Found post_install block. Patching with C++17 standard for the fmt library...');
+          podfile = podfile.replace(regex, `post_install do |installer|${patch}`);
+          fs.writeFileSync(podfilePath, podfile);
+          console.log('[withFmtFix] Podfile successfully patched.');
+        } else {
+          console.warn('[withFmtFix] WARNING: Could not find post_install block in Podfile! Appending block at the end.');
+          podfile += `
+post_install do |installer|
+${patch}
+end
+`;
+          fs.writeFileSync(podfilePath, podfile);
+        }
+      } else {
+        console.log('[withFmtFix] Podfile already contains fmt patch.');
       }
       return config;
     },
