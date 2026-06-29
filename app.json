@@ -32,6 +32,7 @@
     "primaryColor": "#DC2626",
     "scheme": "travellounge",
     "plugins": [
+      "./plugins/withFmtFix",
       "expo-router",
       "expo-font",
       "expo-secure-store",
