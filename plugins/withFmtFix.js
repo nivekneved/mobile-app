@@ -10,7 +10,8 @@ module.exports = function withFmtFix(config) {
       let podfile = fs.readFileSync(podfilePath, 'utf8');
 
       const patch = `
-  # Workaround for fmt consteval errors with Xcode 16+ / Xcode 26+
+# Workaround for fmt consteval errors with Xcode 16+ / Xcode 26+
+post_install do |installer|
   installer.pods_project.targets.each do |target|
     if target.name == 'fmt'
       target.build_configurations.each do |config|
@@ -18,26 +19,16 @@ module.exports = function withFmtFix(config) {
       end
     end
   end
+end
 `;
 
       if (!podfile.includes('Workaround for fmt consteval errors')) {
-        const regex = /post_install\s+do\s*\|\s*installer\s*\|/;
-        if (regex.test(podfile)) {
-          console.log('[withFmtFix] Found post_install block. Patching with C++17 standard for the fmt library...');
-          podfile = podfile.replace(regex, `post_install do |installer|${patch}`);
-          fs.writeFileSync(podfilePath, podfile);
-          console.log('[withFmtFix] Podfile successfully patched.');
-        } else {
-          console.warn('[withFmtFix] WARNING: Could not find post_install block in Podfile! Appending block at the end.');
-          podfile += `
-post_install do |installer|
-${patch}
-end
-`;
-          fs.writeFileSync(podfilePath, podfile);
-        }
+        console.log('[withFmtFix] Appending C++17 build setting patch to the end of the Podfile...');
+        podfile += '\n' + patch;
+        fs.writeFileSync(podfilePath, podfile);
+        console.log('[withFmtFix] Podfile successfully updated.');
       } else {
-        console.log('[withFmtFix] Podfile already contains fmt patch.');
+        console.log('[withFmtFix] Podfile already contains the fmt patch.');
       }
       return config;
     },
