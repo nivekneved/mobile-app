@@ -82,7 +82,7 @@ export const AIConcierge = () => {
       if (lower.includes('hotel') || lower.includes('resort') || lower.includes('stay') || lower.includes('room')) {
         replyText = "I can highly recommend our premier properties like Anelia Resort & Spa or Tamassa Resorts. Would you like to explore our hotels and room availability?";
       } else if (lower.includes('transfer') || lower.includes('airport') || lower.includes('car') || lower.includes('pickup')) {
-        replyText = "We offer private VIP airport pickups and flight booking assistance. You can book airport transfers directly inside the booking modal add-ons selection!";
+        replyText = "We offer flight booking assistance. For airport transfers, private car rentals, or transit arrangements, please chat directly with our concierge support!";
       } else if (lower.includes('deal') || lower.includes('promo') || lower.includes('offer')) {
         replyText = "We have active seasonal deals for Mauritian stays! You can discover them on the Explore page or by tapping the help widgets.";
       }

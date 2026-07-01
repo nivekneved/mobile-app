@@ -163,7 +163,7 @@ export default function HomeScreen() {
             </ScrollView>
         </View>
 
-        {/* Premium Quick Filters (Restored with Better UI) */}
+        {/* Premium Quick Filters (Restored with Better UI) - COMMENTED OUT AS PER USER REQUEST. DO NOT DELETE THIS CODE BLOCK AS PER PRESERVATION RULES.
         <View style={styles.quickFiltersContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickFiltersScroll}>
             <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#FEF2F2' }]} onPress={() => router.push('/explore?benefits=all-inclusive')}>
@@ -197,6 +197,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </ScrollView>
         </View>
+        */}
 
         {/* Exclusive Deals with Benefit Visibility */}
         <View style={[styles.section, styles.featuredSection]}>
@@ -218,7 +219,7 @@ export default function HomeScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuredList}>
             {featuredServices && featuredServices.length > 0 ? (
               featuredServices
-                .filter(s => s && (s.name?.toLowerCase().includes('evening package') || s.service_type?.toLowerCase().includes('evening package')))
+                /* PRESERVED: .filter(s => s && (s.name?.toLowerCase().includes('evening package') || s.service_type?.toLowerCase().includes('evening package'))) */
                 .map((service) => (
                 <ServiceCard 
                   key={service.id} 

@@ -134,7 +134,7 @@ export default function FlightsScreen() {
           </View>
         </View>
 
-        {/* Premium Aviation Switcher */}
+        {/* Premium Aviation Switcher - COMMENTED OUT AS PER USER REQUEST. PRIVATE CHARTERS TO BE HIDDEN. DO NOT DELETE.
         <View style={styles.tabWrapper}>
           <View style={styles.tabContainer}>
             <TouchableOpacity 
@@ -154,9 +154,10 @@ export default function FlightsScreen() {
             </TouchableOpacity>
           </View>
         </View>
+        */}
 
-        {/* Content Body Based on Tab Selection */}
-        {activeTab === 'commercial' ? (
+        {/* Content Body Based on Tab Selection - FORCED TO COMMERCIAL ONLY AS PER USER REQUEST */}
+        {true || activeTab === 'commercial' ? (
           <View style={styles.searchSection}>
             <Surface style={styles.searchContainer} elevation={3}>
               <View style={styles.searchHeader}>
@@ -261,6 +262,7 @@ export default function FlightsScreen() {
             </Surface>
           </View>
         ) : (
+          /* PRESERVED: Private Charters UI section commented out as per user request. Do not delete this code.
           <View style={styles.charterSection}>
             <Surface style={styles.charterCard} elevation={3}>
               <Image 
@@ -291,6 +293,8 @@ export default function FlightsScreen() {
               </View>
             </Surface>
           </View>
+          */
+          null
         )}
 
         {/* Elite Assistance Section */}

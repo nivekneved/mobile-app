@@ -1,5 +1,20 @@
 # Development Log
 
+## 2026-06-30 — Mobile UI Tweaks & Supabase Search Alignment
+- **Quick Filters Hidden**:
+  - [index.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/index.tsx): Commented out the `quickFiltersContainer` section to hide the "All-Inclusive", "Best Prices", and "Flights" category shortcut buttons from the homepage.
+- **Charters & Transfers Hiding**:
+  - [flights.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/flights.tsx): Commented out the premium aviation switcher (tab selector) and private charters section, locking the flight screen to display only commercial airline routes.
+  - [BookingModal.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/BookingModal.tsx): Commented out the `'airport_transfer'` element inside `AVAILABLE_ADDONS` to remove it from checkout add-on choices.
+  - [AIConcierge.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/AIConcierge.tsx): Updated the bot response rule for transfer queries to direct users to live concierge support instead of mentioning in-app booking add-ons.
+- **Database Services Rendering Fix**:
+  - [useHomeData.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useHomeData.ts): Aligned the query with web-app storefront logic by filtering `services` directly in the database call for active seasonal deals (`.eq('is_seasonal_deal', true).eq('is_active', true)`).
+  - [index.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/index.tsx): Commented out the local frontend filter restriction that only permitted `'evening package'` services to display, enabling the deals section to dynamically render all fetched active seasonal deals from Supabase.
+- **Verification**:
+  - Confirmed clean TypeScript compilation checks (`npm run type-check`) with zero errors.
+
+---
+
 ## 2026-06-29 — iOS App Store Submission Preparation
 - **Build & Submission Configurations**:
   - [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json): Configured `ios.buildNumber` to `"1.0.2"` and updated iOS `bundleIdentifier` to `"com.travellounge.mobile"` to match the App Store Connect application registry.

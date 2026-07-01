@@ -61,7 +61,7 @@ interface BookingModalProps {
 // ];
 
 const AVAILABLE_ADDONS = [
-  { id: 'airport_transfer', name: 'Airport Transfer', price: 2500, icon: Car, description: 'Private VIP pickup from SSR Airport', type: 'flat' },
+  // PRESERVED: { id: 'airport_transfer', name: 'Airport Transfer', price: 2500, icon: Car, description: 'Private VIP pickup from SSR Airport', type: 'flat' },
   { id: 'sim_card', name: 'Local SIM Card', price: 500, icon: Smartphone, description: '100GB 5G Data pre-activated', type: 'per_person' },
   { id: 'spa_voucher', name: 'Premium Spa', price: 3500, icon: Moon, description: '60-min Holistic Mauritian Massage', type: 'per_person' },
   { id: 'early_checkin', name: 'Early Check-in', price: 1500, icon: Clock, description: 'Arrival from 09:00 (Subject to availability)', type: 'flat' },

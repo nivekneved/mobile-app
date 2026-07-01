@@ -84,7 +84,7 @@ export const useHomeData = () => {
         ] = await Promise.all([
           supabase.from('hero_slides').select('*').order('order_index', { ascending: true }),
           supabase.from('categories').select('*').order('display_order', { ascending: true, nullsFirst: false }),
-          supabase.from('services').select('*, service_pricing(price, occupancy_pricing), service_categories(categories(name))').order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(10),
+          supabase.from('services').select('*, service_pricing(price, occupancy_pricing), service_categories(categories(name))').eq('is_seasonal_deal', true).eq('is_active', true).order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(10),
           supabase.from('services').select('region').not('region', 'is', null)
         ]);
         
