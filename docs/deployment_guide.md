@@ -59,3 +59,25 @@ npx eas build --platform all --profile production
 * **iOS:** 
   * On a Mac, install the **Transporter** app from the Mac App Store, log in with your Apple ID, and drop the `.ipa` file to upload.
   * Alternatively, run `npx eas submit --platform ios` and pass the path to the downloaded `.ipa` file.
+
+---
+
+## ❓ FAQs & Troubleshooting
+
+### Q1: What is Google Play Console's "Internal Testing" track?
+* **A:** Internal Testing is the fastest track for distributing early builds of your app to a controlled list of up to 100 testers.
+* **Why use it?** It completely bypasses Google's manual app review process (which can take 1 to 7+ days). Your builds are available on testers' devices almost instantly (within 10-15 minutes of upload).
+* **Promotion:** Once tested and verified, the exact same build can be promoted to Closed Testing or Production with a single click.
+
+### Q2: Besides Gmail, what other email domains can be used for Play Store testing?
+* **Google Workspace Custom Domains:** Any professional email address managed under a Google Workspace organization (e.g., `@travellounge.mu`) works natively.
+* **Any Custom Email Linked to a Google Account:** Testers can link their existing non-Gmail addresses (like Outlook, Yahoo, etc.) to a Google account at [accounts.google.com/signup](https://accounts.google.com/signup) by selecting *"Use my current email address instead"*. Once linked, they can sign in to the Play Store and join the test.
+
+### Q3: Error: "You've already submitted this version of the app" / Version Code Conflict
+* **A:** Google Play Console requires every new app upload to have a strictly higher `versionCode` than the last one uploaded.
+* **How to fix:**
+  1. Open [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json).
+  2. Increment `expo.android.versionCode` (e.g., from `5` to `6`).
+  3. Optionally, bump `expo.version` (user-facing version, e.g., from `"1.0.2"` to `"1.0.3"`).
+  4. Run `eas build` again.
+
