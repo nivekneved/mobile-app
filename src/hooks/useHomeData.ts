@@ -75,7 +75,8 @@ export const useHomeData = () => {
       try {
         setIsLoading(true);
         
-        // PERF-3 fix: Run all 4 queries in parallel (was sequential — 4 round-trips → 1)
+        // PRESERVED ORIGINAL BLOCK COMMENTED OUT:
+        /*
         const [
           { data: slides, error: slidesError },
           { data: cats, error: catsError },
@@ -106,6 +107,62 @@ export const useHomeData = () => {
           const lowestPrice = calculateLeadPrice(s.service_pricing || [], s.service_type);
           return { ...s, price: lowestPrice, lowestPrice, category: categoryName };
         });
+        */
+
+        // OPTIMIZED SPLIT QUERY:
+        const [
+          { data: slides, error: slidesError },
+          { data: cats, error: catsError },
+          { data: servicesRaw, error: servicesError },
+          { data: regionData, error: regionError }
+        ] = await Promise.all([
+          supabase.from('hero_slides').select('*').order('order_index', { ascending: true }),
+          supabase.from('categories').select('*').order('display_order', { ascending: true, nullsFirst: false }),
+          supabase.from('services').select('*').order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(10),
+          supabase.from('services').select('region').not('region', 'is', null)
+        ]);
+
+        let mappedServices: any[] = [];
+        if (servicesRaw && servicesRaw.length > 0) {
+          const serviceIds = servicesRaw.map((s: any) => s.id);
+          const [
+            { data: pricing, error: pricingError },
+            { data: categoriesRel, error: catError }
+          ] = await Promise.all([
+            supabase.from('service_pricing').select('service_id, price, occupancy_pricing').in('service_id', serviceIds),
+            supabase.from('service_categories').select('service_id, categories(name)').in('service_id', serviceIds)
+          ]);
+
+          if (pricingError) console.error('Supabase error (service_pricing):', pricingError);
+          if (catError) console.error('Supabase error (service_categories):', catError);
+
+          mappedServices = servicesRaw.map((s: any) => {
+            const sPricing = pricing ? pricing.filter((p: any) => p.service_id === s.id) : [];
+            const sCats = categoriesRel ? categoriesRel.filter((c: any) => c.service_id === s.id) : [];
+            const categoryObj = sCats?.[0]?.categories as any;
+            const categoryName = (Array.isArray(categoryObj) ? categoryObj[0]?.name : categoryObj?.name) || s.service_type || 'Experience';
+            const lowestPrice = calculateLeadPrice(sPricing, s.service_type);
+            return { ...s, price: lowestPrice, lowestPrice, category: categoryName };
+          });
+        }
+
+        if (slidesError) {
+          console.error('Supabase error (hero_slides):', slidesError);
+        } else {
+          setHeroSlides(slides || []);
+        }
+
+        if (catsError) {
+          console.error('Supabase error (categories):', catsError);
+        } else {
+          setCategories(cats || []);
+        }
+
+        if (servicesError) {
+          console.error('Supabase error (services):', servicesError);
+        } else {
+          setFeaturedServices(mappedServices);
+        }
 
         if (!regionError && regionData) {
           const uniqueRegions = [...new Set((regionData as {region: string}[]).map(r => r.region))];
@@ -117,10 +174,6 @@ export const useHomeData = () => {
           }));
           setDestinations(mappedDestinations);
         }
-
-        setHeroSlides(slides || []);
-        setCategories(cats || []);
-        setFeaturedServices(mappedServices);
       } catch (err: any) {
         console.error('Home Data Error:', err.message || err);
         setError(err.message || 'An error occurred while loading home data');

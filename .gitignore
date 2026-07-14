@@ -66,3 +66,6 @@ scratch/
 # Obsolete docs kept locally but ignored
 /docs/11_mobile_parity_audit.md
 
+
+# Ecosystem credentials document
+docs/credentials.json
