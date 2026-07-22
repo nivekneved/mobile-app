@@ -1,4 +1,10 @@
-const { withDangerousMod } = require('@expo/config-plugins');
+let withDangerousMod;
+try {
+  withDangerousMod = require('@expo/config-plugins').withDangerousMod;
+} catch (e) {
+  // Fallback if @expo/config-plugins is missing or running in bundled environment
+  withDangerousMod = (config) => config;
+}
 const fs = require('fs');
 const path = require('path');
 

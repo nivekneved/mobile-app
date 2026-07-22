@@ -1,6 +1,10 @@
 # Development Log
 
-## 2026-07-22 — Service & Room-Level Strikethrough Price Support (Mobile App v1.0.5 / Code 8)
+## 2026-07-22 — Service & Room-Level Strikethrough Price Support & Build Fix (Mobile App v1.0.5 / Code 8)
+- **Expo Build Blocker Fix**:
+  - [package.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L55): Added `@expo/config-plugins`: `"~9.0.0"` to `devDependencies` to resolve `Cannot find module '@expo/config-plugins'` build error during Expo config plugin resolution.
+  - [plugins/withFmtFix.js](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/plugins/withFmtFix.js#L1-L7): Added graceful fallback wrapper for `@expo/config-plugins` import to ensure safe build execution.
+  - Verified clean evaluation with `npx expo config` (0 errors).
 - **App Store & Google Play Release Increment**:
   - [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L5): Incremented Expo version to `1.0.5`, `android.versionCode` from 7 to `8`, and `ios.buildNumber` from 3 to `"4"` to eliminate Google Play Store release conflicts.
   - [package.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L3): Updated package version to `1.0.5`.
