@@ -1,6 +1,10 @@
 # Development Log
 
-## 2026-07-22 — Service & Room-Level Strikethrough Price Support (Mobile App)
+## 2026-07-22 — Service & Room-Level Strikethrough Price Support (Mobile App v1.0.5 / Code 8)
+- **App Store & Google Play Release Increment**:
+  - [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L5): Incremented Expo version to `1.0.5`, `android.versionCode` from 7 to `8`, and `ios.buildNumber` from 3 to `"4"` to eliminate Google Play Store release conflicts.
+  - [package.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L3): Updated package version to `1.0.5`.
+  - [build.gradle](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/app/build.gradle#L94-L95): Synchronized native `versionCode 8` and `versionName "1.0.5"`.
 - **Service Cards & Listings**:
   - [ServiceCard.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/ServiceCard.tsx): Added `strikethrough_price?: number` to `ServiceCardProps` and rendered original price badge with `textDecorationLine: 'line-through'` when `strikethrough_price > price`.
   - [index.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/index.tsx), [explore.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/explore.tsx), & [local-deals.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/local-deals.tsx): Passed `strikethrough_price` prop to `ServiceCard` instances.
