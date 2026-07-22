@@ -1,5 +1,13 @@
 # Development Log
 
+## 2026-07-22 — Android Target SDK Upgrade to API Level 36 (Android 16)
+- **Android Target API Level Upgrade**:
+  - [app.json (mobile-app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L44-L48): Updated `targetSdkVersion` from 35 to 36, `compileSdkVersion` from 35 to 36, and `buildToolsVersion` to `"36.0.0"` under `expo-build-properties` to comply with Google Play Android 16 requirements.
+  - [gradle.properties](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/gradle.properties#L58-L60): Synchronized `android.compileSdkVersion=36`, `android.targetSdkVersion=36`, and `android.buildToolsVersion=36.0.0`.
+  - [build.gradle](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/build.gradle#L5-L8): Updated native fallback parameters to `compileSdkVersion 36`, `targetSdkVersion 36`, and `buildToolsVersion "36.0.0"`.
+
+---
+
 ## 2026-06-24 — Booking Add-ons, Parity Integration & Pricing Engine Safety Alignment
 - **Occupancy-Based Booking Add-ons**:
   - [BookingModal.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/BookingModal.tsx): Configured mock add-ons (Airport Transfer, SIM Card, Spa Voucher, Early Check-in) with flat vs. per-person multipliers.
