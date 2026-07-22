@@ -5,6 +5,8 @@
   - [package.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L55): Added `@expo/config-plugins`: `"~9.0.0"` to `devDependencies` to resolve `Cannot find module '@expo/config-plugins'` build error during Expo config plugin resolution.
   - [plugins/withFmtFix.js](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/plugins/withFmtFix.js#L1-L7): Added graceful fallback wrapper for `@expo/config-plugins` import to ensure safe build execution.
   - Verified clean evaluation with `npx expo config` (0 errors).
+- **Expo Developer Account Owner**:
+  - [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L64): Updated Expo project owner from `travellounge` to `devenweb`.
 - **App Store & Google Play Release Increment**:
   - [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L5): Incremented Expo version to `1.0.5`, `android.versionCode` from 7 to `8`, and `ios.buildNumber` from 3 to `"4"` to eliminate Google Play Store release conflicts.
   - [package.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L3): Updated package version to `1.0.5`.
