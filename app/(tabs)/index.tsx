@@ -138,10 +138,17 @@ export default function HomeScreen() {
               showsHorizontalScrollIndicator={false} 
               contentContainerStyle={styles.categoryScroll}
             >
+              {/* PRESERVED ORIGINAL SYNTHESIZED CATEGORIES AS COMMENT PER USER RULES:
               {categories.length > 0 ? [
                 ...categories.filter(cat => cat.slug !== 'activities'),
                 ...(!categories.find(c => c.slug === 'sea-activities') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea', image_url: '' }] : []),
                 ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land', image_url: '' }] : [])
+              ].map((cat: any) => (
+              */}
+              {categories.length > 0 ? [
+                ...categories.filter(cat => cat.slug !== 'activities'),
+                ...(!categories.find(c => c.slug === 'sea-activities') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea', image_url: 'assets/categories/cruises.jpg' }] : []),
+                ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land', image_url: 'assets/categories/activities.jpg' }] : [])
               ].map((cat: any) => (
                 <CategoryCard 
                   key={cat.id} 
@@ -225,6 +232,7 @@ export default function HomeScreen() {
                   name={service.name} 
                   image_url={service.image_url} 
                   price={service.price || 0}
+                  strikethrough_price={service.strikethrough_price}
                   category={service.category} 
                   location={service.location}
                   rating={service.rating}

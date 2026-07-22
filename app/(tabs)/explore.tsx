@@ -91,6 +91,7 @@ export default function ExploreScreen() {
         name={item.name}
         image_url={item.image_url}
         price={item.price}
+        strikethrough_price={item.strikethrough_price}
         category={item.category}
         location={item.location}
         rating={item.rating}

@@ -146,6 +146,7 @@ export default function LocalDealsScreen() {
                     name={service.name} 
                     image_url={service.image_url} 
                     price={service.price || 0}
+                    strikethrough_price={service.strikethrough_price}
                     category={service.category} 
                     location={service.location}
                     rating={service.rating}

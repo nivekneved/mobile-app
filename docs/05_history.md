@@ -1,5 +1,15 @@
 # Development Log
 
+## 2026-07-22 — Service & Room-Level Strikethrough Price Support (Mobile App)
+- **Service Cards & Listings**:
+  - [ServiceCard.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/ServiceCard.tsx): Added `strikethrough_price?: number` to `ServiceCardProps` and rendered original price badge with `textDecorationLine: 'line-through'` when `strikethrough_price > price`.
+  - [index.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/index.tsx), [explore.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/explore.tsx), & [local-deals.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/local-deals.tsx): Passed `strikethrough_price` prop to `ServiceCard` instances.
+- **Hotel Room Variants**:
+  - [useRoomTypes.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useRoomTypes.ts): Added `strikethrough_price?: number` to `RoomType` interface.
+  - [services/[id].tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/services/%5Bid%5D.tsx): Mapped `strikethrough_price` and rendered strikethrough prices on hotel room option cards.
+
+---
+
 ## 2026-07-22 — Android Target SDK Upgrade to API Level 36 (Android 16)
 - **Android Target API Level Upgrade**:
   - [app.json (mobile-app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L44-L48): Updated `targetSdkVersion` from 35 to 36, `compileSdkVersion` from 35 to 36, and `buildToolsVersion` to `"36.0.0"` under `expo-build-properties` to comply with Google Play Android 16 requirements.

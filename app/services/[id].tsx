@@ -128,6 +128,7 @@ export default function ServiceDetailScreen() {
           max_children: room.max_children || room.maxChildren || 0,
           max_infants: room.max_infants || room.maxInfants || 0,
           description: room.description || room.details || room.desc,
+          strikethrough_price: room.strikethrough_price || room.strikethroughPrice,
           amenities: Array.isArray(room.features) ? room.features : 
                      (typeof room.features === 'string' ? room.features.split(',').map((f: string) => f.trim()) : [])
         };
@@ -370,6 +371,9 @@ export default function ServiceDetailScreen() {
                     {room.weekday_price > 0 && (
                       <View style={styles.variantPriceBadge}>
                         <Text style={styles.variantPriceLabel}>FROM</Text>
+                        {Boolean(room.strikethrough_price && Number(room.strikethrough_price) > Number(room.weekday_price)) && (
+                          <Text style={styles.roomStrikethroughVal}>Rs {Number(room.strikethrough_price).toLocaleString()}</Text>
+                        )}
                         <Text style={styles.variantPriceVal}>Rs {room.weekday_price.toLocaleString()}</Text>
                       </View>
                     )}
@@ -906,7 +910,8 @@ const styles = StyleSheet.create({
   featureItem: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.slate[50], paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: Colors.border, minWidth: '45%' },
   featureText: { fontFamily: 'Outfit_600SemiBold', fontSize: 11, color: Colors.charcoal },
   variantPriceBadge: { position: 'absolute', top: 24, right: 24, backgroundColor: Colors.white, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
-  variantPriceLabel: { fontFamily: 'Outfit_900Black', fontSize: 8, color: Colors.slate[400], letterSpacing: 1 },
+  variantPriceLabel: { fontFamily: 'Outfit_900Black', fontSize: 9, color: Colors.slate[400], letterSpacing: 1 },
+  roomStrikethroughVal: { fontFamily: 'Outfit_700Bold', fontSize: 11, color: Colors.slate[400], textDecorationLine: 'line-through' },
   variantPriceVal: { fontFamily: 'Outfit_900Black', fontSize: 13, color: Colors.charcoal },
   mealPlansContainer: {
     flexDirection: 'row',

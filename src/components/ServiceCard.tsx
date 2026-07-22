@@ -25,6 +25,7 @@ interface ServiceCardProps {
   deal_note?: string;
   description?: string;
   short_description?: string;
+  strikethrough_price?: number;
 }
 
 const getMealPlanAbbreviation = (label: string) => {
@@ -39,7 +40,8 @@ const getMealPlanAbbreviation = (label: string) => {
 
 export const ServiceCard = ({ 
   name, image_url, price, category, location, onPress, fullWidth,
-  rating, duration, amenities, meal_plans, activity_type, is_seasonal, deal_note, description, short_description 
+  rating, duration, amenities, meal_plans, activity_type, is_seasonal, deal_note, description, short_description,
+  strikethrough_price
 }: ServiceCardProps) => {
   const { width } = useWindowDimensions();
   const { generalConfig } = useSettings();
@@ -86,6 +88,11 @@ export const ServiceCard = ({
 
           <View style={styles.priceTag}>
             <Text style={styles.priceLabel}>{labels.as_from || 'AS FROM'}</Text>
+            {Boolean(strikethrough_price && Number(strikethrough_price) > Number(price)) && (
+              <Text style={styles.strikethroughPrice}>
+                Rs {Number(strikethrough_price).toLocaleString()}
+              </Text>
+            )}
             <Text style={styles.priceValue}>
               Rs {price?.toLocaleString() || '0'}
             </Text>
@@ -220,6 +227,12 @@ const styles = StyleSheet.create({
     color: Colors.slate[400],
     letterSpacing: 1.5,
     marginBottom: 2,
+  },
+  strikethroughPrice: {
+    fontFamily: 'Outfit_700Bold',
+    fontSize: 10,
+    color: Colors.slate[400],
+    textDecorationLine: 'line-through',
   },
   priceValue: {
     fontFamily: 'Outfit_900Black',
