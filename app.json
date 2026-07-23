@@ -2,7 +2,7 @@
   "expo": {
     "name": "Travel Lounge",
     "slug": "mobile-app",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,13 +14,13 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.travellounge.mu",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "versionCode": 8,
+      "versionCode": 9,
       "package": "com.travellounge.mu",
       "adaptiveIcon": {
         "backgroundColor": "#DC2626",
@@ -61,6 +61,6 @@
         "projectId": "66687993-0165-43df-8d28-8d43701b3d56"
       }
     },
-    "owner": "devenweb"
+    "owner": "travellounge"
   }
 }

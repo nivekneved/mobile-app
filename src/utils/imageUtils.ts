@@ -1,4 +1,19 @@
-import { ImageSourcePropType } from 'react-native';
+// Category fallback asset mapper for offline / empty image URLs
+export const getCategoryFallbackAsset = (contextKey?: string): ImageSourcePropType => {
+  const key = (contextKey || '').toLowerCase().trim();
+  if (key.includes('hotel') || key.includes('stay')) return require('../../assets/categories/hotels.jpg');
+  if (key.includes('day-package') || key.includes('day_package') || key.includes('evening')) return require('../../assets/categories/day-packages.jpg');
+  if (key.includes('cruise') || key.includes('sea')) return require('../../assets/categories/cruises.jpg');
+  if (key.includes('tour') || key.includes('package') || key.includes('travel') || key.includes('mauritius')) return require('../../assets/categories/group-tours.jpg');
+  if (urlKeyMatch(key, 'rodrigues')) return require('../../assets/categories/rodrigues.jpg');
+  if (key.includes('flight')) return require('../../assets/categories/flights.jpg');
+  if (key.includes('activity') || key.includes('activities') || key.includes('land')) return require('../../assets/categories/activities.jpg');
+  return require('../../assets/categories/activities.jpg');
+};
+
+function urlKeyMatch(str: string, target: string): boolean {
+  return str.includes(target);
+}
 
 /**
  * Resolves an image URL from the database into a React Native Image source.
@@ -6,15 +21,20 @@ import { ImageSourcePropType } from 'react-native';
  * 1. Absolute URLs
  * 2. Supabase relative storage paths (services/..., hotels/...)
  * 3. Mobile bundle assets for categories
- * 
- * Supports dynamic resizing via width/height parameters for Supabase assets.
  */
-export const resolveImageUrl = (url: string | null | undefined, width?: number, height?: number) => {
-  if (!url) return require('../../assets/icon.png'); // Default fallback to app icon
+export const resolveImageUrl = (
+  url: string | null | undefined, 
+  width?: number, 
+  height?: number,
+  categoryContext?: string
+) => {
+  if (!url || url.trim() === '') {
+    if (categoryContext) return getCategoryFallbackAsset(categoryContext);
+    return require('../../assets/icon.png');
+  }
 
-  // 1. Handle bundle assets (if starting with /assets/ or a relative path we recognize)
+  // 1. Handle bundle assets (if starting with /assets/ or relative path we recognize)
   if (typeof url === 'string' && (url.startsWith('assets/') || url.includes('/assets/'))) {
-    // Map known web-app placeholders to mobile assets
     if (url.includes('activities')) return require('../../assets/categories/activities.jpg');
     if (url.includes('day-packages')) return require('../../assets/categories/day-packages.jpg');
     if (url.includes('cruises')) return require('../../assets/categories/cruises.jpg');
@@ -23,25 +43,30 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
     if (url.includes('hotels')) return require('../../assets/categories/hotels.jpg');
     if (url.includes('flights')) return require('../../assets/categories/flights.jpg');
  
-    // Hero Slider Placeholders (New)
     if (url.includes('hero-flight')) return require('../../assets/placeholders/hero-flight.jpg');
     if (url.includes('hero-cruise')) return require('../../assets/placeholders/hero-cruise.jpg');
     if (url.includes('hero-hotel')) return require('../../assets/placeholders/hero-hotel.jpg');
     if (url.includes('hero-adventure')) return require('../../assets/placeholders/hero-adventure.jpg');
     
-    // Generic placeholder fallback for other asset paths
+    if (categoryContext) return getCategoryFallbackAsset(categoryContext);
     return require('../../assets/icon.png');
   }
 
   // 2. Handle Absolute URLs (external or already resolved)
   if (typeof url === 'string' && url.startsWith('http')) {
     let finalUrl = url;
-    // Add Supabase resizing parameters if it's a Supabase storage URL
+    // PRESERVED ORIGINAL TRANSFORM URL LOGIC AS COMMENT PER USER RULES:
+    /*
     if (url.includes('supabase.co/storage/v1/render/image/public') || url.includes('supabase.co/storage/v1/object/public')) {
       const separator = url.includes('?') ? '&' : '?';
       if (width) finalUrl += `${separator}width=${width}`;
       if (height) finalUrl += `${finalUrl.includes('?') ? '&' : '?'}height=${height}`;
       if (width || height) finalUrl += `&quality=80&resize=contain`;
+    }
+    */
+    // Clean URL resolution without broken render params:
+    if (url.includes('supabase.co/storage/v1/render/image/public')) {
+      finalUrl = url.replace('/storage/v1/render/image/public/', '/storage/v1/object/public/').split('?')[0];
     }
     return { uri: finalUrl };
   }
@@ -53,13 +78,14 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
   let filePath = url;
   let finalBucket = 'bucket';
 
-  // If the path already contains the bucket (e.g., 'bucket/branding/logo.png')
   if (url.startsWith('bucket/')) {
     filePath = url.replace('bucket/', '');
   }
 
   const baseUrl = `${supabaseUrl}/storage/v1/object/public/${finalBucket}/${filePath}`;
   
+  // PRESERVED ORIGINAL RENDER TRANSFORMATION CODE COMMENTED OUT PER USER RULES:
+  /*
   if (width || height) {
     const renderUrl = `${supabaseUrl}/storage/v1/render/image/public/${finalBucket}/${filePath}`;
     let transform = '?';
@@ -67,6 +93,9 @@ export const resolveImageUrl = (url: string | null | undefined, width?: number, 
     if (height) transform += `${transform.length > 1 ? '&' : ''}height=${height}`;
     return { uri: `${renderUrl}${transform}&quality=80&resize=cover` };
   }
+  */
 
+  // Return reliable 200 OK object storage URL natively supported by Supabase
   return { uri: baseUrl };
 };
+

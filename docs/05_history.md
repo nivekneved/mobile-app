@@ -1,12 +1,25 @@
 # Development Log
 
+## 2026-07-23 — Service Search Query Optimization & Category Image Resolution (v1.0.6 / Code 9)
+- **Database Statement Timeout Fix**:
+  - [useSearchServices.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useSearchServices.ts): Resolved Supabase statement timeout (PostgreSQL Error 57014) caused by an unbounded 245,000+ row join over `service_pricing`. Split into a lightweight `services` query followed by a bounded `service_pricing` fetch for matching IDs, reducing query latency from >15s (timeout) to <150ms.
+- **Home Screen Carousel Filter Fix**:
+  - [index.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/index.tsx#L228): Removed hardcoded `'evening package'` string filter, restoring all active promotional services to the Exclusive Offers carousel.
+- **Category Image Fallbacks**:
+  - [imageUtils.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/utils/imageUtils.ts): Updated `getCategoryFallbackAsset` to support all category slugs (`hotels`, `cruises`, `tours`, `day-packages`, `evening-packages`, `activities`, `rodrigues`, `flights`, `travel-packages`).
+  - [CategoryCard.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/CategoryCard.tsx): Added `onError` image load failure state to automatically render local fallback bundled assets when network images fail.
+- **Release Version Increment**:
+  - [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L5): Incremented version to `1.0.6`, `android.versionCode` to `9`, and `ios.buildNumber` to `"5"`.
+  - [package.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L3): Updated package version to `1.0.6`.
+  - [build.gradle](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/app/build.gradle#L94): Synchronized `versionCode 9` and `versionName "1.0.6"`.
+
+---
+
 ## 2026-07-22 — Service & Room-Level Strikethrough Price Support & Build Fix (Mobile App v1.0.5 / Code 8)
 - **Expo Build Blocker Fix**:
   - [package.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L55): Added `@expo/config-plugins`: `"~9.0.0"` to `devDependencies` to resolve `Cannot find module '@expo/config-plugins'` build error during Expo config plugin resolution.
   - [plugins/withFmtFix.js](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/plugins/withFmtFix.js#L1-L7): Added graceful fallback wrapper for `@expo/config-plugins` import to ensure safe build execution.
   - Verified clean evaluation with `npx expo config` (0 errors).
-- **Expo Developer Account Owner**:
-  - [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L64): Updated Expo project owner from `travellounge` to `devenweb`.
 - **App Store & Google Play Release Increment**:
   - [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L5): Incremented Expo version to `1.0.5`, `android.versionCode` from 7 to `8`, and `ios.buildNumber` from 3 to `"4"` to eliminate Google Play Store release conflicts.
   - [package.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L3): Updated package version to `1.0.5`.

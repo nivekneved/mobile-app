@@ -224,8 +224,12 @@ export default function HomeScreen() {
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuredList}>
             {featuredServices && featuredServices.length > 0 ? (
+              /* PRESERVED ORIGINAL EVENING PACKAGE FILTER COMMENTED OUT PER USER RULES:
               featuredServices
                 .filter(s => s && (s.name?.toLowerCase().includes('evening package') || s.service_type?.toLowerCase().includes('evening package')))
+              */
+              featuredServices
+                .filter(s => Boolean(s && s.id))
                 .map((service) => (
                 <ServiceCard 
                   key={service.id} 

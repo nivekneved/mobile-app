@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Colors } from '../theme/colors';
-import { resolveImageUrl } from '../utils/imageUtils';
+import { resolveImageUrl, getCategoryFallbackAsset } from '../utils/imageUtils';
 import { Image as ExpoImage } from 'expo-image';
 
 interface CategoryCardProps {
@@ -13,14 +13,27 @@ interface CategoryCardProps {
 }
 
 export const CategoryCard = ({ name, slug, image_url, onPress }: CategoryCardProps) => {
+  const [hasError, setHasError] = useState(false);
+  const imageSource = hasError ? getCategoryFallbackAsset(slug || name) : resolveImageUrl(image_url, 300, 450, slug || name);
+
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
+      {/* PRESERVED ORIGINAL CALL AS COMMENT PER USER RULES:
       <ExpoImage 
         source={resolveImageUrl(image_url, 300, 450)} 
         style={styles.image}
         contentFit="cover"
         transition={300}
         cachePolicy="disk"
+      />
+      */}
+      <ExpoImage 
+        source={imageSource} 
+        style={styles.image}
+        contentFit="cover"
+        transition={300}
+        cachePolicy="disk"
+        onError={() => setHasError(true)}
       />
       <View style={styles.overlay}>
         <Text style={styles.name}>{name}</Text>

@@ -28,11 +28,11 @@ export const useSearchServices = () => {
           activityTypeFilter = 'Sea';
         }
 
-        let selectString = '*, service_pricing(price, occupancy_pricing), service_categories(categories(id, name, slug))';
+        let selectString = '*, service_categories(categories(id, name, slug))';
 
         // Use !inner joins when filtering by category to ensure the main records are filtered
         if (dbCategorySlug && dbCategorySlug !== 'all') {
-          selectString = '*, service_pricing(price, occupancy_pricing), service_categories!inner(categories!inner(id, name, slug))';
+          selectString = '*, service_categories!inner(categories!inner(id, name, slug))';
         }
 
         let supabaseQuery = supabase
@@ -62,22 +62,33 @@ export const useSearchServices = () => {
           supabaseQuery = supabaseQuery.eq('activity_type', activityTypeFilter);
         }
 
-        const { data, error: searchError } = await supabaseQuery;
+        const { data: servicesRaw, error: searchError } = await supabaseQuery;
 
         if (searchError) throw searchError;
 
-        const mappedServices = (data || []).map((s: any) => {
-          // Extract category name from the join if available
-          const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
-          const lowestPrice = calculateLeadPrice(s.service_pricing || [], s.service_type);
+        let mappedServices: any[] = [];
+        if (servicesRaw && servicesRaw.length > 0) {
+          const serviceIds = servicesRaw.map((s: any) => s.id);
+          const { data: pricingData, error: pricingError } = await supabase
+            .from('service_pricing')
+            .select('service_id, price, occupancy_pricing')
+            .in('service_id', serviceIds);
 
-          return {
-            ...s,
-            price: lowestPrice,
-            lowestPrice: lowestPrice,
-            category: categoryName,
-          };
-        });
+          if (pricingError) console.error('Supabase error (service_pricing search):', pricingError);
+
+          mappedServices = servicesRaw.map((s: any) => {
+            const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
+            const sPricing = pricingData ? pricingData.filter((p: any) => p.service_id === s.id) : [];
+            const lowestPrice = calculateLeadPrice(sPricing, s.service_type);
+
+            return {
+              ...s,
+              price: lowestPrice,
+              lowestPrice: lowestPrice,
+              category: categoryName,
+            };
+          });
+        }
 
         setServices(mappedServices);
       } catch (err: any) {
