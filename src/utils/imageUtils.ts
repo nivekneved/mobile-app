@@ -1,3 +1,5 @@
+import { ImageSourcePropType } from 'react-native';
+
 // Category fallback asset mapper for offline / empty image URLs
 export const getCategoryFallbackAsset = (contextKey?: string): ImageSourcePropType => {
   const key = (contextKey || '').toLowerCase().trim();

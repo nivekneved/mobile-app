@@ -28,6 +28,7 @@ export type Service = {
   description: string;
   lowestPrice: number;
   price: number;      // mapped for UI
+  strikethrough_price?: number;
   image_url: string;
   service_type: string; // Actual column name
   category: string;     // mapped for UI
