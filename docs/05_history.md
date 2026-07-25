@@ -1,5 +1,15 @@
 # Development Log
 
+## 2026-07-25 — Official App Store & Google Play Release Increment (v1.0.8 / Code 12 / Build 8)
+- **Version Alignment & Native Release Increment**:
+  - [package.json (mobile-app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L3): Incremented package version to `1.0.8`.
+  - [app.json (mobile-app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L5): Updated Expo app version to `1.0.8`, iOS `buildNumber` to `"8"`, and Android `versionCode` to `12`.
+  - [build.gradle (mobile-app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/app/build.gradle#L95): Synchronized native Android `versionCode 12` and `versionName "1.0.8"`.
+- **Ecosystem Build Verification (0 Errors)**:
+  - `tsc --noEmit` passed with 0 errors. Expo config evaluation (`npx expo config`) passed cleanly.
+
+---
+
 ## 2026-07-25 — Android 16 KB Page Size Alignment & Release Bump (v1.0.7 / Code 11)
 - **16 KB Page Size App Optimization (Google Developer Compliance)**:
   - [build.gradle (android/app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/app/build.gradle#L98-L105): Added `externalNativeBuild` CMake (`-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384`) and NDK build linker flags (`APP_LDFLAGS+=-Wl,-z,max-page-size=16384`) per [Android 16 KB Page Optimization Guidelines](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization). Disabled legacy JNI packaging (`useLegacyPackaging false`).
