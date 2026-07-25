@@ -1,5 +1,47 @@
 # Development Log
 
+## 2026-07-25 — Browser Console Runtime Errors & PostgREST Query Resolution
+- **Booking Modal Price Formatting Null-Safety**:
+  - [BookingModal.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/BookingModal.tsx#L263): Added nullish coalescing `(val ?? 0).toLocaleString()` across all price formatting nodes (`room.weekday_price`, `option.total`, and `calculateTotal()`), resolving runtime `TypeError: Cannot read properties of undefined (reading 'toLocaleString')` crash when options are initializing.
+- **PostgREST Local Deals Wildcard Query Syntax**:
+  - [local-deals.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/local-deals.tsx#L37): Updated `.or()` filter string to PostgREST wildcard syntax `.or('location.ilike.*mauritius*,location.ilike.*resident*,location.is.null')`, resolving HTTP 400 Bad Request error.
+- **Web Platform WebView Ref Scope**:
+  - [flights.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/%28tabs%29/flights.tsx#L237): Scoped `ref` prop to native platforms (`ref={Platform.OS === 'web' ? undefined : (webViewRef as any)}`), eliminating the React Web `Function components cannot be given refs` warning.
+- **Regression Verification**:
+  - `tsc --noEmit` (mobile-app): **0 Errors**
+  - `tsc --noEmit` (web-app): **0 Errors**
+  - `npm run build` (admin-app): **0 Errors**
+
+---
+
+## 2026-07-25 — Production Readiness Audit & Release Bump (Mobile App v1.0.7 / Code 10)
+- **Version Alignment & Native Release Increment**:
+  - [package.json (mobile-app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L3): Incremented package version to `1.0.7`.
+  - [app.json (mobile-app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L5): Updated Expo app version to `1.0.7`, iOS `buildNumber` to `"6"`, and Android `versionCode` to `10`.
+  - [build.gradle (mobile-app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/app/build.gradle#L94-L95): Synchronized native Android `versionCode 10` and `versionName "1.0.7"`.
+- **Ecosystem Build Verification (0 Errors)**:
+  - **Mobile App**: `tsc --noEmit` passed with 0 errors. Expo config evaluation (`npx expo config`) passed cleanly.
+  - **Web App**: Production build (`next build`) completed with 0 errors (54/54 routes compiled and generated).
+  - **Admin App**: Production build (`vite build`) completed with 0 errors (`dist/` bundle created).
+- **Editorial Article HTML Content Rendering Fix**:
+  - [HtmlRenderer.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/HtmlRenderer.tsx): Created a custom HTML block & inline renderer component to parse and display HTML tags (`<p>`, `<img>`, `<h1>`-`<h6>`, `<ul>`, `<li>`, `blockquote`, `<strong>`, `<em>`, `<a>`, `<br>`) as native React Native elements (`Text`, `Image`, `View`).
+  - [news/[id].tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/news/%5Bid%5D.tsx#L166): Integrated `HtmlRenderer` into the editorial news details screen to properly format post content and render embedded images inline, resolving unparsed raw HTML string output (`<p><img src="..."/></p>`).
+
+---
+
+## 2026-07-25 — Catalog Pagination & Bottom Navigation UI Layout Fix (Mobile App v1.0.7)
+- **Supabase 1,000-Row Truncation Resolution**:
+  - [useSearchServices.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useSearchServices.ts): Implemented page-based batch pagination (15 items per page) and date range filtering (`date_from <= today <= date_to`), eliminating catalog pricing truncation caused by Supabase REST API's 1,000-row default cap. Added `loadMoreServices` and `isLoadingMore` states.
+  - [useHomeData.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useHomeData.ts): Scoped `service_pricing` queries to featured service IDs with date range filtering and base price fallbacks.
+  - [pricingUtils.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/utils/pricingUtils.ts): Updated `calculateLeadPrice` to accept optional `baseServicePrice` fallback, restoring valid prices for 136 services that previously rendered `AS FROM Rs 0` (including *La Case du Pêcheur*).
+- **Bottom Navigation & Chat FAB UI Layout Fixes**:
+  - [AIConcierge.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/AIConcierge.tsx): Used `useSafeAreaInsets` to position the floating chat FAB (`bottom: insets.bottom + 72`) cleanly above the bottom tab bar, resolving the collision that blocked `BOOKINGS` and `INSIGHTS`. Refined FAB button size to `54x54` with a 22px icon.
+  - [_layout.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/_layout.tsx): Added explicit `tabBarStyle` (`height: 64/84`, `paddingBottom: 8/24`, `borderTopWidth: 1`), `tabBarItemStyle`, `tabBarLabelStyle` (fontSize 9, letterSpacing 0.2), and proportioned icon sizes (`20px`), eliminating top-border indicator clipping and label crowding across the 6 bottom tabs.
+- **Infinite Scroll Explore Screen Integration**:
+  - [explore.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/(tabs)/explore.tsx): Connected `FlatList` to `loadMoreServices` with footer `ActivityIndicator` for seamless infinite scroll discovery.
+
+---
+
 ## 2026-07-23 — Service Search Query Optimization & Category Image Resolution (v1.0.6 / Code 9)
 - **Database Statement Timeout Fix**:
   - [useSearchServices.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useSearchServices.ts): Resolved Supabase statement timeout (PostgreSQL Error 57014) caused by an unbounded 245,000+ row join over `service_pricing`. Split into a lightweight `services` query followed by a bounded `service_pricing` fetch for matching IDs, reducing query latency from >15s (timeout) to <150ms.

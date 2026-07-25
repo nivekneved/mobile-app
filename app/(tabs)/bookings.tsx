@@ -9,6 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 import { supabase } from '../../src/lib/supabase';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '../../src/context/SettingsContext';
+import { resolveImageUrl } from '../../src/utils/imageUtils';
 
 export default function BookingsScreen() {
   const { generalConfig } = useSettings();
@@ -87,8 +88,7 @@ export default function BookingsScreen() {
     >
       <Surface style={styles.bookingCard} elevation={1}>
         <Image 
-          source={{ uri: item.image_url || undefined }} 
-          defaultSource={require('../../assets/icon.png')}
+          source={resolveImageUrl(item.image_url, 200, 200, item.service_type)} 
           style={styles.thumbnail} 
         />
         <View style={styles.cardContent}>

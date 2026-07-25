@@ -1,34 +1,39 @@
 import { Tabs } from 'expo-router';
 import { Colors } from '../../src/theme/colors';
 import { Home, Search, Calendar, User, Newspaper, Plane, Heart } from 'lucide-react-native';
-import { TouchableOpacity, Alert } from 'react-native';
+import { TouchableOpacity, Alert, Platform } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 
 export default function TabLayout() {
   const { } = useAuth(); // signOut removed — handleLogout was commented out and is not in use
-
-  /*
-  const handleLogout = () => {
-    Alert.alert(
-      "Sign Out",
-      "Are you sure you want to sign out?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Sign Out", style: "destructive", onPress: signOut }
-      ]
-    );
-  };
-  */
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textSecondary,
+        tabBarStyle: {
+          height: Platform.OS === 'ios' ? 84 : 64,
+          paddingBottom: Platform.OS === 'ios' ? 24 : 8,
+          paddingTop: 6,
+          backgroundColor: Colors.white,
+          borderTopWidth: 1,
+          borderTopColor: Colors.border,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 4,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 2,
+        },
         tabBarLabelStyle: {
-          fontSize: 10,
+          fontSize: 9,
           fontWeight: '700',
           textTransform: 'uppercase',
+          letterSpacing: 0.2,
+          marginTop: 2,
         },
         headerShown: true,
         headerStyle: {
@@ -47,7 +52,7 @@ export default function TabLayout() {
         options={{
           headerShown: false,
           title: 'Home',
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Home size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -55,7 +60,7 @@ export default function TabLayout() {
         options={{
           headerShown: false,
           title: 'Explore',
-          tabBarIcon: ({ color }) => <Search size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Search size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -63,7 +68,7 @@ export default function TabLayout() {
         options={{
           headerShown: false,
           title: 'Flights',
-          tabBarIcon: ({ color }) => <Plane size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Plane size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -71,7 +76,7 @@ export default function TabLayout() {
         options={{
           headerShown: false,
           title: 'Wishlist',
-          tabBarIcon: ({ color }) => <Heart size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Heart size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -79,7 +84,7 @@ export default function TabLayout() {
         options={{
           headerShown: false,
           title: 'Bookings',
-          tabBarIcon: ({ color }) => <Calendar size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Calendar size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -87,7 +92,7 @@ export default function TabLayout() {
         options={{
           href: null, // Hide from tab bar
           title: 'Profile',
-          tabBarIcon: ({ color }) => <User size={24} color={color} />,
+          tabBarIcon: ({ color }) => <User size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -95,9 +100,10 @@ export default function TabLayout() {
         options={{
           headerShown: false,
           title: 'Insights',
-          tabBarIcon: ({ color }) => <Newspaper size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Newspaper size={20} color={color} />,
         }}
       />
     </Tabs>
   );
 }
+

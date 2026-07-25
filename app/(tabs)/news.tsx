@@ -76,9 +76,10 @@ export default function NewsScreen() {
       onPress={() => router.push(`/news/${item.id}`)}
     >
       <PremiumCard style={styles.card}>
-        {item.featured_image && (
-          <Image source={resolveImageUrl(item.featured_image)} style={styles.cardImage} />
-        )}
+        <Image 
+          source={resolveImageUrl(item.featured_image, 400, 250, 'mauritius')} 
+          style={styles.cardImage} 
+        />
         <View style={styles.cardContent}>
           <View style={styles.metaRow}>
             <Text style={styles.metaText}>

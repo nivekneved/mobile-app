@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ScrollView, Image, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Text, Surface, IconButton } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
@@ -233,8 +233,9 @@ export default function FlightsScreen() {
                   }}
                 />
                 */}
+                {/* ORIGINAL: ref={webViewRef} */}
                 <WebView 
-                  ref={webViewRef}
+                  ref={Platform.OS === 'web' ? undefined : (webViewRef as any)}
                   source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_self&embedded=true' }} 
                   style={styles.webview}
                   onLoadEnd={() => setIsLoading(false)}

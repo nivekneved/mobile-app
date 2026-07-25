@@ -36,7 +36,7 @@ export default function ExploreScreen() {
   const [isMapVisible, setIsMapVisible] = useState(false);
 
   const { categories } = useHomeData();
-  const { services, isLoading, searchServices } = useSearchServices();
+  const { services, isLoading, isLoadingMore, hasMore, searchServices, loadMoreServices } = useSearchServices();
   const router = useRouter();
 
   useEffect(() => {
@@ -112,12 +112,10 @@ export default function ExploreScreen() {
     <View style={styles.root}>
       <StatusBar style="dark" />
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 16 : 40 }]}>
-        {/* PRESERVED: <Text variant="headlineMedium" style={styles.title}>Explore</Text> */}
         <Text variant="headlineMedium" style={styles.title}>{labels.explore_title || 'Explore'}</Text>
         <View style={styles.searchContainer}>
           <Search size={20} color={Colors.textSecondary} style={styles.searchIcon} />
           <TextInput
-            // PRESERVED: placeholder="Search experiences..."
             placeholder={labels.search_placeholder || 'Search experiences...'}
             style={styles.searchInput}
             value={searchQuery}
@@ -190,6 +188,15 @@ export default function ExploreScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          onEndReached={loadMoreServices}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isLoadingMore ? (
+              <View style={{ paddingVertical: 16, alignItems: 'center' }}>
+                <ActivityIndicator color={Colors.primary} size="small" />
+              </View>
+            ) : null
+          }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text variant="titleMedium" style={styles.emptyText}>{labels.no_services_found || 'No services found'}</Text>

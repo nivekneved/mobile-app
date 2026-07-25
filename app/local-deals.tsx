@@ -34,7 +34,8 @@ export default function LocalDealsScreen() {
         .from('services')
         .select('*')
         .eq('status', 'active')
-        .or('location.ilike.%mauritius%,location.ilike.%resident%')
+        // ORIGINAL: .or('location.ilike.%mauritius%,location.ilike.%resident%')
+        .or('location.ilike.*mauritius*,location.ilike.*resident*,location.is.null')
         .in('category', ['hotel', 'day_package', 'activity', 'land_activity', 'sea_activity'])
         .order('is_seasonal', { ascending: false });
 

@@ -5,6 +5,7 @@ import { MessageSquare, X, Mic, Send, Volume2, Sparkles, Headphones } from 'luci
 import { Colors } from '../theme/colors';
 import * as Linking from 'expo-linking';
 import { useSettings } from '../context/SettingsContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -16,6 +17,7 @@ interface ChatMessage {
 }
 
 export const AIConcierge = () => {
+  const insets = useSafeAreaInsets();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -116,16 +118,18 @@ export const AIConcierge = () => {
     }
   };
 
+  const fabBottomOffset = (insets.bottom || 16) + 72;
+
   return (
     <>
       {/* Floating Action Button */}
-      <View style={styles.fabContainer}>
+      <View style={[styles.fabContainer, { bottom: fabBottomOffset }]}>
         <TouchableOpacity 
           style={[styles.fab, isOpen && styles.fabOpen]} 
           onPress={() => setIsOpen(!isOpen)}
           activeOpacity={0.8}
         >
-          {isOpen ? <X color="#fff" size={24} /> : <MessageSquare color="#fff" size={24} />}
+          {isOpen ? <X color="#fff" size={22} /> : <MessageSquare color="#fff" size={22} />}
           {!isOpen && (
             <View style={styles.onlineBadge}>
                <View style={styles.ping} />

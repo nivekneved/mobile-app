@@ -18,6 +18,7 @@ import { Colors } from '../../src/theme/colors';
 import { ArrowLeft, Share2, Clock, User, Tag } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { HtmlRenderer } from '../../src/components/HtmlRenderer';
 
 type Post = {
   id: string;
@@ -162,7 +163,8 @@ export default function NewsDetailScreen() {
           )}
 
           {/* Body Content */}
-          <Text style={styles.contentText}>{post.content}</Text>
+          {/* ORIGINAL: <Text style={styles.contentText}>{post.content}</Text> */}
+          <HtmlRenderer html={post.content} style={styles.contentText} />
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (

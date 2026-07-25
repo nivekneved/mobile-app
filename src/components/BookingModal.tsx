@@ -259,8 +259,9 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                 style={[styles.roomCard, watchAllFields.roomType === room.name && styles.roomCardActive]}
               >
                 <Text style={[styles.roomName, watchAllFields.roomType === room.name && styles.roomTextActive]}>{room.name}</Text>
+                {/* ORIGINAL: MUR {room.weekday_price.toLocaleString()} */}
                 <Text style={[styles.roomPrice, watchAllFields.roomType === room.name && styles.roomTextActive]}>
-                  MUR {room.weekday_price.toLocaleString()}
+                  MUR {(room.weekday_price ?? 0).toLocaleString()}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -279,7 +280,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
               style={[styles.planChip, watchAllFields.mealPreference === option.label && styles.planChipActive]}
               textStyle={[styles.planChipText, watchAllFields.mealPreference === option.label && styles.planChipTextActive]}
             >
-              {option.label} (+MUR {option.total.toLocaleString()})
+              {/* ORIGINAL: {option.label} (+MUR {option.total.toLocaleString()}) */}
+              {option.label} (+MUR {(option.total ?? 0).toLocaleString()})
             </Chip>
           ))
         ) : (
@@ -496,7 +498,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
         </View>
         <View style={styles.reportRow}>
           <Text style={styles.reportLabel}>ESTIMATED TOTAL</Text>
-          <Text style={styles.reportValue}>MUR {calculateTotal().toLocaleString()}</Text>
+          {/* ORIGINAL: <Text style={styles.reportValue}>MUR {calculateTotal().toLocaleString()}</Text> */}
+          <Text style={styles.reportValue}>MUR {(calculateTotal() ?? 0).toLocaleString()}</Text>
         </View>
       </Surface>
 
@@ -543,7 +546,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                 {calculatingPrice ? (
                   <ActivityIndicator size="small" color={Colors.primary} />
                 ) : (
-                  <Text style={styles.totalPrice}>Rs {calculateTotal().toLocaleString()}</Text>
+                  /* ORIGINAL: <Text style={styles.totalPrice}>Rs {calculateTotal().toLocaleString()}</Text> */
+                  <Text style={styles.totalPrice}>Rs {(calculateTotal() ?? 0).toLocaleString()}</Text>
                 )}
               </View>
 
