@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, Modal, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState, useMemo, useEffect } from 'react';
+import { View, StyleSheet, Modal, ScrollView, TouchableOpacity, TextInput, Platform } from 'react-native';
 import { Text, Button, Portal, Surface, Chip } from 'react-native-paper';
 import { Colors } from '../theme/colors';
-import { X, Search, Users, Shield, Zap } from 'lucide-react-native';
+import { X, Search, Users, Shield, Zap, MapPin, Calendar as CalendarIcon, Check } from 'lucide-react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface FilterModalProps {
   visible: boolean;
@@ -10,14 +11,37 @@ interface FilterModalProps {
   filters: any;
   onApply: (filters: any) => void;
   availableAmenities?: string[];
+  initialFocus?: 'location' | 'date' | 'guests' | null;
 }
 
-export const FilterModal = ({ visible, onClose, filters, onApply, availableAmenities = [] }: FilterModalProps) => {
+const REGIONS = [
+  { id: 'all', label: 'All Regions' },
+  { id: 'north', label: 'North' },
+  { id: 'south', label: 'South' },
+  { id: 'east', label: 'East' },
+  { id: 'west', label: 'West' },
+  { id: 'central', label: 'Central' },
+  { id: 'rodrigues', label: 'Rodrigues' },
+];
+
+export const FilterModal = ({ 
+  visible, 
+  onClose, 
+  filters, 
+  onApply, 
+  availableAmenities = [],
+  initialFocus = null,
+}: FilterModalProps) => {
   const [localFilters, setLocalFilters] = useState(filters);
   const [amenitySearch, setAmenitySearch] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters, visible]);
 
   const updateFilter = (key: string, value: any) => {
-    setLocalFilters({ ...localFilters, [key]: value });
+    setLocalFilters((prev: any) => ({ ...prev, [key]: value }));
   };
 
   const toggleAmenity = (amenity: string) => {
@@ -35,10 +59,47 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
       teenagers: 0,
       children: 0,
       infants: 0,
+      location: '',
+      region: null,
       date: null,
       priceRange: [0, 200000],
       amenities: [],
     });
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      const isoStr = selectedDate.toISOString().split('T')[0];
+      updateFilter('date', isoStr);
+    }
+  };
+
+  const setDatePreset = (preset: 'today' | 'weekend' | 'nextWeek' | 'clear') => {
+    const today = new Date();
+    if (preset === 'clear') {
+      updateFilter('date', null);
+      return;
+    }
+    if (preset === 'today') {
+      updateFilter('date', today.toISOString().split('T')[0]);
+      return;
+    }
+    if (preset === 'weekend') {
+      // Find upcoming Saturday
+      const day = today.getDay();
+      const diff = (6 - day + 7) % 7 || 7;
+      const saturday = new Date(today);
+      saturday.setDate(today.getDate() + diff);
+      updateFilter('date', saturday.toISOString().split('T')[0]);
+      return;
+    }
+    if (preset === 'nextWeek') {
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
+      updateFilter('date', nextWeek.toISOString().split('T')[0]);
+      return;
+    }
   };
 
   const filteredAmenities = useMemo(() => {
@@ -48,6 +109,16 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
     ).slice(0, 20);
   }, [availableAmenities, amenitySearch]);
 
+  const formattedDateString = useMemo(() => {
+    if (!localFilters.date) return 'Select Date';
+    try {
+      const d = new Date(localFilters.date);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+      return localFilters.date;
+    }
+  }, [localFilters.date]);
+
   return (
     <Portal>
       <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
@@ -56,7 +127,7 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
             <View style={styles.header}>
               <View>
                 <Text style={styles.headerTitle}>Filter Search</Text>
-                <Text style={styles.headerSub}>Refine your perfect getaway</Text>
+                <Text style={styles.headerSub}>Refine location, dates, and group size</Text>
               </View>
               <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
                 <X size={24} color={Colors.charcoal} />
@@ -65,11 +136,118 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
               
-              {/* Guests Section */}
+              {/* 1. Location & Region Section */}
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                   <MapPin size={18} color={Colors.primary} />
+                   <Text style={styles.sectionTitle}>Destination & Region</Text>
+                </View>
+                
+                <View style={styles.inputContainer}>
+                  <Search size={16} color={Colors.slate[400]} style={styles.searchIcon} />
+                  <TextInput
+                    placeholder="Type location (e.g. Grand Baie, Le Morne, Rodrigues)..."
+                    style={styles.textInput}
+                    value={localFilters.location || ''}
+                    onChangeText={(val) => updateFilter('location', val)}
+                    placeholderTextColor={Colors.slate[400]}
+                  />
+                  {!!localFilters.location && (
+                    <TouchableOpacity onPress={() => updateFilter('location', '')}>
+                      <X size={16} color={Colors.slate[400]} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                <Text style={styles.subLabel}>POPULAR REGIONS</Text>
+                <View style={styles.chipsGrid}>
+                  {REGIONS.map((r) => {
+                    const isSelected = r.id === 'all' 
+                      ? !localFilters.region 
+                      : (localFilters.region || '').toLowerCase() === r.id;
+                    return (
+                      <TouchableOpacity
+                        key={r.id}
+                        onPress={() => updateFilter('region', r.id === 'all' ? null : r.id)}
+                        style={[styles.regionChip, isSelected && styles.regionChipActive]}
+                      >
+                        <Text style={[styles.regionChipText, isSelected && styles.regionChipTextActive]}>
+                          {r.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              <View style={styles.divider} />
+
+              {/* 2. Date Selection Section */}
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                   <CalendarIcon size={18} color={Colors.primary} />
+                   <Text style={styles.sectionTitle}>Travel & Check-In Date</Text>
+                </View>
+
+                <TouchableOpacity 
+                  style={styles.dateSelectorBtn}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <CalendarIcon size={18} color={Colors.primary} />
+                  <Text style={styles.dateSelectorText}>{formattedDateString}</Text>
+                  {!!localFilters.date && (
+                    <TouchableOpacity onPress={() => updateFilter('date', null)}>
+                      <Text style={styles.clearDateText}>Clear</Text>
+                    </TouchableOpacity>
+                  )}
+                </TouchableOpacity>
+
+                {/* Quick Date Presets */}
+                <View style={styles.datePresetsRow}>
+                  <TouchableOpacity 
+                    style={[styles.presetTag, !localFilters.date && styles.presetTagActive]}
+                    onPress={() => setDatePreset('clear')}
+                  >
+                    <Text style={[styles.presetTagText, !localFilters.date && styles.presetTagTextActive]}>Anytime</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.presetTag}
+                    onPress={() => setDatePreset('today')}
+                  >
+                    <Text style={styles.presetTagText}>Today</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.presetTag}
+                    onPress={() => setDatePreset('weekend')}
+                  >
+                    <Text style={styles.presetTagText}>This Weekend</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.presetTag}
+                    onPress={() => setDatePreset('nextWeek')}
+                  >
+                    <Text style={styles.presetTagText}>Next Week</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={localFilters.date ? new Date(localFilters.date) : new Date()}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={handleDateChange}
+                    minimumDate={new Date()}
+                  />
+                )}
+              </View>
+
+              <View style={styles.divider} />
+
+              {/* 3. Guests & Occupancy Section */}
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
                    <Users size={18} color={Colors.primary} />
-                   <Text style={styles.sectionTitle}>Guests & Occupancy</Text>
+                   <Text style={styles.sectionTitle}>Guests & Group Size</Text>
                 </View>
                 
                 <View style={styles.guestRow}>
@@ -81,14 +259,14 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
                     <TouchableOpacity 
                       style={[styles.counterBtn, localFilters.adults <= 1 && styles.counterBtnDisabled]} 
                       disabled={localFilters.adults <= 1} 
-                      onPress={() => updateFilter('adults', localFilters.adults - 1)}
+                      onPress={() => updateFilter('adults', (localFilters.adults || 1) - 1)}
                     >
                        <Text style={styles.counterBtnText}>−</Text>
                     </TouchableOpacity>
-                    <Text style={styles.counterValue}>{localFilters.adults}</Text>
+                    <Text style={styles.counterValue}>{localFilters.adults || 1}</Text>
                     <TouchableOpacity 
                       style={styles.counterBtn} 
-                      onPress={() => updateFilter('adults', localFilters.adults + 1)}
+                      onPress={() => updateFilter('adults', (localFilters.adults || 1) + 1)}
                     >
                        <Text style={styles.counterBtnText}>+</Text>
                     </TouchableOpacity>
@@ -102,16 +280,16 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
                   </View>
                   <View style={styles.counter}>
                     <TouchableOpacity 
-                      style={[styles.counterBtn, localFilters.teenagers <= 0 && styles.counterBtnDisabled]} 
-                      disabled={localFilters.teenagers <= 0} 
-                      onPress={() => updateFilter('teenagers', localFilters.teenagers - 1)}
+                      style={[styles.counterBtn, (localFilters.teenagers || 0) <= 0 && styles.counterBtnDisabled]} 
+                      disabled={(localFilters.teenagers || 0) <= 0} 
+                      onPress={() => updateFilter('teenagers', (localFilters.teenagers || 0) - 1)}
                     >
                        <Text style={styles.counterBtnText}>−</Text>
                     </TouchableOpacity>
-                    <Text style={styles.counterValue}>{localFilters.teenagers}</Text>
+                    <Text style={styles.counterValue}>{localFilters.teenagers || 0}</Text>
                     <TouchableOpacity 
                       style={styles.counterBtn} 
-                      onPress={() => updateFilter('teenagers', localFilters.teenagers + 1)}
+                      onPress={() => updateFilter('teenagers', (localFilters.teenagers || 0) + 1)}
                     >
                        <Text style={styles.counterBtnText}>+</Text>
                     </TouchableOpacity>
@@ -125,16 +303,16 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
                   </View>
                   <View style={styles.counter}>
                     <TouchableOpacity 
-                      style={[styles.counterBtn, localFilters.children <= 0 && styles.counterBtnDisabled]} 
-                      disabled={localFilters.children <= 0} 
-                      onPress={() => updateFilter('children', localFilters.children - 1)}
+                      style={[styles.counterBtn, (localFilters.children || 0) <= 0 && styles.counterBtnDisabled]} 
+                      disabled={(localFilters.children || 0) <= 0} 
+                      onPress={() => updateFilter('children', (localFilters.children || 0) - 1)}
                     >
                        <Text style={styles.counterBtnText}>−</Text>
                     </TouchableOpacity>
-                    <Text style={styles.counterValue}>{localFilters.children}</Text>
+                    <Text style={styles.counterValue}>{localFilters.children || 0}</Text>
                     <TouchableOpacity 
                       style={styles.counterBtn} 
-                      onPress={() => updateFilter('children', localFilters.children + 1)}
+                      onPress={() => updateFilter('children', (localFilters.children || 0) + 1)}
                     >
                        <Text style={styles.counterBtnText}>+</Text>
                     </TouchableOpacity>
@@ -144,21 +322,23 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
 
               <View style={styles.divider} />
 
-              {/* Price Range */}
+              {/* 4. Price Range */}
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
                    <Zap size={18} color={Colors.primary} />
                    <Text style={styles.sectionTitle}>Budget Range</Text>
                 </View>
-                 <Text style={styles.priceValue}>Up to Rs {localFilters.priceRange[1].toLocaleString()}</Text>
+                 <Text style={styles.priceValue}>
+                   Up to Rs {(localFilters.priceRange?.[1] ?? 200000).toLocaleString()}
+                 </Text>
                  <View style={styles.pricePresets}>
                     {[5000, 10000, 25000, 50000, 100000, 200000].map(p => (
                       <TouchableOpacity 
                         key={p} 
-                        style={[styles.presetBtn, localFilters.priceRange[1] === p && styles.presetBtnActive]}
+                        style={[styles.presetBtn, localFilters.priceRange?.[1] === p && styles.presetBtnActive]}
                         onPress={() => updateFilter('priceRange', [0, p])}
                       >
-                        <Text style={[styles.presetText, localFilters.priceRange[1] === p && styles.presetTextActive]}>
+                        <Text style={[styles.presetText, localFilters.priceRange?.[1] === p && styles.presetTextActive]}>
                           {p >= 100000 ? `Rs ${p/1000}k+` : `Rs ${p/1000}k`}
                         </Text>
                       </TouchableOpacity>
@@ -168,7 +348,7 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
 
               <View style={styles.divider} />
 
-              {/* Amenities Section */}
+              {/* 5. Amenities Section */}
               <View style={styles.section}>
                 <View style={styles.sectionHeader}>
                    <Shield size={18} color={Colors.primary} />
@@ -176,7 +356,7 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
                 </View>
 
                 <View style={styles.trendingContainer}>
-                   <Text style={styles.trendingLabel}>TRENDING NOW</Text>
+                   <Text style={styles.trendingLabel}>POPULAR AMENITIES</Text>
                    <View style={styles.trendingTags}>
                       {['WiFi', 'Pool', 'Breakfast', 'Spa', 'Beachfront'].map(tag => (
                         <TouchableOpacity 
@@ -196,11 +376,11 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
                    </View>
                 </View>
 
-                <View style={styles.amenitySearchContainer}>
+                <View style={styles.inputContainer}>
                   <Search size={16} color={Colors.slate[400]} style={styles.searchIcon} />
                   <TextInput
                     placeholder="Search amenities (e.g. WiFi, Pool)..."
-                    style={styles.amenityInput}
+                    style={styles.textInput}
                     value={amenitySearch}
                     onChangeText={setAmenitySearch}
                     placeholderTextColor={Colors.slate[400]}
@@ -242,7 +422,7 @@ export const FilterModal = ({ visible, onClose, filters, onApply, availableAmeni
                 contentStyle={styles.applyBtnContent}
                 labelStyle={styles.applyBtnLabel}
               >
-                Show Results
+                Apply Filters
               </Button>
             </View>
           </Surface>
@@ -256,9 +436,9 @@ const styles = StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.6)', justifyContent: 'flex-end' },
   modalContent: { 
     backgroundColor: Colors.white, 
-    borderTopLeftRadius: 40, 
-    borderTopRightRadius: 40, 
-    height: '90%', 
+    borderTopLeftRadius: 36, 
+    borderTopRightRadius: 36, 
+    height: '92%', 
     paddingBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -10 },
@@ -270,7 +450,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', 
     alignItems: 'center', 
     paddingHorizontal: 24,
-    paddingTop: 32,
+    paddingTop: 28,
     paddingBottom: 20,
     borderBottomWidth: 1, 
     borderBottomColor: Colors.slate[100] 
@@ -279,34 +459,48 @@ const styles = StyleSheet.create({
   headerSub: { fontFamily: 'Outfit_500Medium', fontSize: 13, color: Colors.slate[400], marginTop: 2 },
   closeBtn: { padding: 8, backgroundColor: Colors.slate[50], borderRadius: 12 },
   scrollBody: { padding: 24 },
-  section: { marginBottom: 32 },
-  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 20 },
-  sectionTitle: { fontFamily: 'Outfit_900Black', fontSize: 16, color: Colors.charcoal, textTransform: 'uppercase', letterSpacing: 1 },
-  guestRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
+  section: { marginBottom: 28 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
+  sectionTitle: { fontFamily: 'Outfit_900Black', fontSize: 15, color: Colors.charcoal, textTransform: 'uppercase', letterSpacing: 1 },
+  subLabel: { fontFamily: 'Outfit_900Black', fontSize: 11, color: Colors.slate[400], letterSpacing: 1.5, marginTop: 16, marginBottom: 10 },
+  inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.slate[50], borderRadius: 16, paddingHorizontal: 16, height: 50, marginBottom: 12, borderWidth: 1, borderColor: Colors.slate[100] },
+  searchIcon: { marginRight: 12 },
+  textInput: { flex: 1, fontFamily: 'Outfit_600SemiBold', fontSize: 14, color: Colors.charcoal },
+  chipsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  regionChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 12, borderWidth: 1, borderColor: Colors.slate[200], backgroundColor: Colors.white },
+  regionChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  regionChipText: { fontFamily: 'Outfit_600SemiBold', fontSize: 13, color: Colors.slate[600] },
+  regionChipTextActive: { color: Colors.white },
+  dateSelectorBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.slate[50], borderRadius: 16, paddingHorizontal: 16, height: 52, borderWidth: 1, borderColor: Colors.slate[200], gap: 12 },
+  dateSelectorText: { flex: 1, fontFamily: 'Outfit_700Bold', fontSize: 15, color: Colors.charcoal },
+  clearDateText: { fontFamily: 'Outfit_700Bold', fontSize: 13, color: Colors.primary },
+  datePresetsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  presetTag: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, backgroundColor: Colors.slate[50], borderWidth: 1, borderColor: Colors.slate[100] },
+  presetTagActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  presetTagText: { fontFamily: 'Outfit_700Bold', fontSize: 12, color: Colors.slate[600] },
+  presetTagTextActive: { color: Colors.white },
+  guestRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   guestLabel: { fontFamily: 'Outfit_700Bold', fontSize: 15, color: Colors.charcoal },
   guestSub: { fontFamily: 'Outfit_500Medium', fontSize: 12, color: Colors.slate[400], marginTop: 2 },
   counter: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.slate[50], borderRadius: 16, padding: 4 },
-  counterBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: Colors.white, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
+  counterBtn: { width: 38, height: 38, borderRadius: 12, backgroundColor: Colors.white, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   counterBtnDisabled: { opacity: 0.5, backgroundColor: Colors.slate[100] },
-  counterBtnText: { fontSize: 20, fontWeight: 'bold', color: Colors.charcoal },
-  counterValue: { fontFamily: 'Outfit_900Black', fontSize: 16, color: Colors.charcoal, width: 40, textAlign: 'center' },
-  divider: { height: 1, backgroundColor: Colors.slate[100], marginBottom: 32 },
-  priceValue: { fontFamily: 'Outfit_900Black', fontSize: 28, color: Colors.primary, marginBottom: 20, letterSpacing: -1 },
+  counterBtnText: { fontSize: 18, fontWeight: 'bold', color: Colors.charcoal },
+  counterValue: { fontFamily: 'Outfit_900Black', fontSize: 16, color: Colors.charcoal, width: 36, textAlign: 'center' },
+  divider: { height: 1, backgroundColor: Colors.slate[100], marginBottom: 28 },
+  priceValue: { fontFamily: 'Outfit_900Black', fontSize: 26, color: Colors.primary, marginBottom: 16, letterSpacing: -1 },
   pricePresets: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   presetBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, borderWidth: 1, borderColor: Colors.slate[200], backgroundColor: Colors.white },
   presetBtnActive: { backgroundColor: Colors.primary, borderColor: Colors.primary, shadowColor: Colors.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
   presetText: { fontFamily: 'Outfit_700Bold', fontSize: 13, color: Colors.slate[600] },
   presetTextActive: { color: Colors.white },
-  amenitySearchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.slate[50], borderRadius: 16, paddingHorizontal: 16, height: 50, marginBottom: 16, borderWidth: 1, borderColor: Colors.slate[100] },
-  searchIcon: { marginRight: 12 },
-  amenityInput: { flex: 1, fontFamily: 'Outfit_600SemiBold', fontSize: 14, color: Colors.charcoal },
   amenitiesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   amenityChip: { backgroundColor: Colors.white, borderColor: Colors.slate[200], borderWidth: 1, borderRadius: 12 },
   amenityChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   amenityChipText: { fontFamily: 'Outfit_600SemiBold', fontSize: 12, color: Colors.slate[600] },
   amenityChipTextActive: { color: Colors.white },
-  trendingContainer: { marginBottom: 20 },
-  trendingLabel: { fontFamily: 'Outfit_900Black', fontSize: 10, color: Colors.slate[400], letterSpacing: 2, marginBottom: 12 },
+  trendingContainer: { marginBottom: 16 },
+  trendingLabel: { fontFamily: 'Outfit_900Black', fontSize: 10, color: Colors.slate[400], letterSpacing: 2, marginBottom: 10 },
   trendingTags: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   trendingTag: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, backgroundColor: Colors.slate[50], borderWidth: 1, borderColor: Colors.slate[100] },
   trendingTagActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
@@ -314,7 +508,8 @@ const styles = StyleSheet.create({
   trendingTagTextActive: { color: Colors.white },
   footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 24, borderTopWidth: 1, borderTopColor: Colors.slate[100], backgroundColor: Colors.white },
   resetText: { fontFamily: 'Outfit_900Black', fontSize: 13, color: Colors.slate[400], textDecorationLine: 'underline' },
-  applyBtn: { flex: 1, marginLeft: 32, borderRadius: 20, backgroundColor: Colors.primary },
-  applyBtnContent: { height: 56 },
+  applyBtn: { flex: 1, marginLeft: 24, borderRadius: 20, backgroundColor: Colors.primary },
+  applyBtnContent: { height: 54 },
   applyBtnLabel: { fontFamily: 'Outfit_900Black', fontSize: 15, letterSpacing: 0.5 },
 });
+export default FilterModal;

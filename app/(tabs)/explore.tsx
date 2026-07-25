@@ -9,7 +9,7 @@ import { useHomeData } from '../../src/hooks/useHomeData';
 import { resolveImageUrl } from '../../src/utils/imageUtils';
 import { StatusBar } from 'expo-status-bar';
 import { FilterModal } from '../../src/components/FilterModal';
-import { validateOccupancy, validateAmenities, FilterState } from '../../src/utils/filterUtils';
+import { validateOccupancy, validateAmenities, validateLocation, validateDate, FilterState } from '../../src/utils/filterUtils';
 import { ServiceCard } from '../../src/components/ServiceCard';
 import { InteractiveMap } from '../../src/components/InteractiveMap';
 import { Map as MapIcon, ChevronDown, ChevronUp } from 'lucide-react-native';
@@ -39,13 +39,27 @@ export default function ExploreScreen() {
   const { services, isLoading, isLoadingMore, hasMore, searchServices, loadMoreServices } = useSearchServices();
   const router = useRouter();
 
+  const [initialFocus, setInitialFocus] = useState<'location' | 'date' | 'guests' | null>(null);
+
   useEffect(() => {
+    if (params.openFilter === 'true') {
+      setIsFilterVisible(true);
+      if (params.focus) {
+        setInitialFocus(params.focus as any);
+      }
+    }
     if (params.category) {
       setSelectedCategory(params.category as string);
     } else if (params.query) {
       setSearchQuery(params.query as string);
     }
-  }, [params.category, params.query]);
+    if (params.location) {
+      setFilters(prev => ({ ...prev, location: params.location as string }));
+    }
+    if (params.region) {
+      setSelectedRegion(params.region as string);
+    }
+  }, [params.category, params.query, params.openFilter, params.focus, params.location, params.region]);
 
   useEffect(() => {
     searchServices(searchQuery, selectedCategory, selectedRegion);
@@ -67,18 +81,30 @@ export default function ExploreScreen() {
   const processedServices = useMemo(() => {
     let result = [...services];
 
+    // Filter by location & region
+    result = result.filter(s => validateLocation(s, filters.location, selectedRegion || filters.region));
+
+    // Filter by date
+    if (filters.date) {
+      result = result.filter(s => validateDate(s, filters.date));
+    }
+
+    // Filter by occupancy (guests)
+    /* ORIGINAL: result = result.filter(s => validateOccupancy(s, filters)); */
     result = result.filter(s => validateOccupancy(s, filters));
 
-    if (filters.amenities.length > 0) {
+    // Filter by amenities
+    if (filters.amenities && filters.amenities.length > 0) {
       result = result.filter(s => validateAmenities(s, filters.amenities));
     }
 
-    if (filters.priceRange[1] < 200000) {
+    // Filter by price range
+    if (filters.priceRange && filters.priceRange[1] < 200000) {
       result = result.filter(s => (s.price ?? 0) <= filters.priceRange[1]);
     }
 
     return result;
-  }, [services, filters]);
+  }, [services, filters, selectedRegion]);
 
   const handleApplyFilters = (newFilters: FilterState) => {
     setFilters(newFilters);
@@ -207,12 +233,14 @@ export default function ExploreScreen() {
         />
       )}
 
+      {/* ORIGINAL: <FilterModal visible={isFilterVisible} onClose={() => setIsFilterVisible(false)} filters={filters} onApply={handleApplyFilters} availableAmenities={availableAmenities} /> */}
       <FilterModal 
         visible={isFilterVisible} 
         onClose={() => setIsFilterVisible(false)} 
         filters={filters} 
         onApply={handleApplyFilters} 
         availableAmenities={availableAmenities}
+        initialFocus={initialFocus}
       />
     </View>
   );

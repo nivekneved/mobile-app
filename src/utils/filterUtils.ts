@@ -5,6 +5,62 @@ export interface FilterState {
   infants: number;
   priceRange: [number, number];
   amenities: string[];
+  location?: string;
+  region?: string | null;
+  date?: string | null;
+}
+
+/**
+ * Validates if a service matches location or region criteria.
+ */
+export function validateLocation(service: any, locationQuery?: string, region?: string | null): boolean {
+  if (region) {
+    const sRegion = (service.region || '').toLowerCase();
+    const targetRegion = region.toLowerCase();
+    if (sRegion && !sRegion.includes(targetRegion) && !targetRegion.includes(sRegion)) {
+      return false;
+    }
+  }
+
+  if (locationQuery && locationQuery.trim().length > 0) {
+    const q = locationQuery.trim().toLowerCase();
+    const loc = (service.location || '').toLowerCase();
+    const name = (service.name || '').toLowerCase();
+    const reg = (service.region || '').toLowerCase();
+    return loc.includes(q) || name.includes(q) || reg.includes(q);
+  }
+
+  return true;
+}
+
+/**
+ * Validates if a service is available on the selected date.
+ */
+export function validateDate(service: any, selectedDate?: string | null): boolean {
+  if (!selectedDate) return true;
+
+  const targetDateStr = selectedDate.split('T')[0];
+  const targetTime = Date.parse(targetDateStr);
+
+  if (isNaN(targetTime)) return true;
+
+  // Check date_from and date_to range if present
+  if (service.date_from) {
+    const fromTime = Date.parse(service.date_from.split('T')[0]);
+    if (!isNaN(fromTime) && targetTime < fromTime) return false;
+  }
+
+  if (service.date_to) {
+    const toTime = Date.parse(service.date_to.split('T')[0]);
+    if (!isNaN(toTime) && targetTime > toTime) return false;
+  }
+
+  // Check stop sell dates if array exists
+  if (Array.isArray(service.stop_sell_dates) && service.stop_sell_dates.includes(targetDateStr)) {
+    return false;
+  }
+
+  return true;
 }
 
 /**

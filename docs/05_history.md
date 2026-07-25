@@ -1,5 +1,15 @@
 # Development Log
 
+## 2026-07-25 — Search Bar Location, Date Picker & Guest Selector Integration
+- **Interactive Search & Filter Controls**:
+  - [FilterModal.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/FilterModal.tsx): Added **Destination & Region** selection (location search input + region chips), **Travel & Check-in Date** selection (native `@react-native-community/datetimepicker` + quick date presets: Anytime, Today, This Weekend, Next Week), and **Guests & Group Size** counter controls.
+  - [filterUtils.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/utils/filterUtils.ts#L10): Expanded `FilterState` and implemented `validateLocation` & `validateDate` helpers for filtering services by location, region, and travel date.
+  - [index.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/%28tabs%29/index.tsx#L98): Updated SearchBar touch segments ("Where to?", "When?", "Guests") to forward query params (`openFilter=true&focus=location|date|guests`) to the `/explore` route.
+  - [explore.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/%28tabs%29/explore.tsx#L40): Configured `explore.tsx` to automatically trigger `FilterModal` with focused filter state when navigated from the Home SearchBar, and integrated location and date filtering into the service search pipeline.
+- **Verification**: `tsc --noEmit` passed with **0 errors**.
+
+---
+
 ## 2026-07-25 — Browser Console Runtime Errors & PostgREST Query Resolution
 - **Booking Modal Price Formatting Null-Safety**:
   - [BookingModal.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/BookingModal.tsx#L263): Added nullish coalescing `(val ?? 0).toLocaleString()` across all price formatting nodes (`room.weekday_price`, `option.total`, and `calculateTotal()`), resolving runtime `TypeError: Cannot read properties of undefined (reading 'toLocaleString')` crash when options are initializing.

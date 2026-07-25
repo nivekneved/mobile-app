@@ -97,7 +97,8 @@ export default function HomeScreen() {
         {/* Core Logic 1: Find Value (Prices/Benefits) */}
         <View style={styles.valuationSection}>
            <View style={styles.searchBarWrapper}>
-             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
+             {/* ORIGINAL: <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}> */}
+             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore?openFilter=true&focus=location')}>
                <MapPin size={18} color={Colors.primary} />
                <View style={{ flex: 1 }}>
                  <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">{labels.search_destination_label || 'Where to?'}</Text>
@@ -105,7 +106,8 @@ export default function HomeScreen() {
                </View>
              </TouchableOpacity>
              <View style={styles.searchDivider} />
-             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
+             {/* ORIGINAL: <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}> */}
+             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore?openFilter=true&focus=date')}>
                <CalendarIcon size={18} color={Colors.primary} />
                <View style={{ flex: 1 }}>
                  <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">{labels.search_when_label || 'When?'}</Text>
@@ -113,7 +115,8 @@ export default function HomeScreen() {
                </View>
              </TouchableOpacity>
              <View style={styles.searchDivider} />
-             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}>
+             {/* ORIGINAL: <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore')}> */}
+             <TouchableOpacity style={styles.searchSegment} onPress={() => router.push('/explore?openFilter=true&focus=guests')}>
                <Users size={18} color={Colors.primary} />
                <View style={{ flex: 1 }}>
                  <Text style={styles.searchLabel} numberOfLines={1} ellipsizeMode="tail">{labels.search_guests_label || 'Guests'}</Text>
