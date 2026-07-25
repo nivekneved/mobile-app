@@ -2,7 +2,7 @@ import React from 'react';
 import { useWindowDimensions, Image, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
-import { useHomeData } from '../../src/hooks/useHomeData';
+import { useHomeData, DEFAULT_CATEGORIES } from '../../src/hooks/useHomeData';
 import { HeroCarousel } from '../../src/components/HeroCarousel';
 import { CategoryCard } from '../../src/components/CategoryCard';
 import { ServiceCard } from '../../src/components/ServiceCard';
@@ -148,11 +148,7 @@ export default function HomeScreen() {
                 ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land', image_url: '' }] : [])
               ].map((cat: any) => (
               */}
-              {categories.length > 0 ? [
-                ...categories.filter(cat => cat.slug !== 'activities'),
-                ...(!categories.find(c => c.slug === 'sea-activities') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea', image_url: 'assets/categories/cruises.jpg' }] : []),
-                ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land', image_url: 'assets/categories/activities.jpg' }] : [])
-              ].map((cat: any) => (
+              {(categories.length > 0 ? categories : DEFAULT_CATEGORIES).map((cat: any) => (
                 <CategoryCard 
                   key={cat.id} 
                   name={cat.name} 
@@ -169,7 +165,7 @@ export default function HomeScreen() {
                     }
                   }} 
                 />
-              )) : [1,2,3,4].map(k => <View key={k} style={[styles.categorySkeleton, {width: 156, height: 240}]} />)}
+              ))}
             </ScrollView>
         </View>
 

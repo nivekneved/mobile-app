@@ -22,6 +22,14 @@ export type Category = {
   link: string;
 };
 
+export const DEFAULT_CATEGORIES: Category[] = [
+  { id: 'cat-hotels', name: 'Hotels & Resorts', slug: 'hotels', image_url: 'assets/categories/hotels.jpg', link: '/explore?category=hotels' },
+  { id: 'cat-sea', name: 'Sea Activities', slug: 'activities-sea', image_url: 'assets/categories/cruises.jpg', link: '/explore?category=activities-sea' },
+  { id: 'cat-land', name: 'Land Activities', slug: 'activities-land', image_url: 'assets/categories/activities.jpg', link: '/explore?category=activities-land' },
+  { id: 'cat-flights', name: 'Flights', slug: 'flights', image_url: 'assets/categories/flights.jpg', link: '/flights' },
+  { id: 'cat-villas', name: 'Villas & Private Stays', slug: 'villas', image_url: 'assets/categories/villas.jpg', link: '/explore?category=villas' },
+];
+
 export type Service = {
   id: string;
   name: string;
@@ -161,10 +169,18 @@ export const useHomeData = () => {
           setHeroSlides(slides || []);
         }
 
+        /* ORIGINAL:
         if (catsError) {
           console.error('Supabase error (categories):', catsError);
         } else {
           setCategories(cats || []);
+        }
+        */
+        if (catsError || !cats || cats.length === 0) {
+          if (catsError) console.error('Supabase error (categories):', catsError);
+          setCategories(DEFAULT_CATEGORIES);
+        } else {
+          setCategories(cats);
         }
 
         if (servicesError) {

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Travel Lounge",
     "slug": "mobile-app",
-    "version": "1.0.9",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,13 +14,13 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.travellounge.mu",
-      "buildNumber": "9",
+      "buildNumber": "10",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "versionCode": 15,
+      "versionCode": 16,
       "package": "com.travellounge.mu",
       "adaptiveIcon": {
         "backgroundColor": "#DC2626",

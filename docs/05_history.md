@@ -1,5 +1,15 @@
 # Development Log
 
+## 2026-07-25 — Guaranteed Category Rendering Fallback & Production Release (v1.1.0 / Code 16 / Build 10)
+- **Home Screen Categories Guarantee**:
+  - [useHomeData.ts](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/hooks/useHomeData.ts#L25): Exported `DEFAULT_CATEGORIES` (*Hotels & Resorts*, *Sea Activities*, *Land Activities*, *Flights*, *Villas & Private Stays*) as resilient fallbacks whenever Supabase network requests time out, run in offline mode, or encounter RLS restrictions.
+  - [index.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app/%28tabs%29/index.tsx#L151): Integrated `(categories.length > 0 ? categories : DEFAULT_CATEGORIES)` fallback rendering in the Category ScrollView, guaranteeing the category icons (Hotels, Flights, Sea/Land activities) **ALWAYS** render on all devices and production Play Store builds.
+  - [app.json & package.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L5): Incremented release version to `1.1.0`, iOS `buildNumber` to `"10"`, and Android `versionCode` to `16`.
+- **Ecosystem Build Verification (0 Errors)**:
+  - `tsc --noEmit` passed with 0 errors.
+
+---
+
 ## 2026-07-25 — Android NDK r27 Upgrade & 16 KB Page Alignment Release (v1.0.9 / Code 15 / Build 9)
 - **NDK r27 Upgrade & Subproject 16 KB Page Alignment**:
   - [build.gradle (android)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/build.gradle#L12): Upgraded Android NDK version to `27.1.12297006` (NDK r27) which defaults to 16 KB page alignment for all C/C++ native shared libraries. Added `subprojects` `externalNativeBuild` CMake linker flags (`-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384`) across all submodules.
