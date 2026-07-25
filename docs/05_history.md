@@ -1,5 +1,15 @@
 # Development Log
 
+## 2026-07-25 — Android NDK r27 Upgrade & 16 KB Page Alignment Release (v1.0.9 / Code 15 / Build 9)
+- **NDK r27 Upgrade & Subproject 16 KB Page Alignment**:
+  - [build.gradle (android)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/build.gradle#L12): Upgraded Android NDK version to `27.1.12297006` (NDK r27) which defaults to 16 KB page alignment for all C/C++ native shared libraries. Added `subprojects` `externalNativeBuild` CMake linker flags (`-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384`) across all submodules.
+  - [gradle.properties](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/gradle.properties#L57): Added `android.ndkVersion=27.1.12297006` and `android.ndk.LDFLAGS=-Wl,-z,max-page-size=16384`.
+  - [package.json & app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L5): Incremented release version to `1.0.9`, iOS `buildNumber` to `"9"`, and Android `versionCode` to `15`.
+- **Ecosystem Build Verification (0 Errors)**:
+  - `tsc --noEmit` passed with 0 errors. Expo config evaluation (`npx expo config`) passed cleanly.
+
+---
+
 ## 2026-07-25 — Official App Store & Google Play Release Increment (v1.0.8 / Code 12 / Build 8)
 - **Version Alignment & Native Release Increment**:
   - [package.json (mobile-app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/package.json#L3): Incremented package version to `1.0.8`.
