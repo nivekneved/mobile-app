@@ -1,5 +1,13 @@
 # Development Log
 
+## 2026-07-25 — Android 16 KB Page Size Alignment & Release Bump (v1.0.7 / Code 11)
+- **16 KB Page Size App Optimization (Google Developer Compliance)**:
+  - [build.gradle (android/app)](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/android/app/build.gradle#L98-L105): Added `externalNativeBuild` CMake (`-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384`) and NDK build linker flags (`APP_LDFLAGS+=-Wl,-z,max-page-size=16384`) per [Android 16 KB Page Optimization Guidelines](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization). Disabled legacy JNI packaging (`useLegacyPackaging false`).
+  - [app.json](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/app.json#L23): Incremented `android.versionCode` to `11` and iOS `buildNumber` to `"7"`.
+- **Verification**: `npx expo config` and `tsc --noEmit` passed with **0 errors**.
+
+---
+
 ## 2026-07-25 — Search Bar Location, Date Picker & Guest Selector Integration
 - **Interactive Search & Filter Controls**:
   - [FilterModal.tsx](file:///c:/Users/deven/Desktop/Travel%20Lounge%202026/apps/mobile-app/src/components/FilterModal.tsx): Added **Destination & Region** selection (location search input + region chips), **Travel & Check-in Date** selection (native `@react-native-community/datetimepicker` + quick date presets: Anytime, Today, This Weekend, Next Week), and **Guests & Group Size** counter controls.
