@@ -1,3 +1,6 @@
+<!-- RELOCATED: This file has been moved to .agent/AGENT.md as the proper location for agent configuration.
+     Original content preserved below. Relocated during documentation consolidation — July 2026.
+
 ---
 name: repository-agent
 description: Agent operating guide for the Travel Lounge Mobile App.
@@ -48,3 +51,6 @@ This is the **Travel Lounge Mobile App** — an Expo SDK 52 + React Native appli
 
 ## Notes
 - Repository conventions may evolve; update this file when team norms change.
+-->
+
+> **Note:** This file has been relocated to [.agent/AGENT.md](./.agent/AGENT.md). See that file for the active agent configuration.

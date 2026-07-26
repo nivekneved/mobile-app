@@ -13,7 +13,13 @@ A High-Engagement Concierge Interface for the Travel Lounge ecosystem, built wit
 | 03 | [Database & Data Model](./docs/03_database.md) | Supabase tables, RPCs, and mobile usage |
 | 04 | [Development Guide](./docs/04_development.md) | Local setup, EAS build, and troubleshooting |
 | 05 | [Development Progress Log](./docs/05_history.md) | Historical milestones and audit trail |
+| 06 | [Features & Manuals](./docs/06_features_and_manuals.md) | Feature catalog & admin best practices |
+| 07 | [Security & RLS](./docs/07_security_and_rls.md) | RLS policies and remediation guide |
+| 08 | [Pricing & Inventory](./docs/08_pricing_and_inventory.md) | Pricing engine overview |
 | 09 | [Sales Kit](./docs/09_sales_kit.md) | Mobile value propositions for stakeholders |
+| 10 | [Brand & UI/UX](./docs/10_brand_and_uiux.md) | Brand identity and design standards |
+| 11 | [Mobile Roadmap](./docs/11_mobile_roadmap.md) | Mobile parity audit & future roadmap |
+| 11b | [Mobile Parity Audit](./docs/11_mobile_parity_audit.md) | Comprehensive parity analysis (96%) |
 
 ---
 
