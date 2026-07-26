@@ -37,7 +37,22 @@ EXPO_PUBLIC_API_URL=https://<web-app>.vercel.app
 
 ---
 
+## 💾 Database Backup & Restoration
+
+Database schema and data backups (SQL & JSON), as well as restore scripts, are located in `admin-app`:
+
+```bash
+# Navigate to admin-app and restore
+cd ../admin-app
+node scripts/restore_final_backup_2026_07_26.cjs --mode=sql
+```
+
+See [Admin Backup & Restore Guide](../admin-app/docs/backup_restore_2026-07-26.md) for complete instructions.
+
+---
+
 ## 💎 Elite Alignment
 For ecosystem-wide context, refer to:
 - [Web Application](../web-app/README.md)
 - [Admin Portal](../admin-app/README.md)
+
