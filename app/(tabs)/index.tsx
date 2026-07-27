@@ -167,10 +167,10 @@ export default function HomeScreen() {
                     if (cat.slug === 'flights') {
                       router.push('/flights');
                     } else {
-                      router.push({
-                        pathname: '/explore',
-                        params: { category: cat.slug }
-                      });
+                      /* PREVIOUS OBJECT ROUTING PRESERVED AS COMMENT PER USER RULES:
+                      router.push({ pathname: '/explore', params: { category: cat.slug } });
+                      */
+                      router.push(`/explore?category=${encodeURIComponent(cat.slug)}`);
                     }
                   }} 
                 />

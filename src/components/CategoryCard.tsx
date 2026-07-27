@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Pressable, View, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Colors } from '../theme/colors';
 import { resolveImageUrl, getCategoryFallbackAsset } from '../utils/imageUtils';
@@ -17,35 +17,32 @@ export const CategoryCard = ({ name, slug, image_url, onPress }: CategoryCardPro
   const imageSource = hasError ? getCategoryFallbackAsset(slug || name) : resolveImageUrl(image_url, 300, 450, slug || name);
 
   return (
+    /* PREVIOUS TouchableOpacity PRESERVED AS COMMENT PER USER RULES:
     <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
-      {/* PRESERVED ORIGINAL CALL AS COMMENT PER USER RULES:
-      <ExpoImage 
-        source={resolveImageUrl(image_url, 300, 450)} 
-        style={styles.image}
-        contentFit="cover"
-        transition={300}
-        cachePolicy="disk"
-      />
-      */}
-      <ExpoImage 
-        source={imageSource} 
-        style={styles.image}
-        contentFit="cover"
-        transition={300}
-        cachePolicy="disk"
-        onError={() => setHasError(true)}
-      />
-      {/* PREVIOUS overlay PRESERVED AS COMMENT PER USER RULES:
-      <View style={styles.overlay}>
-        <Text style={styles.name}>{name}</Text>
-        <View style={styles.indicator} />
+      <ExpoImage ... />
+      <View style={styles.overlay} pointerEvents="none">...</View>
+    </TouchableOpacity>
+    */
+    <Pressable 
+      style={({ pressed }) => [styles.container, pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] }]} 
+      onPress={onPress}
+      hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+    >
+      <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+        <ExpoImage 
+          source={imageSource} 
+          style={styles.image}
+          contentFit="cover"
+          transition={300}
+          cachePolicy="disk"
+          onError={() => setHasError(true)}
+        />
       </View>
-      */}
       <View style={styles.overlay} pointerEvents="none">
         <Text style={styles.name}>{name}</Text>
         <View style={styles.indicator} />
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
