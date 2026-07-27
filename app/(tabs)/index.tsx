@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWindowDimensions, Image, TouchableOpacity, View, StyleSheet, ScrollView } from 'react-native';
+import { useWindowDimensions, Image, TouchableOpacity, View, StyleSheet, ScrollView, FlatList } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
 import { useHomeData, DEFAULT_CATEGORIES } from '../../src/hooks/useHomeData';
@@ -140,26 +140,21 @@ export default function HomeScreen() {
             <ScrollView 
               horizontal 
               showsHorizontalScrollIndicator={false} 
-              contentContainerStyle={styles.categoryScroll}
-            >
-            */}
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false} 
               nestedScrollEnabled={true}
               directionalLockEnabled={true}
               contentContainerStyle={styles.categoryScroll}
             >
-              {/* PRESERVED ORIGINAL SYNTHESIZED CATEGORIES AS COMMENT PER USER RULES:
-              {categories.length > 0 ? [
-                ...categories.filter(cat => cat.slug !== 'activities'),
-                ...(!categories.find(c => c.slug === 'sea-activities') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea', image_url: '' }] : []),
-                ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land', image_url: '' }] : [])
-              ].map((cat: any) => (
-              */}
-              {(categories.length > 0 ? categories : DEFAULT_CATEGORIES).map((cat: any) => (
+              {(categories.length > 0 ? categories : DEFAULT_CATEGORIES).map((cat: any) => (...))}
+            </ScrollView>
+            */}
+            <FlatList 
+              data={categories.length > 0 ? categories : DEFAULT_CATEGORIES}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.id || item.slug}
+              contentContainerStyle={styles.categoryScroll}
+              renderItem={({ item: cat }) => (
                 <CategoryCard 
-                  key={cat.id} 
                   name={cat.name} 
                   slug={cat.slug}
                   image_url={cat.image_url} 
@@ -167,15 +162,15 @@ export default function HomeScreen() {
                     if (cat.slug === 'flights') {
                       router.push('/flights');
                     } else {
-                      /* PREVIOUS OBJECT ROUTING PRESERVED AS COMMENT PER USER RULES:
-                      router.push({ pathname: '/explore', params: { category: cat.slug } });
-                      */
-                      router.push(`/explore?category=${encodeURIComponent(cat.slug)}`);
+                      router.push({
+                        pathname: '/explore',
+                        params: { category: cat.slug }
+                      });
                     }
                   }} 
                 />
-              ))}
-            </ScrollView>
+              )}
+            />
         </View>
 
         {/* Premium Quick Filters (Restored with Better UI) */}
