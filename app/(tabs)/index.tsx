@@ -136,9 +136,18 @@ export default function HomeScreen() {
 
         {/* Mobile Elite Category Slider (Reference Image Align) */}
         <View style={styles.categoriesWrapper}>
+            {/* PREVIOUS ScrollView PRESERVED AS COMMENT PER USER RULES:
             <ScrollView 
               horizontal 
               showsHorizontalScrollIndicator={false} 
+              contentContainerStyle={styles.categoryScroll}
+            >
+            */}
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false} 
+              nestedScrollEnabled={true}
+              directionalLockEnabled={true}
               contentContainerStyle={styles.categoryScroll}
             >
               {/* PRESERVED ORIGINAL SYNTHESIZED CATEGORIES AS COMMENT PER USER RULES:
@@ -359,10 +368,14 @@ const styles = StyleSheet.create({
   },
   searchPlaceholder: { flex: 1, fontFamily: 'Outfit_600SemiBold', fontSize: 14, color: Colors.slate[400] },
   categoriesWrapper: { marginTop: 24, marginBottom: 24 },
+  /* PREVIOUS SCROLL STYLES PRESERVED AS COMMENT PER USER RULES:
   categoryScroll: { paddingRight: 24 },
+  quickFiltersScroll: { paddingRight: 24 },
+  */
+  categoryScroll: { paddingLeft: 24, paddingRight: 24 },
   categorySkeleton: { backgroundColor: Colors.slate[50], borderRadius: 40, marginRight: 16 },
   quickFiltersContainer: { marginTop: 12 },
-  quickFiltersScroll: { paddingRight: 24 },
+  quickFiltersScroll: { paddingLeft: 24, paddingRight: 24 },
   quickFilterCard: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -35,7 +35,13 @@ export const CategoryCard = ({ name, slug, image_url, onPress }: CategoryCardPro
         cachePolicy="disk"
         onError={() => setHasError(true)}
       />
+      {/* PREVIOUS overlay PRESERVED AS COMMENT PER USER RULES:
       <View style={styles.overlay}>
+        <Text style={styles.name}>{name}</Text>
+        <View style={styles.indicator} />
+      </View>
+      */}
+      <View style={styles.overlay} pointerEvents="none">
         <Text style={styles.name}>{name}</Text>
         <View style={styles.indicator} />
       </View>
