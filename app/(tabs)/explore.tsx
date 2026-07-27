@@ -185,10 +185,17 @@ export default function ExploreScreen() {
           >
             {labels.all || 'All'}
           </Chip>
+          {/* PREVIOUS CHIPS LIST PRESERVED AS COMMENT PER PROJECT RULES:
           {[
             ...categories.filter(cat => cat.slug !== 'activities' && cat.slug !== 'flight' && cat.slug !== 'flights'),
             ...(!categories.find(c => c.slug === 'sea-activities') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea' }] : []),
             ...(!categories.find(c => c.slug === 'land-activities') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land' }] : [])
+          ]
+          */}
+          {[
+            ...categories.filter(cat => cat.slug !== 'flight' && cat.slug !== 'flights'),
+            ...(!categories.find(c => c.slug === 'activities-sea') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea' }] : []),
+            ...(!categories.find(c => c.slug === 'activities-land') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land' }] : [])
           ].map((cat: any) => (
             <Chip 
               key={cat.id}

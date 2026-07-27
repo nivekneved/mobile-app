@@ -233,7 +233,7 @@ export default function FlightsScreen() {
                   }}
                 />
                 */}
-                {/* ORIGINAL: ref={webViewRef} */}
+                {/* PREVIOUS WebView IMPLEMENTATION PRESERVED AS COMMENT PER PROJECT RULES:
                 <WebView 
                   ref={Platform.OS === 'web' ? undefined : (webViewRef as any)}
                   source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_self&embedded=true' }} 
@@ -256,6 +256,43 @@ export default function FlightsScreen() {
                     const { nativeEvent } = syntheticEvent;
                     const { targetUrl } = nativeEvent;
                     if (__DEV__) console.log('[Flight WebView] Intercepted new window request for URL:', targetUrl);
+                  }}
+                />
+                */}
+                <WebView 
+                  ref={Platform.OS === 'web' ? undefined : (webViewRef as any)}
+                  source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_self&embedded=true' }} 
+                  style={styles.webview}
+                  onLoadEnd={() => setIsLoading(false)}
+                  scrollEnabled={true}
+                  javaScriptEnabled={true}
+                  domStorageEnabled={true}
+                  allowsInlineMediaPlayback={true}
+                  mixedContentMode="always"
+                  onMessage={onMessage}
+                  injectedJavaScript={injectedJS}
+                  setSupportMultipleWindows={true}
+                  onNavigationStateChange={(navState) => {
+                    setCanGoBack(navState.canGoBack);
+                    setCanGoForward(navState.canGoForward);
+                    if (navState.url) {
+                      trackFlightSearch(navState.url);
+                    }
+                  }}
+                  onShouldStartLoadWithRequest={(request) => {
+                    // Open external non-golibe links in system browser
+                    if (request.url && !request.url.includes('golibe.com') && !request.url.includes('about:blank')) {
+                      Linking.openURL(request.url).catch(console.error);
+                      return false;
+                    }
+                    return true;
+                  }}
+                  onOpenWindow={(syntheticEvent) => {
+                    const { nativeEvent } = syntheticEvent;
+                    const { targetUrl } = nativeEvent;
+                    if (targetUrl) {
+                      Linking.openURL(targetUrl).catch(console.error);
+                    }
                   }}
                 />
               </View>
