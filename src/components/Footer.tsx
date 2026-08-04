@@ -422,14 +422,13 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   creditText: {
-    color: '#94a3b8',
-    fontFamily: 'Outfit_900Black',
-    fontSize: 11,
+    color: '#475569',
+    fontFamily: 'Outfit_700Bold',
+    fontSize: 9,
     textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 1.5,
-    opacity: 1,
-    marginTop: 4,
+    opacity: 0.5,
   },
 });
 
