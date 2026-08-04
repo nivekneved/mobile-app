@@ -50,17 +50,6 @@ export const AIConcierge = () => {
     }
   }, [isOpen]);
 
-  // PRESERVED: Old handleSend that immediately redirected to WhatsApp
-  // const handleSend = () => {
-  //   if (!message.trim()) return;
-  //   const phone = mobileConfig?.supportPhone || generalConfig?.contactPhone || '23055097701';
-  //   const encodedMessage = encodeURIComponent(message);
-  //   const whatsappUrl = `https://wa.me/${phone.replace(/\+/g, '').replace(/\s+/g, '')}?text=${encodedMessage}`;
-  //   Linking.openURL(whatsappUrl);
-  //   setMessage('');
-  //   setIsOpen(false);
-  // };
-
   const handleSend = () => {
     if (!message.trim()) return;
 

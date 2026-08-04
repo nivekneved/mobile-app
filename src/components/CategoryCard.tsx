@@ -17,12 +17,6 @@ export const CategoryCard = ({ name, slug, image_url, onPress }: CategoryCardPro
   const imageSource = hasError ? getCategoryFallbackAsset(slug || name) : resolveImageUrl(image_url, 300, 450, slug || name);
 
   return (
-    /* PREVIOUS TouchableOpacity PRESERVED AS COMMENT PER USER RULES:
-    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.8}>
-      <ExpoImage ... />
-      <View style={styles.overlay} pointerEvents="none">...</View>
-    </TouchableOpacity>
-    */
     <Pressable 
       style={({ pressed }) => [styles.container, pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] }]} 
       onPress={onPress}

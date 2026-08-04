@@ -27,7 +27,6 @@ export default function BookingsScreen() {
 
   const handleLookup = async () => {
     if (!lookupEmail.trim() || !lookupRef.trim()) {
-      // PRESERVED: Alert.alert('Required Fields', 'Please enter both email and booking reference.');
       Alert.alert(labels.required_fields || 'Required Fields', labels.enter_email_ref || 'Please enter both email and booking reference.');
       return;
     }
