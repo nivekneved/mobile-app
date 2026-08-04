@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-nat
 import { Text, Avatar, Surface, Divider } from 'react-native-paper';
 import { useAuth } from '../../src/context/AuthContext';
 import { Colors } from '../../src/theme/colors';
-import { Sparkles, User, Settings, Shield, Bell, HelpCircle, LogOut, ChevronRight, MessageSquare, Phone } from 'lucide-react-native';
+import { Sparkles, User, Settings, Shield, Bell, HelpCircle, LogOut, ChevronRight, MessageSquare, Phone, Trash2 } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSettings } from '../../src/context/SettingsContext';
 import * as Linking from 'expo-linking';
@@ -132,6 +132,30 @@ export default function ProfileScreen() {
               title="Preferences" 
               subtitle="Currency, language and theme" 
               onPress={() => Alert.alert("Preferences", "Default Currency: MUR (Rs)\nLanguage: English")}
+            />
+            <Divider style={styles.divider} />
+            <MenuItem 
+              icon={Trash2} 
+              title="Delete Account" 
+              subtitle="Request account & data removal" 
+              color="#DC2626"
+              onPress={() => {
+                Alert.alert(
+                  "Delete Account & Data",
+                  "To request permanent removal of your account, personal data, and booking history, click proceed to dispatch an official request.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    { 
+                      text: "Request Removal", 
+                      style: "destructive", 
+                      onPress: () => {
+                        const email = session?.user?.email || 'guest';
+                        Linking.openURL(`mailto:reservation@travellounge.mu?subject=${encodeURIComponent('Account Deletion Request: ' + email)}&body=${encodeURIComponent('Please delete my account and data associated with ' + email)}`);
+                      } 
+                    }
+                  ]
+                );
+              }}
             />
             <Divider style={styles.divider} />
             <MenuItem 
