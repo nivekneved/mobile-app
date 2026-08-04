@@ -16,9 +16,6 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textSecondary,
-        safeAreaInsets: {
-          bottom: bottomInset,
-        },
         tabBarStyle: {
           height: 56 + bottomInset,
           paddingBottom: bottomInset,
