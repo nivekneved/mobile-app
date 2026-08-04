@@ -136,25 +136,16 @@ export default function HomeScreen() {
 
         {/* Mobile Elite Category Slider (Reference Image Align) */}
         <View style={styles.categoriesWrapper}>
-            {/* PREVIOUS ScrollView PRESERVED AS COMMENT PER USER RULES:
             <ScrollView 
               horizontal 
-              showsHorizontalScrollIndicator={false} 
+              showsHorizontalScrollIndicator={false}
               nestedScrollEnabled={true}
               directionalLockEnabled={true}
               contentContainerStyle={styles.categoryScroll}
             >
-              {(categories.length > 0 ? categories : DEFAULT_CATEGORIES).map((cat: any) => (...))}
-            </ScrollView>
-            */}
-            <FlatList 
-              data={categories.length > 0 ? categories : DEFAULT_CATEGORIES}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              keyExtractor={(item) => item.id || item.slug}
-              contentContainerStyle={styles.categoryScroll}
-              renderItem={({ item: cat }) => (
+              {(categories.length > 0 ? categories : DEFAULT_CATEGORIES).map((cat: any) => (
                 <CategoryCard 
+                  key={cat.id || cat.slug}
                   name={cat.name} 
                   slug={cat.slug}
                   image_url={cat.image_url} 
@@ -169,8 +160,8 @@ export default function HomeScreen() {
                     }
                   }} 
                 />
-              )}
-            />
+              ))}
+            </ScrollView>
         </View>
 
         {/* Premium Quick Filters (Restored with Better UI) */}

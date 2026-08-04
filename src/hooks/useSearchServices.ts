@@ -29,22 +29,42 @@ export const useSearchServices = () => {
       }
       setError(null);
 
-      let dbCategorySlug = categorySlug;
-      let activityTypeFilter: string | null = null;
+      // Category & Alias Resolution helper
+      const resolveCategoryMatches = (slug: string | null) => {
+        if (!slug || slug === 'all') return null;
+        const s = slug.toLowerCase().trim();
+        if (['hotels', 'hotel', 'resorts'].includes(s)) {
+          return { slugs: ['hotels', 'hotel', 'resorts'], types: ['hotel'], activityType: null };
+        }
+        if (['cruises', 'cruise'].includes(s)) {
+          return { slugs: ['cruises', 'cruise'], types: ['cruise'], activityType: null };
+        }
+        if (['tours', 'tour', 'guided-group-tours'].includes(s)) {
+          return { slugs: ['tours', 'tour', 'guided-group-tours'], types: ['tour', 'package_tour'], activityType: null };
+        }
+        if (['packages', 'package', 'travel-packages'].includes(s)) {
+          return { slugs: ['packages', 'package', 'travel-packages'], types: ['package', 'travel_package'], activityType: null };
+        }
+        if (['day-packages', 'hotel-day-packages'].includes(s)) {
+          return { slugs: ['day-packages', 'hotel-day-packages'], types: ['day_package'], activityType: null };
+        }
+        if (['villas', 'villa'].includes(s)) {
+          return { slugs: ['villas', 'villa'], types: ['villa', 'hotel'], activityType: null };
+        }
+        if (['activities-sea', 'sea-activities'].includes(s)) {
+          return { slugs: ['activities-sea', 'sea-activities', 'activities'], types: ['activity', 'sea_activity'], activityType: 'Sea' };
+        }
+        if (['activities-land', 'land-activities'].includes(s)) {
+          return { slugs: ['activities-land', 'land-activities', 'activities'], types: ['activity', 'land_activity'], activityType: 'Land' };
+        }
+        if (['activities', 'activity'].includes(s)) {
+          return { slugs: ['activities', 'activity', 'sea-activities', 'land-activities'], types: ['activity', 'sea_activity', 'land_activity'], activityType: null };
+        }
+        return { slugs: [s], types: [s], activityType: null };
+      };
 
-      if (categorySlug === 'activities-land') {
-        dbCategorySlug = 'activities';
-        activityTypeFilter = 'Land';
-      } else if (categorySlug === 'activities-sea') {
-        dbCategorySlug = 'activities';
-        activityTypeFilter = 'Sea';
-      }
-
-      let selectString = '*, service_categories(categories(id, name, slug))';
-
-      if (dbCategorySlug && dbCategorySlug !== 'all') {
-        selectString = '*, service_categories!inner(categories!inner(id, name, slug))';
-      }
+      const catFilter = resolveCategoryMatches(categorySlug);
+      const selectString = '*, service_categories(categories(id, name, slug))';
 
       const from = pageIndex * pageSize;
       const to = from + pageSize - 1;
@@ -53,8 +73,7 @@ export const useSearchServices = () => {
         .from('services')
         .select(selectString)
         .order('priority', { ascending: false })
-        .order('created_at', { ascending: false })
-        .range(from, to);
+        .order('created_at', { ascending: false });
 
       if (query) {
         supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,location.ilike.%${query}%,region.ilike.%${query}%,short_description.ilike.%${query}%,description.ilike.%${query}%`);
@@ -64,34 +83,48 @@ export const useSearchServices = () => {
         supabaseQuery = supabaseQuery.ilike('location', `%${region}%`);
       }
 
-      if (dbCategorySlug && dbCategorySlug !== 'all') {
-        supabaseQuery = supabaseQuery.eq('service_categories.categories.slug', dbCategorySlug);
-      }
-
-      if (activityTypeFilter) {
-        supabaseQuery = supabaseQuery.eq('activity_type', activityTypeFilter);
-      }
-
       const { data: servicesRaw, error: searchError } = await supabaseQuery;
 
       if (searchError) throw searchError;
 
+      // In-memory Category & Activity Filtering
+      let filteredRaw = servicesRaw || [];
+      if (catFilter) {
+        filteredRaw = filteredRaw.filter((s: any) => {
+          const sType = (s.service_type || '').toLowerCase();
+          const sActType = (s.activity_type || '').toLowerCase();
+          const categories = s.service_categories || [];
+          const catSlugs = categories.map((sc: any) => (sc?.categories?.slug || '').toLowerCase());
+
+          const matchesCategorySlug = catSlugs.some((cs: string) => catFilter.slugs.includes(cs));
+          const matchesServiceType = catFilter.types.includes(sType);
+          const matchesActivityType = catFilter.activityType 
+            ? sActType === catFilter.activityType.toLowerCase() 
+            : true;
+
+          const isCatMatch = matchesCategorySlug || matchesServiceType;
+          return isCatMatch && matchesActivityType;
+        });
+      }
+
+      // Pagination slice
+      const pagedRaw = filteredRaw.slice(from, to + 1);
+
       let mappedServices: any[] = [];
       const today = new Date().toISOString().split('T')[0];
 
-      if (servicesRaw && servicesRaw.length > 0) {
-        const serviceIds = servicesRaw.map((s: any) => s.id);
+      if (pagedRaw && pagedRaw.length > 0) {
+        const serviceIds = pagedRaw.map((s: any) => s.id);
         const { data: pricingData, error: pricingError } = await supabase
           .from('service_pricing')
           .select('service_id, price, occupancy_pricing, date_from, date_to')
           .in('service_id', serviceIds)
-          .lte('date_from', today)
           .gte('date_to', today)
           .limit(10000);
 
         if (pricingError) console.error('Supabase error (service_pricing search):', pricingError);
 
-        mappedServices = servicesRaw.map((s: any) => {
+        mappedServices = pagedRaw.map((s: any) => {
           const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
           const sPricing = pricingData ? pricingData.filter((p: any) => p.service_id === s.id) : [];
           const lowestPrice = calculateLeadPrice(sPricing, s.service_type, s.price);
@@ -105,7 +138,7 @@ export const useSearchServices = () => {
         });
       }
 
-      setHasMore(servicesRaw ? servicesRaw.length === pageSize : false);
+      setHasMore(filteredRaw.length > to + 1);
 
       if (append) {
         setServices(prev => [...prev, ...mappedServices]);
