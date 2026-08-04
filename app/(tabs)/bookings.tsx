@@ -10,6 +10,7 @@ import { supabase } from '../../src/lib/supabase';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '../../src/context/SettingsContext';
 import { resolveImageUrl } from '../../src/utils/imageUtils';
+import { formatShortBookingRef } from '../../src/utils/textUtils';
 
 export default function BookingsScreen() {
   const { generalConfig } = useSettings();
@@ -104,7 +105,7 @@ export default function BookingsScreen() {
           </View>
 
           {item.booking_reference && (
-            <Text style={styles.refText}>Ref: {item.booking_reference}</Text>
+            <Text style={styles.refText}>Ref: {formatShortBookingRef(item.booking_reference)}</Text>
           )}
 
           <View style={styles.infoRow}>

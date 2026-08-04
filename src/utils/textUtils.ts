@@ -14,3 +14,21 @@ export function stripHtml(html: string): string {
         .replace(/&gt;/g, '>')     // Decode greater than
         .trim();
 }
+
+/**
+ * Formats any raw booking ID or UUID into a clean, short Travel Lounge reference (e.g. TL-K8M92P)
+ */
+export function formatShortBookingRef(rawRef: string | undefined | null): string {
+    if (!rawRef) return `TL-${Math.floor(100000 + Math.random() * 900000)}`;
+    const str = String(rawRef).trim();
+    if (str.toUpperCase().startsWith('TL-') && str.length <= 12) {
+        return str.toUpperCase();
+    }
+    if (str.includes('-') && str.length > 20) {
+        return `TL-${str.split('-')[0].toUpperCase()}`;
+    }
+    if (str.length > 10) {
+        return `TL-${str.substring(0, 6).toUpperCase()}`;
+    }
+    return str.toUpperCase().startsWith('TL-') ? str.toUpperCase() : `TL-${str.toUpperCase()}`;
+}
