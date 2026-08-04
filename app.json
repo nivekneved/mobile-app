@@ -26,6 +26,7 @@
     "android": {
       "versionCode": 16,
       "package": "com.travellounge.mu",
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#DC2626",
         "foregroundImage": "./assets/android-icon-foreground.png",
