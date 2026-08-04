@@ -7,8 +7,10 @@ import { Sparkles, User, Settings, Shield, Bell, HelpCircle, LogOut, ChevronRigh
 import { StatusBar } from 'expo-status-bar';
 import { useSettings } from '../../src/context/SettingsContext';
 import * as Linking from 'expo-linking';
+import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const { session, signOut } = useAuth();
   const { mobileConfig, generalConfig } = useSettings();
 
@@ -77,11 +79,32 @@ export default function ProfileScreen() {
         <View style={styles.content}>
           <Text style={styles.sectionTitle}>Account Overview</Text>
           <Surface style={styles.sectionCard} elevation={0}>
-            <MenuItem icon={User} title="Personal Details" subtitle="Manage your profile information" />
+            <MenuItem 
+              icon={User} 
+              title="Personal Details" 
+              subtitle="Manage your profile information" 
+              onPress={() => {
+                if (session?.user) {
+                  Alert.alert("Personal Profile", `Signed in as:\n${session.user.email || 'Executive Member'}`);
+                } else {
+                  Alert.alert("Guest Session", "Sign in to access your personal profile details.");
+                }
+              }}
+            />
             <Divider style={styles.divider} />
-            <MenuItem icon={Bell} title="Notifications" subtitle="Alerts, offers and trip updates" />
+            <MenuItem 
+              icon={Bell} 
+              title="Notifications" 
+              subtitle="Alerts, offers and trip updates" 
+              onPress={() => Alert.alert("Notifications", "Push notifications and travel alerts are active.")}
+            />
             <Divider style={styles.divider} />
-            <MenuItem icon={Shield} title="Privacy & Security" subtitle="Passwords and data preferences" />
+            <MenuItem 
+              icon={Shield} 
+              title="Privacy & Security" 
+              subtitle="Passwords and data preferences" 
+              onPress={() => Linking.openURL('https://eco-travellounge.mu/privacy-policy')}
+            />
           </Surface>
 
           <Text style={styles.sectionTitle}>Elite Support</Text>
@@ -98,12 +121,18 @@ export default function ProfileScreen() {
               icon={HelpCircle} 
               title="Help Center" 
               subtitle="FAQs and travel guidelines" 
+              onPress={() => router.push('/faq')}
             />
           </Surface>
 
           <Text style={styles.sectionTitle}>Application</Text>
           <Surface style={styles.sectionCard} elevation={0}>
-            <MenuItem icon={Settings} title="Preferences" subtitle="Currency, language and theme" />
+            <MenuItem 
+              icon={Settings} 
+              title="Preferences" 
+              subtitle="Currency, language and theme" 
+              onPress={() => Alert.alert("Preferences", "Default Currency: MUR (Rs)\nLanguage: English")}
+            />
             <Divider style={styles.divider} />
             <MenuItem 
               icon={LogOut} 

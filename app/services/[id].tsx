@@ -180,7 +180,7 @@ export default function ServiceDetailScreen() {
             />
           )}
           <View style={styles.overlay} />
-          <View style={styles.topControls}>
+          <View style={[styles.topControls, { top: insets.top > 0 ? insets.top + 8 : 44 }]}>
             <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}><ArrowLeft color={Colors.white} size={22} /></TouchableOpacity>
             <TouchableOpacity 
               onPress={() => {

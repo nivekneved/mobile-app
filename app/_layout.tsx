@@ -38,6 +38,7 @@ import {
   Text 
 } from 'react-native-paper';
 import { useColorScheme, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { WishlistProvider } from '../src/context/WishlistContext';
 import { SettingsProvider, useSettings } from '../src/context/SettingsContext';
@@ -217,13 +218,15 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <WishlistProvider>
-          <SettingsProvider>
-            <RootLayoutNav />
-          </SettingsProvider>
-        </WishlistProvider>
-      </AuthProvider>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <WishlistProvider>
+            <SettingsProvider>
+              <RootLayoutNav />
+            </SettingsProvider>
+          </WishlistProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
     </ErrorBoundary>
   );
 }
