@@ -156,7 +156,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
   };
 
   const handleNext = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
+    if (currentStep < 2) setCurrentStep(currentStep + 1);
   };
 
   const handleBack = () => {
@@ -180,10 +180,10 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
 
   const renderStepIndicator = () => (
     <View style={styles.stepIndicator}>
-      {[1, 2, 3, 4].map(step => (
+      {[1, 2].map(step => (
         <View key={step} style={styles.stepDotContainer}>
           <View style={[styles.stepDot, currentStep >= step && styles.stepDotActive]} />
-          {step < 4 && <View style={[styles.stepLine, currentStep > step && styles.stepLineActive]} />}
+          {step < 2 && <View style={[styles.stepLine, currentStep > step && styles.stepLineActive]} />}
         </View>
       ))}
     </View>
@@ -191,8 +191,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
 
   const renderStep1 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Journey Details</Text>
-      <Text style={styles.stepSub}>Select travel dates and traveler counts.</Text>
+      <Text style={styles.stepTitle}>Journey & Stay Options</Text>
+      <Text style={styles.stepSub}>Select your travel dates, travelers, and room preferences.</Text>
 
       <Surface style={styles.card}>
         <View style={styles.dateRow}>
@@ -243,13 +243,6 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
           </View>
         ))}
       </View>
-    </View>
-  );
-
-  const renderStep2 = () => (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Stay Options</Text>
-      <Text style={styles.stepSub}>Customize your room and dining preferences.</Text>
 
       {roomTypes.length > 0 && (
         <>
@@ -262,7 +255,6 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                 style={[styles.roomCard, watchAllFields.roomType === room.name && styles.roomCardActive]}
               >
                 <Text style={[styles.roomName, watchAllFields.roomType === room.name && styles.roomTextActive]}>{room.name}</Text>
-                {/* ORIGINAL: MUR {room.weekday_price.toLocaleString()} */}
                 <Text style={[styles.roomPrice, watchAllFields.roomType === room.name && styles.roomTextActive]}>
                   MUR {(room.weekday_price ?? 0).toLocaleString()}
                 </Text>
@@ -283,7 +275,6 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
               style={[styles.planChip, watchAllFields.mealPreference === option.label && styles.planChipActive]}
               textStyle={[styles.planChipText, watchAllFields.mealPreference === option.label && styles.planChipTextActive]}
             >
-              {/* ORIGINAL: {option.label} (+MUR {option.total.toLocaleString()}) */}
               {option.label} (+MUR {(option.total ?? 0).toLocaleString()})
             </Chip>
           ))
@@ -301,151 +292,13 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
           ))
         )}
       </View>
-      {/* PREVIOUS CHIPS PRESERVED AS COMMENTS PER USER RULES:
-      <View style={styles.chipGrid}>
-        {['none', 'Bed & Breakfast', 'Half Board', 'Full Board', 'All Inclusive'].map(plan => (
-          <Chip 
-            key={plan}
-            selected={watchAllFields.mealPreference === plan}
-            onPress={() => setValue('mealPreference', plan)}
-            style={[styles.planChip, watchAllFields.mealPreference === plan && styles.planChipActive]}
-            textStyle={[styles.planChipText, watchAllFields.mealPreference === plan && styles.planChipTextActive]}
-          >
-            {plan === 'none' ? 'Room Only' : plan}
-          </Chip>
-        ))}
-      </View>
-      */}
     </View>
   );
 
-  const renderStep3 = () => (
+  const renderStep2 = () => (
     <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Premium Extras</Text>
-      <Text style={styles.stepSub}>Select optional addons to enhance your stay.</Text>
-
-      <ScrollView style={styles.addonList}>
-        {AVAILABLE_ADDONS.map(addon => {
-          const currentAddons = watchAllFields.addons || [];
-          const isSelected = currentAddons.includes(addon.id);
-          return (
-            <TouchableOpacity 
-              key={addon.id}
-              onPress={() => {
-                const current = [...currentAddons];
-                if (isSelected) {
-                  setValue('addons', current.filter(id => id !== addon.id));
-                } else {
-                  setValue('addons', [...current, addon.id]);
-                }
-              }}
-              style={[styles.addonCard, isSelected && styles.addonCardActive]}
-            >
-              <View style={styles.addonIconContainer}>
-                <addon.icon size={20} color={isSelected ? '#fff' : Colors.primary} />
-              </View>
-              <View style={styles.addonInfo}>
-                <Text style={[styles.addonName, isSelected && styles.textWhite]}>{addon.name}</Text>
-                <Text style={[styles.addonDesc, isSelected && styles.textWhite70]}>{addon.description}</Text>
-              </View>
-              {/* PRESERVED: Old flat-rate price layout label
-              <Text style={[styles.addonPrice, isSelected && styles.textWhite]}>+Rs {addon.price}</Text>
-              */}
-              <Text style={[styles.addonPrice, isSelected && styles.textWhite]}>
-                +Rs {addon.price}{addon.type === 'per_person' ? ' / person' : ''}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-    </View>
-  );
-
-  const renderStep4 = () => {
-    const additionalCount = Math.max(0, (watchAllFields.paxAdults || 0) + (watchAllFields.paxTeens || 0) + (watchAllFields.paxChildren || 0) - 1);
-    
-    if (additionalCount === 0) {
-      return (
-        <View style={styles.stepContainer}>
-          <Text style={styles.stepTitle}>Traveler Details</Text>
-          <Text style={styles.stepSub}>No additional travelers to register. The primary booker details will be used.</Text>
-          <Surface style={styles.summaryCard}>
-            <Text style={styles.summaryNote}>Click Continue to proceed to contact info.</Text>
-          </Surface>
-        </View>
-      );
-    }
-
-    const items = [];
-    for (let i = 0; i < additionalCount; i++) {
-      items.push(
-        <View key={i} style={styles.travelerFormCard}>
-          <Text style={styles.travelerCardTitle}>Traveler #{i + 2}</Text>
-          <Controller
-            control={control}
-            name={`travelers.${i}.firstName` as any}
-            defaultValue=""
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput 
-                label="First Name" 
-                mode="outlined" 
-                onBlur={onBlur} 
-                onChangeText={onChange} 
-                value={value as string} 
-                style={styles.input} 
-                activeOutlineColor={Colors.primary} 
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name={`travelers.${i}.lastName` as any}
-            defaultValue=""
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput 
-                label="Last Name" 
-                mode="outlined" 
-                onBlur={onBlur} 
-                onChangeText={onChange} 
-                value={value as string} 
-                style={styles.input} 
-                activeOutlineColor={Colors.primary} 
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name={`travelers.${i}.passportNumber` as any}
-            defaultValue=""
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput 
-                label="Passport Number (Optional)" 
-                mode="outlined" 
-                onBlur={onBlur} 
-                onChangeText={onChange} 
-                value={value as string} 
-                style={styles.input} 
-                activeOutlineColor={Colors.primary} 
-              />
-            )}
-          />
-        </View>
-      );
-    }
-
-    return (
-      <View style={styles.stepContainer}>
-        <Text style={styles.stepTitle}>Traveler Details</Text>
-        <Text style={styles.stepSub}>Provide details for all additional members in your party.</Text>
-        {items}
-      </View>
-    );
-  };
-
-  const renderStep5 = () => (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Confirmation</Text>
-      <Text style={styles.stepSub}>Provide contact details for your elite quote.</Text>
+      <Text style={styles.stepTitle}>Contact & Confirmation</Text>
+      <Text style={styles.stepSub}>Provide contact details for your instant quote dispatch.</Text>
 
       <View style={styles.formGrid}>
         <Controller
@@ -476,6 +329,13 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
             <TextInput label="WhatsApp Number" mode="outlined" keyboardType="phone-pad" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.phone} style={styles.input} activeOutlineColor={Colors.primary} />
           )}
         />
+        <Controller
+          control={control}
+          name="specialRequirements"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput label="Special Requests / Notes (Optional)" mode="outlined" multiline numberOfLines={3} onBlur={onBlur} onChangeText={onChange} value={value} style={styles.input} activeOutlineColor={Colors.primary} />
+          )}
+        />
       </View>
 
       <Surface style={styles.summaryCard}>
@@ -483,7 +343,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
           <ShieldCheck size={16} color={Colors.success} />
           <Text style={styles.summaryText}>Secure Booking Protocol</Text>
         </View>
-        <Text style={styles.summaryNote}>Your request will be handled by a dedicated concierge for final verification.</Text>
+        <Text style={styles.summaryNote}>Your inquiry will be handled by a dedicated concierge for instant confirmation.</Text>
       </Surface>
     </View>
   );
@@ -501,7 +361,6 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
         </View>
         <View style={styles.reportRow}>
           <Text style={styles.reportLabel}>ESTIMATED TOTAL</Text>
-          {/* ORIGINAL: <Text style={styles.reportValue}>MUR {calculateTotal().toLocaleString()}</Text> */}
           <Text style={styles.reportValue}>MUR {(calculateTotal() ?? 0).toLocaleString()}</Text>
         </View>
       </Surface>
@@ -535,8 +394,6 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
               {currentStep === 1 && renderStep1()}
               {currentStep === 2 && renderStep2()}
-              {currentStep === 3 && renderStep4()}
-              {currentStep === 4 && renderStep5()}
             </ScrollView>
 
             <View style={styles.footer}>
@@ -548,7 +405,6 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                 {calculatingPrice ? (
                   <ActivityIndicator size="small" color={Colors.primary} />
                 ) : (
-                  /* ORIGINAL: <Text style={styles.totalPrice}>Rs {calculateTotal().toLocaleString()}</Text> */
                   <Text style={styles.totalPrice}>Rs {(calculateTotal() ?? 0).toLocaleString()}</Text>
                 )}
               </View>
@@ -561,7 +417,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                 )}
                 
                 <TouchableOpacity 
-                  onPress={currentStep === 4 ? () => (handleSubmit as any)(onConfirm)() : handleNext}
+                  onPress={currentStep === 2 ? () => (handleSubmit as any)(onConfirm)() : handleNext}
                   disabled={isSubmitting || (currentStep === 1 && pricing?.availabilityStatus?.isAvailable === false)}
                   style={[styles.nextBtn, currentStep === 1 ? { flex: 1 } : {}]}
                 >
@@ -569,7 +425,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                     <ActivityIndicator color="#fff" />
                   ) : (
                     <>
-                      <Text style={styles.nextBtnText}>{currentStep === 4 ? 'SEND REQUEST' : 'CONTINUE'}</Text>
+                      <Text style={styles.nextBtnText}>{currentStep === 2 ? 'SEND REQUEST' : 'CONTINUE (1/2)'}</Text>
                       <ArrowRight size={20} color="#fff" />
                     </>
                   )}
