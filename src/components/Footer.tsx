@@ -233,7 +233,7 @@ const Footer = () => {
             © {new Date().getFullYear()} {settings?.siteTitle || 'Travel Lounge'}. All Rights Reserved. | Since 1995
           </Text>
           <Text style={styles.creditText}>
-            Created and Produced by Deven
+            Created & Produced by <Text style={{ color: Colors.primary, fontFamily: 'Outfit_900Black' }}>Deven</Text>
           </Text>
         </View>
       </View>
@@ -422,13 +422,14 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   creditText: {
-    color: '#475569',
-    fontFamily: 'Outfit_700Bold',
-    fontSize: 9,
+    color: '#94a3b8',
+    fontFamily: 'Outfit_900Black',
+    fontSize: 11,
     textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 1.5,
-    opacity: 0.5,
+    opacity: 1,
+    marginTop: 4,
   },
 });
 
