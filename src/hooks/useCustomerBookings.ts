@@ -112,9 +112,17 @@ export const useCustomerBookings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    AsyncStorage.getItem('@tl_bookings_cache_v1').then(cached => {
+      if (cached) {
+        setBookings(JSON.parse(cached));
+        setIsLoading(false);
+      }
+    }).catch(() => {});
+  }, []);
+
   const fetchBookings = useCallback(async () => {
     try {
-      setIsLoading(true);
       setError(null);
 
       // Collect all customer IDs to fetch (both logged-in user and guest IDs from storage)
@@ -199,6 +207,7 @@ export const useCustomerBookings = () => {
       });
 
       setBookings(mappedBookings);
+      AsyncStorage.setItem('@tl_bookings_cache_v1', JSON.stringify(mappedBookings)).catch(() => {});
     } catch (err: any) {
       console.error('Error fetching bookings:', err);
       setError(err.message);

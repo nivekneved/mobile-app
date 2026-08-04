@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const CACHE_KEY_SETTINGS = '@tl_settings_cache_v1';
+const CACHE_KEY_BLOCKS = '@tl_blocks_cache_v1';
 
 interface MobileConfig {
   supportPhone?: string;
@@ -39,10 +43,39 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [contentBlocks, setContentBlocks] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
 
+  // Load from AsyncStorage cache instantly on mount
+  useEffect(() => {
+    const loadCache = async () => {
+      try {
+        const [cachedSettingsJson, cachedBlocksJson] = await Promise.all([
+          AsyncStorage.getItem(CACHE_KEY_SETTINGS),
+          AsyncStorage.getItem(CACHE_KEY_BLOCKS)
+        ]);
+
+        if (cachedSettingsJson) {
+          const parsed = JSON.parse(cachedSettingsJson);
+          if (parsed.mobile_config) setMobileConfig(parsed.mobile_config);
+          if (parsed.general_config) setGeneralConfig(parsed.general_config);
+        }
+
+        if (cachedBlocksJson) {
+          setContentBlocks(JSON.parse(cachedBlocksJson));
+        }
+
+        if (cachedSettingsJson || cachedBlocksJson) {
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.warn('SettingsContext: Error reading cache:', err);
+      }
+    };
+
+    loadCache();
+    fetchSettings();
+  }, []);
+
   const fetchSettings = async () => {
-    setIsLoading(true);
     try {
-      // FIX-1: Run both queries in parallel (was sequential — 2 round-trips → 1)
       const [
         { data: settings, error: settingsError },
         { data: blocks, error: blocksError }
@@ -54,14 +87,19 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (settingsError) throw settingsError;
       if (blocksError) throw blocksError;
 
+      const cachePayload: Record<string, any> = {};
+
       if (settings) {
         settings.forEach((item: any) => {
           if (item.key === 'mobile_config') {
             setMobileConfig(item.value);
+            cachePayload.mobile_config = item.value;
           } else if (item.key === 'general_config') {
             setGeneralConfig(item.value);
+            cachePayload.general_config = item.value;
           }
         });
+        AsyncStorage.setItem(CACHE_KEY_SETTINGS, JSON.stringify(cachePayload)).catch(() => {});
       }
 
       if (blocks) {
@@ -70,6 +108,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           blockMap[b.section_key] = b.content;
         });
         setContentBlocks(blockMap);
+        AsyncStorage.setItem(CACHE_KEY_BLOCKS, JSON.stringify(blockMap)).catch(() => {});
       }
 
     } catch (err) {
@@ -78,10 +117,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
 
   return (
     <SettingsContext.Provider
