@@ -75,6 +75,8 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const reqKey = JSON.stringify(req);
+
   useEffect(() => {
     if (!req || !req.serviceId || !req.startDate || !req.endDate) {
       setPricing(null);
@@ -87,8 +89,6 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
       try {
         setLoading(true);
         setError(null);
-        // console.log('--- Starting Pricing Calculation ---');
-        // console.log('Request:', JSON.stringify(req));
 
         const { serviceId, variantId, startDate, endDate, participants, baseRates, isPerNight: reqIsPerNight } = req;
         
@@ -333,7 +333,7 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
     };
 
     calculate();
-  }, [req]);
+  }, [reqKey]);
 
   return { pricing, mealOptions, loading, error };
 };

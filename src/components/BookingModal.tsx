@@ -102,7 +102,10 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
   });
 
   const watchAllFields = watch();
-  const selectedRoom = roomTypes.find(r => r.name === watchAllFields.roomType);
+
+  const selectedRoom = useMemo(() => {
+    return roomTypes.find(r => r.name === watchAllFields.roomType);
+  }, [roomTypes, watchAllFields.roomType]);
 
   const pricingRequest = useMemo(() => ({
     serviceId: service.id,
@@ -122,7 +125,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
       infant: (service as any).price_infant || 0
     },
     isPerNight: service.category === 'hotel'
-  }), [service, watchAllFields, selectedRoom]);
+  }), [service.id, service.price, service.category, selectedRoom?.id, selectedRoom?.weekday_price, watchAllFields.checkIn, watchAllFields.checkOut, watchAllFields.paxAdults, watchAllFields.paxTeens, watchAllFields.paxChildren, watchAllFields.paxInfants]);
 
   const { pricing, mealOptions, loading: calculatingPrice } = useServicePricing(pricingRequest);
 
