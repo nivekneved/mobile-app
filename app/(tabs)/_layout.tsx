@@ -9,29 +9,32 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function TabLayout() {
   const { } = useAuth(); // signOut removed — handleLogout was commented out and is not in use
   const insets = useSafeAreaInsets();
-  const bottomInset = insets.bottom > 0 ? insets.bottom : (Platform.OS === 'ios' ? 24 : 12);
-  const tabHeight = Platform.OS === 'ios' ? 60 + bottomInset : 54 + bottomInset;
+  const bottomInset = Math.max(insets.bottom, Platform.OS === 'ios' ? 24 : 16);
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textSecondary,
+        safeAreaInsets: {
+          bottom: bottomInset,
+        },
         tabBarStyle: {
-          height: tabHeight,
+          height: 56 + bottomInset,
           paddingBottom: bottomInset,
-          paddingTop: 6,
+          paddingTop: 8,
           backgroundColor: Colors.white,
           borderTopWidth: 1,
           borderTopColor: Colors.border,
-          elevation: 8,
+          elevation: 10,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
+          shadowOpacity: 0.08,
           shadowRadius: 4,
         },
         tabBarItemStyle: {
-          paddingVertical: 2,
+          justifyContent: 'center',
+          alignItems: 'center',
         },
         tabBarLabelStyle: {
           fontSize: 9,
