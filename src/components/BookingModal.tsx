@@ -153,7 +153,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
   };
 
   const handleNext = () => {
-    if (currentStep < 5) setCurrentStep(currentStep + 1);
+    if (currentStep < 4) setCurrentStep(currentStep + 1);
   };
 
   const handleBack = () => {
@@ -177,10 +177,10 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
 
   const renderStepIndicator = () => (
     <View style={styles.stepIndicator}>
-      {[1, 2, 3, 4, 5].map(step => (
+      {[1, 2, 3, 4].map(step => (
         <View key={step} style={styles.stepDotContainer}>
           <View style={[styles.stepDot, currentStep >= step && styles.stepDotActive]} />
-          {step < 5 && <View style={[styles.stepLine, currentStep > step && styles.stepLineActive]} />}
+          {step < 4 && <View style={[styles.stepLine, currentStep > step && styles.stepLineActive]} />}
         </View>
       ))}
     </View>
@@ -532,9 +532,8 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
               {currentStep === 1 && renderStep1()}
               {currentStep === 2 && renderStep2()}
-              {currentStep === 3 && renderStep3()}
-              {currentStep === 4 && renderStep4()}
-              {currentStep === 5 && renderStep5()}
+              {currentStep === 3 && renderStep4()}
+              {currentStep === 4 && renderStep5()}
             </ScrollView>
 
             <View style={styles.footer}>
@@ -559,7 +558,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                 )}
                 
                 <TouchableOpacity 
-                  onPress={currentStep === 5 ? () => (handleSubmit as any)(onConfirm)() : handleNext}
+                  onPress={currentStep === 4 ? () => (handleSubmit as any)(onConfirm)() : handleNext}
                   disabled={isSubmitting || (currentStep === 1 && pricing?.availabilityStatus?.isAvailable === false)}
                   style={[styles.nextBtn, currentStep === 1 ? { flex: 1 } : {}]}
                 >
@@ -567,7 +566,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
                     <ActivityIndicator color="#fff" />
                   ) : (
                     <>
-                      <Text style={styles.nextBtnText}>{currentStep === 5 ? 'SEND REQUEST' : 'CONTINUE'}</Text>
+                      <Text style={styles.nextBtnText}>{currentStep === 4 ? 'SEND REQUEST' : 'CONTINUE'}</Text>
                       <ArrowRight size={20} color="#fff" />
                     </>
                   )}
