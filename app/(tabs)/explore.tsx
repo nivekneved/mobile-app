@@ -48,16 +48,21 @@ export default function ExploreScreen() {
         setInitialFocus(params.focus as any);
       }
     }
-    if (params.category) {
-      setSelectedCategory(params.category as string);
-    } else if (params.query) {
-      setSearchQuery(params.query as string);
+    const catVal = Array.isArray(params.category) ? params.category[0] : params.category;
+    const queryVal = Array.isArray(params.query) ? params.query[0] : params.query;
+    const locVal = Array.isArray(params.location) ? params.location[0] : params.location;
+    const regVal = Array.isArray(params.region) ? params.region[0] : params.region;
+
+    if (catVal) {
+      setSelectedCategory(catVal);
+    } else if (queryVal) {
+      setSearchQuery(queryVal);
     }
-    if (params.location) {
-      setFilters(prev => ({ ...prev, location: params.location as string }));
+    if (locVal) {
+      setFilters(prev => ({ ...prev, location: locVal }));
     }
-    if (params.region) {
-      setSelectedRegion(params.region as string);
+    if (regVal) {
+      setSelectedRegion(regVal);
     }
   }, [params.category, params.query, params.openFilter, params.focus, params.location, params.region]);
 

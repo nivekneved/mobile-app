@@ -141,6 +141,8 @@ export default function HomeScreen() {
               showsHorizontalScrollIndicator={false}
               nestedScrollEnabled={true}
               directionalLockEnabled={true}
+              alwaysBounceHorizontal={true}
+              scrollEventThrottle={16}
               contentContainerStyle={styles.categoryScroll}
             >
               {(categories.length > 0 ? categories : DEFAULT_CATEGORIES).map((cat: any) => (
@@ -153,10 +155,7 @@ export default function HomeScreen() {
                     if (cat.slug === 'flights') {
                       router.push('/flights');
                     } else {
-                      router.push({
-                        pathname: '/explore',
-                        params: { category: cat.slug }
-                      });
+                      router.push(`/explore?category=${encodeURIComponent(cat.slug)}`);
                     }
                   }} 
                 />

@@ -26,6 +26,8 @@ export const CategoryCard = ({ name, slug, image_url, onPress }: CategoryCardPro
     <Pressable 
       style={({ pressed }) => [styles.container, pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] }]} 
       onPress={onPress}
+      delayPressIn={0}
+      pressRetentionOffset={{ top: 20, bottom: 20, left: 20, right: 20 }}
       hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
     >
       <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
