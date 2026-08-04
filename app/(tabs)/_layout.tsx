@@ -4,8 +4,13 @@ import { Home, Search, Calendar, User, Newspaper, Plane, Heart } from 'lucide-re
 import { TouchableOpacity, Alert, Platform } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 export default function TabLayout() {
   const { } = useAuth(); // signOut removed — handleLogout was commented out and is not in use
+  const insets = useSafeAreaInsets();
+  const bottomInset = insets.bottom > 0 ? insets.bottom : (Platform.OS === 'ios' ? 24 : 12);
+  const tabHeight = Platform.OS === 'ios' ? 60 + bottomInset : 54 + bottomInset;
 
   return (
     <Tabs
@@ -13,8 +18,8 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textSecondary,
         tabBarStyle: {
-          height: Platform.OS === 'ios' ? 84 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 24 : 8,
+          height: tabHeight,
+          paddingBottom: bottomInset,
           paddingTop: 6,
           backgroundColor: Colors.white,
           borderTopWidth: 1,
