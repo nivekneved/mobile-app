@@ -27,7 +27,7 @@
       }
     },
     "android": {
-      "versionCode": 17,
+      "versionCode": 18,
       "package": "com.travellounge.mu",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
