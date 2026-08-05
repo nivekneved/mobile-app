@@ -4,7 +4,7 @@ import { Text, ActivityIndicator } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
 import { useHomeData, DEFAULT_CATEGORIES } from '../../src/hooks/useHomeData';
 import { HeroCarousel } from '../../src/components/HeroCarousel';
-import { CategoryCard } from '../../src/components/CategoryCard';
+import { CategorySlider } from '../../src/components/CategorySlider';
 import { ServiceCard } from '../../src/components/ServiceCard';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -29,7 +29,7 @@ const DestinationCard = ({ item, index, scrollX, onPress, cardWidth }: {
 
   return (
     <Animated.View style={[styles.destCardWrapper, { width: cardWidth, marginRight: DEST_GAP }, animatedCardStyle]}>
-      <TouchableOpacity style={styles.destCard} onPress={onPress}>
+      <TouchableOpacity style={styles.destCard} onPress={onPress} activeOpacity={0.85} delayPressIn={0}>
         <Image source={item.image} style={styles.destImage} />
         <View style={styles.destOverlay}>
            <View style={styles.destLabelWrapper}>
@@ -134,39 +134,13 @@ export default function HomeScreen() {
            </View>
         </View>
 
-        {/* Mobile Elite Category Slider (Reference Image Align) */}
-        <View style={styles.categoriesWrapper}>
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              nestedScrollEnabled={true}
-              directionalLockEnabled={true}
-              alwaysBounceHorizontal={true}
-              scrollEventThrottle={16}
-              contentContainerStyle={styles.categoryScroll}
-            >
-              {(categories.length > 0 ? categories : DEFAULT_CATEGORIES).map((cat: any) => (
-                <CategoryCard 
-                  key={cat.id || cat.slug}
-                  name={cat.name} 
-                  slug={cat.slug}
-                  image_url={cat.image_url} 
-                  onPress={() => {
-                    if (cat.slug === 'flights') {
-                      router.push('/flights');
-                    } else {
-                      router.push(`/explore?category=${encodeURIComponent(cat.slug)}`);
-                    }
-                  }} 
-                />
-              ))}
-            </ScrollView>
-        </View>
+        {/* Mobile Elite Category Slider */}
+        <CategorySlider categories={categories} />
 
         {/* Premium Quick Filters (Restored with Better UI) */}
         <View style={styles.quickFiltersContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickFiltersScroll}>
-            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#FEF2F2' }]} onPress={() => router.push('/explore?benefits=all-inclusive')}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.quickFiltersScroll}>
+            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#FEF2F2' }]} onPress={() => router.push('/explore?benefits=all-inclusive')} activeOpacity={0.85} delayPressIn={0}>
               <View style={[styles.quickFilterIcon, { backgroundColor: Colors.primary }]}>
                 <Sparkles size={18} color={Colors.white} />
               </View>
@@ -176,7 +150,7 @@ export default function HomeScreen() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#F0FDF4' }]} onPress={() => router.push('/local-deals')}>
+            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#F0FDF4' }]} onPress={() => router.push('/local-deals')} activeOpacity={0.85} delayPressIn={0}>
               <View style={[styles.quickFilterIcon, { backgroundColor: '#10B981' }]}>
                 <Percent size={18} color={Colors.white} />
               </View>
@@ -186,7 +160,7 @@ export default function HomeScreen() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#EFF6FF' }]} onPress={() => router.push('/flights')}>
+            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#EFF6FF' }]} onPress={() => router.push('/flights')} activeOpacity={0.85} delayPressIn={0}>
               <View style={[styles.quickFilterIcon, { backgroundColor: '#3B82F6' }]}>
                 <Plane size={18} color={Colors.white} />
               </View>

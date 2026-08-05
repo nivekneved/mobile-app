@@ -143,8 +143,7 @@ export const useHomeData = () => {
             supabase.from('service_pricing')
               .select('service_id, price, occupancy_pricing, date_from, date_to')
               .in('service_id', serviceIds)
-              .lte('date_from', today)
-              .gte('date_to', today)
+              .or(`date_to.gte.${today},date_to.is.null`)
               .limit(10000),
             supabase.from('service_categories').select('service_id, categories(name)').in('service_id', serviceIds)
           ]);

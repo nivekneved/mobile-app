@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Pressable, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Colors } from '../theme/colors';
 import { resolveImageUrl, getCategoryFallbackAsset } from '../utils/imageUtils';
@@ -14,30 +14,32 @@ interface CategoryCardProps {
 
 export const CategoryCard = ({ name, slug, image_url, onPress }: CategoryCardProps) => {
   const [hasError, setHasError] = useState(false);
-  const imageSource = hasError ? getCategoryFallbackAsset(slug || name) : resolveImageUrl(image_url, 300, 450, slug || name);
+  const imageSource = hasError 
+    ? getCategoryFallbackAsset(slug || name) 
+    : resolveImageUrl(image_url, 300, 450, slug || name);
 
   return (
-    <Pressable 
-      style={({ pressed }) => [styles.container, pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] }]} 
+    <TouchableOpacity 
+      style={styles.container} 
       onPress={onPress}
-      pressRetentionOffset={{ top: 20, bottom: 20, left: 20, right: 20 }}
-      hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+      activeOpacity={0.7}
+      delayPressIn={0}
+      accessibilityRole="button"
+      accessibilityLabel={`Explore ${name} category`}
     >
-      <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
-        <ExpoImage 
-          source={imageSource} 
-          style={styles.image}
-          contentFit="cover"
-          transition={300}
-          cachePolicy="disk"
-          onError={() => setHasError(true)}
-        />
-      </View>
+      <ExpoImage 
+        source={imageSource} 
+        style={styles.image}
+        contentFit="cover"
+        transition={200}
+        cachePolicy="disk"
+        onError={() => setHasError(true)}
+      />
       <View style={styles.overlay} pointerEvents="none">
         <Text style={styles.name}>{name}</Text>
         <View style={styles.indicator} />
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 
@@ -58,7 +60,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.2)',
+    backgroundColor: 'rgba(15, 23, 42, 0.25)',
     justifyContent: 'flex-end',
     padding: 20,
   },

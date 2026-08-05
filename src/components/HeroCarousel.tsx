@@ -83,13 +83,18 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
 
   return (
     <View style={[styles.slide, { width }]}>
-      <View style={styles.imageContainer}>
+      <TouchableOpacity 
+        style={styles.imageContainer} 
+        activeOpacity={0.85}
+        delayPressIn={0}
+        onPress={handlePress}
+      >
         <Animated.Image 
           source={resolveImageUrl(item.image_url)} 
           style={[styles.image, animatedImageStyle]} 
         />
-      </View>
-      <View style={styles.overlay} />
+      </TouchableOpacity>
+      <View style={styles.overlay} pointerEvents="none" />
       <Animated.View style={[styles.content, animatedContentStyle]}>
         <Text variant="labelMedium" style={[styles.tag, item.badge_color ? { backgroundColor: item.badge_color + '33', borderColor: item.badge_color + '66' } : null]}>
           {item.badge_text || labels.hero_default_tag || 'Exclusive Collection'}
@@ -109,7 +114,8 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
           {item.cta_text && (
             <TouchableOpacity 
               style={styles.cta} 
-              activeOpacity={0.8}
+              activeOpacity={0.85}
+              delayPressIn={0}
               onPress={handlePress}
             >
               <Text variant="labelLarge" style={styles.ctaText}>{item.cta_text || labels.hero_default_cta || 'EXPLORE'}</Text>
@@ -118,7 +124,8 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
           
           <TouchableOpacity 
             style={styles.secondaryCta} 
-            activeOpacity={0.8}
+            activeOpacity={0.85}
+            delayPressIn={0}
             onPress={handleSecondaryPress}
           >
             <Text variant="labelLarge" style={styles.secondaryCtaText}>{labels.hero_secondary_cta || 'DISCOVER'}</Text>

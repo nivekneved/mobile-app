@@ -161,7 +161,7 @@ export default function ServiceDetailScreen() {
       
       {/* FLOATING GLASSMORPHISM CONTROLS (Always visible regardless of scroll position) */}
       <View style={[styles.topControls, { top: insets.top > 0 ? insets.top + 8 : 44 }]}>
-        <TouchableOpacity onPress={() => safeGoBack('/(tabs)')} style={styles.iconButton}>
+        <TouchableOpacity onPress={() => safeGoBack('/(tabs)')} style={styles.iconButton} activeOpacity={0.85} delayPressIn={0}>
           <ArrowLeft color={Colors.white} size={22} />
         </TouchableOpacity>
 
@@ -173,6 +173,8 @@ export default function ServiceDetailScreen() {
               }
             }} 
             style={styles.iconButton}
+            activeOpacity={0.85}
+            delayPressIn={0}
           >
             <Share2 color={Colors.white} size={22} />
           </TouchableOpacity>
@@ -184,6 +186,8 @@ export default function ServiceDetailScreen() {
               }
             }} 
             style={styles.iconButton}
+            activeOpacity={0.85}
+            delayPressIn={0}
           >
             <MaterialCommunityIcons 
               name={isInWishlist(service?.id || '') ? "heart" : "heart-outline"} 
@@ -246,17 +250,17 @@ export default function ServiceDetailScreen() {
         {/* Action Conversion Bar (Sticky) */}
         <View style={styles.stickyActionWrapper}>
             <View style={styles.actionConversionBar}>
-                <TouchableOpacity style={styles.actionItem} onPress={() => handleInquiry('whatsapp')}>
+                <TouchableOpacity style={styles.actionItem} onPress={() => handleInquiry('whatsapp')} activeOpacity={0.85} delayPressIn={0}>
                     <MessageCircle size={20} color={Colors.primary} />
                     <Text style={styles.actionText}>WHATSAPP</Text>
                 </TouchableOpacity>
                 <View style={styles.actionDivider} />
-                <TouchableOpacity style={styles.actionItem} onPress={() => handleInquiry('email')}>
+                <TouchableOpacity style={styles.actionItem} onPress={() => handleInquiry('email')} activeOpacity={0.85} delayPressIn={0}>
                     <Mail size={20} color={Colors.charcoal} />
                     <Text style={styles.actionText}>EMAIL</Text>
                 </TouchableOpacity>
                 <View style={styles.actionDivider} />
-                <TouchableOpacity style={styles.actionItem} onPress={() => setBookingVisible(true)}>
+                <TouchableOpacity style={styles.actionItem} onPress={() => setBookingVisible(true)} activeOpacity={0.85} delayPressIn={0}>
                     <CalendarIcon size={20} color={Colors.charcoal} />
                     <Text style={styles.actionText}>BOOKING</Text>
                 </TouchableOpacity>

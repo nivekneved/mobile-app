@@ -9,7 +9,8 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) {
+    const targetId = Array.isArray(id) ? id[0] : id;
+    if (!targetId) {
       setIsLoading(false);
       return;
     }
@@ -20,7 +21,7 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
         const { data, error: serviceError } = await supabase
           .from('services')
           .select('*, amenities, itinerary, gallery_images, service_pricing(price, price_teen, price_child, price_infant, net_price, net_price_teen, net_price_child, net_price_infant, occupancy_pricing), service_categories(categories(name))')
-          .eq('id', id)
+          .eq('id', targetId)
           .single();
 
         if (serviceError) throw serviceError;

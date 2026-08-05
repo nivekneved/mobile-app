@@ -150,7 +150,7 @@ const Footer = () => {
              { label: 'Day Packages', route: '/explore?category=day-packages' },
              { label: 'Promotional Deals', route: '/explore?category=local-deals' },
            ].map((item, idx) => (
-             <TouchableOpacity key={idx} style={styles.linkItem} onPress={() => handlePress(item.route)}>
+             <TouchableOpacity key={idx} style={styles.linkItem} onPress={() => handlePress(item.route)} activeOpacity={0.85} delayPressIn={0}>
                 <View style={styles.dot} />
                 <Text style={styles.linkText}>{item.label}</Text>
              </TouchableOpacity>

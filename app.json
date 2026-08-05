@@ -14,13 +14,16 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.travel-lounge.mu",
-      "buildNumber": "13",
+      "buildNumber": "14",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true,
           "NSAllowsArbitraryLoadsInWebContent": true
-        }
+        },
+        "NSCameraUsageDescription": "Travel Lounge requires camera access to capture documents and photos for inquiries.",
+        "NSPhotoLibraryUsageDescription": "Travel Lounge requires access to photo library to select photos for travel inquiries.",
+        "NSLocationWhenInUseUsageDescription": "Travel Lounge uses your location to discover nearby luxury hotels and destinations."
       }
     },
     "android": {

@@ -201,17 +201,22 @@ export default function ExploreScreen() {
             ...categories.filter(cat => cat.slug !== 'flight' && cat.slug !== 'flights'),
             ...(!categories.find(c => c.slug === 'activities-sea') ? [{ id: 'sea-act', name: 'Sea Activities', slug: 'activities-sea' }] : []),
             ...(!categories.find(c => c.slug === 'activities-land') ? [{ id: 'land-act', name: 'Land Activities', slug: 'activities-land' }] : [])
-          ].map((cat: any) => (
-            <Chip 
-              key={cat.id}
-              selected={selectedCategory === cat.slug} 
-              onPress={() => setSelectedCategory(cat.slug)}
-              style={[styles.categoryChip, selectedCategory === cat.slug && styles.selectedChip]}
-              textStyle={[styles.chipText, selectedCategory === cat.slug && styles.selectedChipText]}
-            >
-              {cat.name}
-            </Chip>
-          ))}
+          ].map((cat: any) => {
+            const isChipSelected = selectedCategory === cat.slug || 
+              (selectedCategory === 'hotels' && ['hotels', 'hotel', 'resorts'].includes(cat.slug)) ||
+              (selectedCategory === 'villas' && ['villas', 'villa'].includes(cat.slug));
+            return (
+              <Chip 
+                key={cat.id || cat.slug}
+                selected={isChipSelected} 
+                onPress={() => setSelectedCategory(cat.slug)}
+                style={[styles.categoryChip, isChipSelected && styles.selectedChip]}
+                textStyle={[styles.chipText, isChipSelected && styles.selectedChipText]}
+              >
+                {cat.name}
+              </Chip>
+            );
+          })}
         </ScrollView>
       </View>
 
@@ -228,6 +233,29 @@ export default function ExploreScreen() {
           showsVerticalScrollIndicator={false}
           onEndReached={loadMoreServices}
           onEndReachedThreshold={0.5}
+          ListHeaderComponent={
+            (selectedCategory && selectedCategory !== 'all') ? (
+              <View style={styles.categoryBannerHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.categoryBannerLabel}>CATEGORY COLLECTION</Text>
+                  <Text style={styles.categoryBannerTitle}>
+                    {selectedCategory === 'hotels' ? 'Hotels & Resorts' :
+                     selectedCategory === 'activities-sea' ? 'Sea Activities' :
+                     selectedCategory === 'activities-land' ? 'Land Activities' :
+                     selectedCategory === 'villas' ? 'Villas & Private Stays' :
+                     selectedCategory === 'cruises' ? 'Luxury Cruises' :
+                     selectedCategory.toUpperCase()}
+                  </Text>
+                  <Text style={styles.categoryBannerSub}>
+                    {processedServices.length} {processedServices.length === 1 ? 'service available' : 'services available'}
+                  </Text>
+                </View>
+                <TouchableOpacity onPress={() => setSelectedCategory('all')} style={styles.clearCategoryBtn}>
+                  <Text style={styles.clearCategoryText}>CLEAR</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null
+          }
           ListFooterComponent={
             isLoadingMore ? (
               <View style={{ paddingVertical: 16, alignItems: 'center' }}>
@@ -492,5 +520,48 @@ const styles = StyleSheet.create({
   emptySubtext: {
     color: Colors.textSecondary,
     fontSize: 14,
+  },
+  categoryBannerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.slate[50],
+    padding: 16,
+    borderRadius: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  categoryBannerLabel: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 9,
+    letterSpacing: 2,
+    color: Colors.primary,
+    marginBottom: 2,
+  },
+  categoryBannerTitle: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 18,
+    color: Colors.charcoal,
+  },
+  categoryBannerSub: {
+    fontFamily: 'Outfit_500Medium',
+    fontSize: 12,
+    color: Colors.slate[500],
+    marginTop: 2,
+  },
+  clearCategoryBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  clearCategoryText: {
+    fontFamily: 'Outfit_900Black',
+    fontSize: 10,
+    color: Colors.charcoal,
+    letterSpacing: 1,
   },
 });

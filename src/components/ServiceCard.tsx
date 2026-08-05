@@ -53,10 +53,10 @@ export const ServiceCard = ({
     <TouchableOpacity 
       style={[styles.container, { width: CARD_WIDTH }]} 
       onPress={onPress} 
-      activeOpacity={0.9}
+      activeOpacity={0.85}
+      delayPressIn={0}
       accessibilityRole="button"
       accessibilityLabel={`View details for ${name}, located in ${location || 'Mauritius'}. Price starts from Rs ${price?.toLocaleString() || '0'}.`}
-      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >
       <Surface style={styles.card} elevation={0}>
         <View style={styles.imageContainer}>

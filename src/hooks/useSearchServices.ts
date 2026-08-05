@@ -33,32 +33,68 @@ export const useSearchServices = () => {
       const resolveCategoryMatches = (slug: string | null) => {
         if (!slug || slug === 'all') return null;
         const s = slug.toLowerCase().trim();
-        if (['hotels', 'hotel', 'resorts'].includes(s)) {
-          return { slugs: ['hotels', 'hotel', 'resorts'], types: ['hotel'], activityType: null };
+        if (['hotels', 'hotel', 'resorts', 'resort', 'stay', 'stays', 'accommodation'].includes(s)) {
+          return { 
+            slugs: ['hotels', 'hotel', 'resorts', 'resort', 'stay', 'stays', 'accommodation', 'villas', 'villa'], 
+            types: ['hotel', 'hotels', 'stay', 'stays', 'resort', 'resorts', 'accommodation', 'villa'], 
+            activityType: null 
+          };
         }
         if (['cruises', 'cruise'].includes(s)) {
-          return { slugs: ['cruises', 'cruise'], types: ['cruise'], activityType: null };
+          return { 
+            slugs: ['cruises', 'cruise'], 
+            types: ['cruise', 'sea_activity'], 
+            activityType: null 
+          };
         }
         if (['tours', 'tour', 'guided-group-tours'].includes(s)) {
-          return { slugs: ['tours', 'tour', 'guided-group-tours'], types: ['tour', 'package_tour'], activityType: null };
+          return { 
+            slugs: ['tours', 'tour', 'guided-group-tours'], 
+            types: ['tour', 'package_tour', 'land_activity'], 
+            activityType: null 
+          };
         }
         if (['packages', 'package', 'travel-packages'].includes(s)) {
-          return { slugs: ['packages', 'package', 'travel-packages'], types: ['package', 'travel_package'], activityType: null };
+          return { 
+            slugs: ['packages', 'package', 'travel-packages'], 
+            types: ['package', 'travel_package', 'day_package'], 
+            activityType: null 
+          };
         }
-        if (['day-packages', 'hotel-day-packages'].includes(s)) {
-          return { slugs: ['day-packages', 'hotel-day-packages'], types: ['day_package'], activityType: null };
+        if (['day-packages', 'hotel-day-packages', 'day-package'].includes(s)) {
+          return { 
+            slugs: ['day-packages', 'hotel-day-packages', 'day-package'], 
+            types: ['day_package', 'hotel_day_package', 'package'], 
+            activityType: null 
+          };
         }
         if (['villas', 'villa'].includes(s)) {
-          return { slugs: ['villas', 'villa'], types: ['villa', 'hotel'], activityType: null };
+          return { 
+            slugs: ['villas', 'villa', 'hotels', 'hotel'], 
+            types: ['villa', 'hotel', 'stay', 'stays'], 
+            activityType: null 
+          };
         }
         if (['activities-sea', 'sea-activities'].includes(s)) {
-          return { slugs: ['activities-sea', 'sea-activities', 'activities'], types: ['activity', 'sea_activity'], activityType: 'Sea' };
+          return { 
+            slugs: ['activities-sea', 'sea-activities', 'activities', 'cruises'], 
+            types: ['activity', 'sea_activity', 'cruise'], 
+            activityType: 'Sea' 
+          };
         }
         if (['activities-land', 'land-activities'].includes(s)) {
-          return { slugs: ['activities-land', 'land-activities', 'activities'], types: ['activity', 'land_activity'], activityType: 'Land' };
+          return { 
+            slugs: ['activities-land', 'land-activities', 'activities', 'tours'], 
+            types: ['activity', 'land_activity', 'tour'], 
+            activityType: 'Land' 
+          };
         }
         if (['activities', 'activity'].includes(s)) {
-          return { slugs: ['activities', 'activity', 'sea-activities', 'land-activities'], types: ['activity', 'sea_activity', 'land_activity'], activityType: null };
+          return { 
+            slugs: ['activities', 'activity', 'sea-activities', 'land-activities', 'cruises', 'tours'], 
+            types: ['activity', 'sea_activity', 'land_activity', 'cruise', 'tour'], 
+            activityType: null 
+          };
         }
         return { slugs: [s], types: [s], activityType: null };
       };
@@ -95,14 +131,16 @@ export const useSearchServices = () => {
           const sActType = (s.activity_type || '').toLowerCase();
           const categories = s.service_categories || [];
           const catSlugs = categories.map((sc: any) => (sc?.categories?.slug || '').toLowerCase());
+          const catNames = categories.map((sc: any) => (sc?.categories?.name || '').toLowerCase());
 
-          const matchesCategorySlug = catSlugs.some((cs: string) => catFilter.slugs.includes(cs));
-          const matchesServiceType = catFilter.types.includes(sType);
+          const matchesCategorySlug = catSlugs.some((cs: string) => catFilter.slugs.some(filterSlug => cs.includes(filterSlug) || filterSlug.includes(cs)));
+          const matchesCategoryName = catNames.some((cn: string) => catFilter.slugs.some(filterSlug => cn.includes(filterSlug)));
+          const matchesServiceType = catFilter.types.some(t => sType.includes(t) || t.includes(sType));
           const matchesActivityType = catFilter.activityType 
             ? sActType === catFilter.activityType.toLowerCase() 
             : true;
 
-          const isCatMatch = matchesCategorySlug || matchesServiceType;
+          const isCatMatch = matchesCategorySlug || matchesCategoryName || matchesServiceType;
           return isCatMatch && matchesActivityType;
         });
       }
@@ -119,7 +157,7 @@ export const useSearchServices = () => {
           .from('service_pricing')
           .select('service_id, price, occupancy_pricing, date_from, date_to')
           .in('service_id', serviceIds)
-          .gte('date_to', today)
+          .or(`date_to.gte.${today},date_to.is.null`)
           .limit(10000);
 
         if (pricingError) console.error('Supabase error (service_pricing search):', pricingError);
