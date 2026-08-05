@@ -87,6 +87,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="bookings"
         options={{
+          href: null, // Hide from tab bar per Option 1 directive
           headerShown: false,
           title: 'Bookings',
           tabBarIcon: ({ color }) => <Calendar size={20} color={color} />,
