@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Alert, TextInput as NativeTextInput } from 'react-native';
 import { Text, TextInput, Button, Checkbox, Surface, ActivityIndicator, IconButton } from 'react-native-paper';
 import { useRouter, Stack } from 'expo-router';
+import { safeGoBack } from '../src/utils/navigation';
 import { Colors } from '../src/theme/colors';
 import { CheckCircle, Plus, Minus, ArrowLeft, Send } from 'lucide-react-native';
 import { supabase } from '../src/lib/supabase';
@@ -126,7 +127,7 @@ Marketing Opt-in: ${formData.marketingOptIn ? 'Yes' : 'No'}
 
       setIsSuccess(true);
       setTimeout(() => {
-        router.back();
+        safeGoBack('/(tabs)');
       }, 3000);
 
     } catch (error: any) {
@@ -143,7 +144,7 @@ Marketing Opt-in: ${formData.marketingOptIn ? 'Yes' : 'No'}
         <CheckCircle color="#059669" size={80} />
         <Text style={styles.successTitle}>REQUEST SENT!</Text>
         <Text style={styles.successText}>Our travel designers will contact you shortly to start planning your dream journey.</Text>
-        <Button mode="contained" onPress={() => router.back()} style={styles.backBtn}>Return Home</Button>
+        <Button mode="contained" onPress={() => safeGoBack('/(tabs)')} style={styles.backBtn}>Return Home</Button>
       </View>
     );
   }
@@ -156,7 +157,7 @@ Marketing Opt-in: ${formData.marketingOptIn ? 'Yes' : 'No'}
         headerTitle: "Tailor-Made Package",
         headerTitleStyle: { fontFamily: 'Outfit_900Black', fontSize: 16 },
         headerLeft: () => (
-          <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 8 }}>
+          <TouchableOpacity onPress={() => safeGoBack('/(tabs)')} style={{ marginLeft: 8 }}>
             <ArrowLeft size={24} color={Colors.charcoal} />
           </TouchableOpacity>
         ),

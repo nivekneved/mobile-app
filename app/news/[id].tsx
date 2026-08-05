@@ -14,6 +14,7 @@ import {
 } from 'react-native-paper';
 import { supabase } from '../../src/lib/supabase';
 import { resolveImageUrl } from '../../src/utils/imageUtils';
+import { safeGoBack } from '../../src/utils/navigation';
 import { Colors } from '../../src/theme/colors';
 import { ArrowLeft, Share2, Clock, User, Tag } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -89,7 +90,7 @@ export default function NewsDetailScreen() {
     return (
       <View style={styles.center}>
         <Text>Article not found.</Text>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => safeGoBack('/(tabs)')} style={styles.backBtn}>
           <Text style={styles.backBtnText}>GO BACK</Text>
         </TouchableOpacity>
       </View>
@@ -113,7 +114,7 @@ export default function NewsDetailScreen() {
           <SafeAreaView style={styles.headerActions}>
             <TouchableOpacity 
               style={styles.circleBtn} 
-              onPress={() => router.back()}
+              onPress={() => safeGoBack('/(tabs)')}
             >
               <ArrowLeft size={20} color={Colors.charcoal} />
             </TouchableOpacity>

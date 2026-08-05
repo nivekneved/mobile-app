@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
 import { Text, Surface, Searchbar } from 'react-native-paper';
 import { Stack, useRouter } from 'expo-router';
+import { safeGoBack } from '../src/utils/navigation';
 import { Colors } from '../src/theme/colors';
 // import { mss } from '../styles/mss';
 import { MapPin, Sparkles, Filter, Percent, Info, ArrowLeft, Search, Calendar as CalendarIcon, Users } from 'lucide-react-native';
@@ -67,7 +68,7 @@ export default function LocalDealsScreen() {
           />
           <View style={styles.overlay} />
           
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => safeGoBack('/(tabs)')}>
             <ArrowLeft size={24} color="#fff" />
           </TouchableOpacity>
 

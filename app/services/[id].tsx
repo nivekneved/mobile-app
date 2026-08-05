@@ -4,6 +4,7 @@ import { Text, ActivityIndicator, Surface, Chip } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { safeGoBack } from '../../src/utils/navigation';
 import { Colors } from '../../src/theme/colors';
 import { useServiceDetails } from '../../src/hooks/useServiceDetails';
 import { useRoomTypes, RoomType } from '../../src/hooks/useRoomTypes';
@@ -158,6 +159,41 @@ export default function ServiceDetailScreen() {
       <StatusBar style="light" />
       <Stack.Screen options={{ headerShown: false }} />
       
+      {/* FLOATING GLASSMORPHISM CONTROLS (Always visible regardless of scroll position) */}
+      <View style={[styles.topControls, { top: insets.top > 0 ? insets.top + 8 : 44 }]}>
+        <TouchableOpacity onPress={() => safeGoBack('/(tabs)')} style={styles.iconButton}>
+          <ArrowLeft color={Colors.white} size={22} />
+        </TouchableOpacity>
+
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <TouchableOpacity 
+            onPress={() => {
+              if (service) {
+                Share.share({ message: `Check out ${service.name} on Travel Lounge` });
+              }
+            }} 
+            style={styles.iconButton}
+          >
+            <Share2 color={Colors.white} size={22} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            onPress={() => {
+              if (service) {
+                toggleWishlist(service as any);
+              }
+            }} 
+            style={styles.iconButton}
+          >
+            <MaterialCommunityIcons 
+              name={isInWishlist(service?.id || '') ? "heart" : "heart-outline"} 
+              color={isInWishlist(service?.id || '') ? "#DC2626" : Colors.white} 
+              size={22} 
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <ScrollView showsVerticalScrollIndicator={false} style={styles.container} stickyHeaderIndices={[1]}>
         {/* Elite Image Header / Gallery */}
         <View style={styles.imageContainer}>
@@ -180,35 +216,6 @@ export default function ServiceDetailScreen() {
             />
           )}
           <View style={styles.overlay} />
-          <View style={[styles.topControls, { top: insets.top > 0 ? insets.top + 8 : 44 }]}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}><ArrowLeft color={Colors.white} size={22} /></TouchableOpacity>
-            <TouchableOpacity 
-              onPress={() => {
-                if (service) {
-                  Share.share({ message: `Check out ${service.name} on Travel Lounge` });
-                }
-              }} 
-              style={styles.iconButton}
-            >
-              <Share2 color={Colors.white} size={22} />
-            </TouchableOpacity>
-            
-            {/* Added Wishlist Button for full parity */}
-            <TouchableOpacity 
-              onPress={() => {
-                if (service) {
-                  toggleWishlist(service as any);
-                }
-              }} 
-              style={styles.iconButton}
-            >
-              <MaterialCommunityIcons 
-                name={isInWishlist(service?.id || '') ? "heart" : "heart-outline"} 
-                color={isInWishlist(service?.id || '') ? "#DC2626" : Colors.white} 
-                size={22} 
-              />
-            </TouchableOpacity>
-          </View>
           <View style={styles.titleOverlay}>
             <View style={styles.badgeRow}>
               <View style={styles.categoryBadge}><Text style={styles.categoryText}>{service.category || 'Experience'}</Text></View>
@@ -768,8 +775,8 @@ const styles = StyleSheet.create({
   imageContainer: { height: HEADER_HEIGHT, position: 'relative' },
   image: { width: '100%', height: '100%' },
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15, 23, 42, 0.4)' },
-  topControls: { position: 'absolute', top: 60, left: 24, right: 24, flexDirection: 'row', justifyContent: 'space-between', zIndex: 10 },
-  iconButton: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(15, 23, 42, 0.3)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+  topControls: { position: 'absolute', left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', zIndex: 9999 },
+  iconButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(15, 23, 42, 0.8)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 6 },
   titleOverlay: { position: 'absolute', bottom: 40, left: 24, right: 24 },
   categoryBadge: { backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start', marginBottom: 12 },
   categoryText: { color: Colors.white, fontFamily: 'Outfit_900Black', fontSize: 10, textTransform: 'uppercase', letterSpacing: 2 },

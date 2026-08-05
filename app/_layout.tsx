@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
-import { Platform, Text as RNText, TextInput as RNTextInput } from 'react-native';
+import { Platform, Text as RNText, TextInput as RNTextInput, BackHandler } from 'react-native';
+import { safeGoBack } from '../src/utils/navigation';
 
 // GLOBAL FIX: Cap system font scaling to maintain pixel-perfect UI designs
 interface TextWithDefaultProps extends RNText {
@@ -86,6 +87,26 @@ function RootLayoutNav() {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+
+    const onBackPress = () => {
+      const segmentsArr = segments as string[];
+      const inTabs = segmentsArr.length === 0 || segmentsArr[0] === '(tabs)';
+      if (router.canGoBack()) {
+        router.back();
+        return true;
+      } else if (!inTabs) {
+        safeGoBack('/(tabs)');
+        return true;
+      }
+      return false;
+    };
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => subscription.remove();
+  }, [segments, router]);
 
   if (!fontsLoaded && !fontError) {
     return null;
