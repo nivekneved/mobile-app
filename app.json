@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.travel-lounge.mu",
+      "bundleIdentifier": "com.travellounge.mu",
       "buildNumber": "14",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
