@@ -109,7 +109,7 @@ const Footer = () => {
       {/* Branding Section */}
       <View style={styles.brandingSection}>
         <Image 
-          source={require('../../assets/tlounge-logo-transparent.webp')} 
+          source={require('../../assets/logo.png')} 
           style={styles.logo}
           resizeMode="contain"
         />

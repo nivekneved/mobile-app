@@ -71,7 +71,7 @@ export default function HomeScreen() {
       {/* Executive Header */}
       <View style={styles.header}>
         <Image 
-          source={resolveImageUrl(generalConfig?.logoUrl || '/assets/logo.png')} 
+          source={generalConfig?.logoUrl ? resolveImageUrl(generalConfig.logoUrl) : require('../../assets/logo.png')} 
           style={[
             styles.logo, 
             generalConfig?.logoHeight ? { height: parseInt(generalConfig.logoHeight) } : null,
