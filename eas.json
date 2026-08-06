@@ -41,7 +41,8 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "devenpawaray@gmail.com"
+        "appleId": "devenpawaray@gmail.com",
+        "ascAppId": "6794678454"
       }
     }
   }
