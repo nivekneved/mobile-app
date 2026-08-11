@@ -55,7 +55,7 @@ export default function HomeScreen() {
     const contact = {
       // PRESERVED: phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5940 7701',
       phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5509 7701',
-      email: generalConfig?.contactEmail || 'office@travel-lounge.com'
+      email: generalConfig?.contactEmail || 'devenpawaray@gmail.com'
     };
     if (method === 'whatsapp') Linking.openURL(`https://wa.me/${contact.phone.replace(/\+/g, '')}`);
     if (method === 'email') Linking.openURL(`mailto:${contact.email}`);

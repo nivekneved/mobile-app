@@ -22,7 +22,7 @@ export default function FlightsScreen() {
   const handleSupport = (method: 'whatsapp' | 'email' | 'call', context: string = 'flight arrangements') => {
     const contact = {
       phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5509 7701',
-      email: generalConfig?.contactEmail || 'office@travel-lounge.com'
+      email: generalConfig?.contactEmail || 'devenpawaray@gmail.com'
     };
     if (method === 'whatsapp') {
       Linking.openURL(`https://wa.me/${contact.phone.replace(/\+/g, '').replace(/\s+/g, '')}?text=${encodeURIComponent(`I am requesting elite VIP assistance regarding ${context}.`)}`);
