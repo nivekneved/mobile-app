@@ -1,4 +1,4 @@
-# Expo/React Native dependencies
+# Expo & React Native Build Outputs
 node_modules/
 .expo/
 dist/
@@ -7,14 +7,20 @@ bin/
 out/
 web-build/
 expo-env.d.ts
+.turbo/
+.cache/
 
-# Native folders (generated)
+# Native Folders & Builds
 /ios
 /android
 ios/build/
 android/build/
+*.xcarchive
+*.ipa
+*.apk
+*.aab
 
-# IDE files
+# IDE & Editor Files
 .vscode/
 .idea/
 .project
@@ -24,12 +30,17 @@ android/build/
 *.swo
 .eslintcache
 
-# System files
+# System Files & Logs
 .DS_Store
 Thumbs.db
 *.pem
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.tmp
 
-# Local configuration files
+# Environment Files
 .env
 .env.local
 .env.development.local
@@ -37,18 +48,13 @@ Thumbs.db
 .env.production.local
 .env*.local
 
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
 # TypeScript
 *.tsbuildinfo
 
-# Debug/Tests
+# Debug, Coverage & Metro
 coverage/
 .metro-health-check*
+eas-build-err.txt
 
 # Keys & Certificates
 *.jks
@@ -57,15 +63,17 @@ coverage/
 *.key
 *.mobileprovision
 *.com.apple.InterfaceBuilder.v3.plist
-eas-build-err.txt
 
-# Runtime-generated / dev-only files
+# Database Backups & Temporary Staging
+supabase/backups/
+supabase/.temp/
+backups/
+
+# Runtime-generated / Agent & Scratch Files
+.agent/
+.agents/
 agent.md
 scratch/
 
-# Obsolete docs kept locally but ignored
-/docs/11_mobile_parity_audit.md
-
-
-# Ecosystem credentials document
+# Ecosystem credentials
 docs/credentials.json
