@@ -22,21 +22,25 @@ export const CategoryCard = ({ name, slug, image_url, onPress }: CategoryCardPro
     <TouchableOpacity 
       style={styles.container} 
       onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={0.75}
       delayPressIn={0}
+      pressRetentionOffset={{ top: 20, left: 20, right: 20, bottom: 20 }}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       accessibilityRole="button"
       accessibilityLabel={`Explore ${name} category`}
     >
-      <ExpoImage 
-        source={imageSource} 
-        style={styles.image}
-        contentFit="cover"
-        transition={200}
-        cachePolicy="disk"
-        onError={() => setHasError(true)}
-      />
+      <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+        <ExpoImage 
+          source={imageSource} 
+          style={styles.image}
+          contentFit="cover"
+          transition={200}
+          cachePolicy="disk"
+          onError={() => setHasError(true)}
+        />
+      </View>
       <View style={styles.overlay} pointerEvents="none">
-        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.name} numberOfLines={2}>{name ? name.trim() : ''}</Text>
         <View style={styles.indicator} />
       </View>
     </TouchableOpacity>

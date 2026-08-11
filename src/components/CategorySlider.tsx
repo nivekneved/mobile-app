@@ -10,13 +10,22 @@ interface CategorySliderProps {
 
 export const CategorySlider = ({ categories }: CategorySliderProps) => {
   const router = useRouter();
-  const data = (categories && categories.length > 0) ? categories : DEFAULT_CATEGORIES;
+  const rawData = (categories && categories.length > 0) ? categories : DEFAULT_CATEGORIES;
+  
+  // Filter categories to only display active ones intended for home screen
+  const filteredData = rawData.filter(c => c && (c as any).show_on_home !== false && (c as any).is_active !== false);
+  const data = filteredData.length > 0 ? filteredData : DEFAULT_CATEGORIES;
 
   const handleCategoryPress = (cat: Category) => {
-    if (cat.slug === 'flights') {
+    const cleanSlug = (cat.slug || '').toLowerCase().trim();
+    const cleanLink = (cat.link || '').trim();
+
+    if (cleanLink && cleanLink.startsWith('/')) {
+      router.push(cleanLink as any);
+    } else if (cleanSlug === 'flights' || cleanSlug === 'flight') {
       router.push('/flights');
     } else {
-      router.push(`/explore?category=${encodeURIComponent(cat.slug)}`);
+      router.push(`/explore?category=${encodeURIComponent(cleanSlug)}`);
     }
   };
 
@@ -27,6 +36,9 @@ export const CategorySlider = ({ categories }: CategorySliderProps) => {
         horizontal
         showsHorizontalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled={true}
+        directionalLockEnabled={true}
+        scrollEventThrottle={16}
         decelerationRate="fast"
         contentContainerStyle={styles.categoryScroll}
         keyExtractor={(item) => item.id || item.slug}

@@ -126,7 +126,7 @@ export const useHomeData = () => {
           { data: regionData, error: regionError }
         ] = await Promise.all([
           supabase.from('hero_slides').select('*').order('order_index', { ascending: true }),
-          supabase.from('categories').select('*').order('display_order', { ascending: true, nullsFirst: false }),
+          supabase.from('categories').select('*').eq('is_active', true).order('display_order', { ascending: true, nullsFirst: false }),
           supabase.from('services').select('*').order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(10),
           supabase.from('services').select('region').not('region', 'is', null)
         ]);
@@ -168,18 +168,12 @@ export const useHomeData = () => {
           setHeroSlides(slides || []);
         }
 
-        /* ORIGINAL:
-        if (catsError) {
-          console.error('Supabase error (categories):', catsError);
-        } else {
-          setCategories(cats || []);
-        }
-        */
         if (catsError || !cats || cats.length === 0) {
           if (catsError) console.error('Supabase error (categories):', catsError);
           setCategories(DEFAULT_CATEGORIES);
         } else {
-          setCategories(cats);
+          const visibleCats = cats.filter((c: any) => c.show_on_home !== false);
+          setCategories(visibleCats.length > 0 ? visibleCats : DEFAULT_CATEGORIES);
         }
 
         if (servicesError) {
