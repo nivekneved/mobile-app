@@ -18,7 +18,7 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true,
+          "NSAllowsArbitraryLoads": false,
           "NSAllowsArbitraryLoadsInWebContent": true
         },
         "NSCameraUsageDescription": "Travel Lounge requires camera access to capture documents and photos for inquiries.",
