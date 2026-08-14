@@ -414,21 +414,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   copyrightText: {
-    color: '#475569', // Slate 600
-    fontFamily: 'Outfit_900Black',
-    fontSize: 10,
+    color: '#94A3B8', // Slate 400
+    fontFamily: 'Outfit_800ExtraBold',
+    fontSize: 9.5,
     textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   creditText: {
-    color: '#475569',
+    color: '#94A3B8', // Slate 400 - clean legible light grey
     fontFamily: 'Outfit_700Bold',
-    fontSize: 9,
+    fontSize: 8.5,
     textAlign: 'center',
     textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    opacity: 0.5,
+    letterSpacing: 1.2,
+    opacity: 0.85,
   },
 });
 

@@ -153,19 +153,24 @@ export const useSearchServices = () => {
 
       if (pagedRaw && pagedRaw.length > 0) {
         const serviceIds = pagedRaw.map((s: any) => s.id);
-        const { data: pricingData, error: pricingError } = await supabase
-          .from('service_pricing')
-          .select('service_id, price, occupancy_pricing, date_from, date_to')
-          .in('service_id', serviceIds)
-          .or(`date_to.gte.${today},date_to.is.null`)
-          .limit(10000);
+        const [
+          pricingResults,
+          roomTypesResults
+        ] = await Promise.all([
+          Promise.all(serviceIds.map(id => 
+            supabase.from('service_pricing').select('service_id, price, occupancy_pricing').eq('service_id', id).limit(10)
+          )),
+          Promise.all(serviceIds.map(id => 
+            supabase.from('room_types').select('service_id, price, weekday_price, weekend_price, prices').eq('service_id', id)
+          ))
+        ]);
 
-        if (pricingError) console.error('Supabase error (service_pricing search):', pricingError);
-
-        mappedServices = pagedRaw.map((s: any) => {
+        mappedServices = pagedRaw.map((s: any, idx: number) => {
           const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
-          const sPricing = pricingData ? pricingData.filter((p: any) => p.service_id === s.id) : [];
-          const lowestPrice = calculateLeadPrice(sPricing, s.service_type, s.price);
+          const sPricing = pricingResults[idx]?.data || [];
+          const sRooms = roomTypesResults[idx]?.data || [];
+          const allRooms = [...(Array.isArray(s.room_types) ? s.room_types : []), ...sRooms];
+          const lowestPrice = calculateLeadPrice(sPricing, s.service_type, s.price, allRooms);
 
           return {
             ...s,

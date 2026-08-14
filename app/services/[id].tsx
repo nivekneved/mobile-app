@@ -633,13 +633,13 @@ export default function ServiceDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Elite Sticky Footer Conversion */}
-      <Surface style={[styles.footerBar, { height: 74 + insets.bottom, paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }]} elevation={5}>
+      {/* Sticky Footer CTA */}
+      <Surface style={[styles.footerBar, { height: 68 + insets.bottom, paddingBottom: insets.bottom > 0 ? insets.bottom : 8 }]} elevation={5}>
           <View style={styles.footerInfo}>
               <Text style={styles.footerPriceLabel}>AS FROM</Text>
-              <Text style={styles.footerPriceVal}>Rs {service.price?.toLocaleString() || '0'}</Text>
+              <Text style={styles.footerPriceVal}>Rs {service?.price?.toLocaleString() || '0'}</Text>
           </View>
-         <TouchableOpacity style={styles.footerCta} onPress={() => setBookingVisible(true)}>
+         <TouchableOpacity style={styles.footerCta} onPress={() => setBookingVisible(true)} activeOpacity={0.85}>
              <Text style={styles.footerCtaText}>CONTINUE BOOKING</Text>
          </TouchableOpacity>
       </Surface>
@@ -874,8 +874,8 @@ const styles = StyleSheet.create({
   footerInfo: { flex: 1 },
   footerPriceLabel: { fontFamily: 'Outfit_900Black', fontSize: 10, letterSpacing: 1.5, color: Colors.slate[400], textTransform: 'uppercase' },
   footerPriceVal: { fontFamily: 'Outfit_900Black', fontSize: 24, color: Colors.charcoal, letterSpacing: -0.5 },
-  footerCta: { flex: 1.2, height: 64, backgroundColor: Colors.primary, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
-  footerCtaText: { color: Colors.white, fontFamily: 'Outfit_900Black', fontSize: 12, letterSpacing: 2 },
+  footerCta: { flex: 1.2, height: 50, backgroundColor: Colors.primary, borderRadius: 16, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 },
+  footerCtaText: { color: Colors.white, fontFamily: 'Outfit_800ExtraBold', fontSize: 11, letterSpacing: 1 },
   sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   avgRatingRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   avgRatingText: { fontFamily: 'Outfit_900Black', fontSize: 11, color: Colors.slate[400] },

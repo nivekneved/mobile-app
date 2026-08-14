@@ -772,8 +772,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   backBtn: {
-    width: 56,
-    height: 56,
+    width: 50,
+    height: 50,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#eee',
@@ -782,18 +782,18 @@ const styles = StyleSheet.create({
   },
   nextBtn: {
     flex: 3,
-    height: 56,
+    height: 50,
     backgroundColor: Colors.charcoal,
     borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: 8,
   },
   nextBtnText: {
     color: '#fff',
-    fontSize: 13,
-    fontWeight: '900',
+    fontSize: 11,
+    fontFamily: 'Outfit_800ExtraBold',
     letterSpacing: 1,
   },
   successWrapper: {

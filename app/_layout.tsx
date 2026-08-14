@@ -93,14 +93,21 @@ function RootLayoutNav() {
 
     const onBackPress = () => {
       const segmentsArr = segments as string[];
-      const inTabs = segmentsArr.length === 0 || segmentsArr[0] === '(tabs)';
+      const isHome = segmentsArr.length === 0 || 
+                    (segmentsArr[0] === '(tabs)' && (segmentsArr.length === 1 || segmentsArr[1] === 'index'));
+
       if (router.canGoBack()) {
         router.back();
         return true;
-      } else if (!inTabs) {
-        safeGoBack('/(tabs)');
+      }
+      
+      // If not on the main Home tab screen, navigate back to the Home tab
+      if (!isHome) {
+        router.replace('/(tabs)');
         return true;
       }
+
+      // Only minimize when already on the main Home tab with no navigation history
       return false;
     };
 

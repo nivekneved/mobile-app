@@ -134,30 +134,30 @@ export const useHomeData = () => {
         let mappedServices: any[] = [];
         if (servicesRaw && servicesRaw.length > 0) {
           const serviceIds = servicesRaw.map((s: any) => s.id);
-          const today = new Date().toISOString().split('T')[0];
           const [
-            { data: pricing, error: pricingError },
-            { data: categoriesRel, error: catError }
+            pricingResults,
+            categoriesRes,
+            roomTypesResults
           ] = await Promise.all([
-            // PRESERVED: supabase.from('service_pricing').select('service_id, price, occupancy_pricing').in('service_id', serviceIds),
-            supabase.from('service_pricing')
-              .select('service_id, price, occupancy_pricing, date_from, date_to')
-              .in('service_id', serviceIds)
-              .or(`date_to.gte.${today},date_to.is.null`)
-              .limit(10000),
-            supabase.from('service_categories').select('service_id, categories(name)').in('service_id', serviceIds)
+            Promise.all(serviceIds.map(id => 
+              supabase.from('service_pricing').select('service_id, price, occupancy_pricing').eq('service_id', id).limit(10)
+            )),
+            supabase.from('service_categories').select('service_id, categories(name)').in('service_id', serviceIds),
+            Promise.all(serviceIds.map(id => 
+              supabase.from('room_types').select('service_id, price, weekday_price, weekend_price, prices').eq('service_id', id)
+            ))
           ]);
 
-          if (pricingError) console.error('Supabase error (service_pricing):', pricingError);
-          if (catError) console.error('Supabase error (service_categories):', catError);
+          const categoriesRel = categoriesRes.data || [];
 
-          mappedServices = servicesRaw.map((s: any) => {
-            const sPricing = pricing ? pricing.filter((p: any) => p.service_id === s.id) : [];
-            const sCats = categoriesRel ? categoriesRel.filter((c: any) => c.service_id === s.id) : [];
+          mappedServices = servicesRaw.map((s: any, idx: number) => {
+            const sPricing = pricingResults[idx]?.data || [];
+            const sCats = categoriesRel.filter((c: any) => c.service_id === s.id);
+            const sRooms = roomTypesResults[idx]?.data || [];
+            const allRooms = [...(Array.isArray(s.room_types) ? s.room_types : []), ...sRooms];
             const categoryObj = sCats?.[0]?.categories as any;
             const categoryName = (Array.isArray(categoryObj) ? categoryObj[0]?.name : categoryObj?.name) || s.service_type || 'Experience';
-            // PRESERVED: const lowestPrice = calculateLeadPrice(sPricing, s.service_type);
-            const lowestPrice = calculateLeadPrice(sPricing, s.service_type, s.price);
+            const lowestPrice = calculateLeadPrice(sPricing, s.service_type, s.price, allRooms);
             return { ...s, price: lowestPrice, lowestPrice, category: categoryName };
           });
         }

@@ -1,47 +1,67 @@
 /**
- * Lead price calculator for services.
- * Standardizes logic across the mobile app to handle complex occupancy_pricing objects (JSONB).
- * This logic is synchronized with the authoritative web-app pricing engine.
+ * Authoritative lead price calculator for services across mobile app.
+ * Handles base service price, service_pricing rows, AND room_types JSONB array.
+ * Synchronized with the authoritative web-app pricing engine.
  */
-// PRESERVED: export function calculateLeadPrice(servicePricing: any[], serviceType: string): number {
-export function calculateLeadPrice(servicePricing: any[], serviceType: string, baseServicePrice?: number): number {
+export function calculateLeadPrice(
+    servicePricing?: any[], 
+    serviceType?: string, 
+    baseServicePrice?: number,
+    roomTypes?: any[]
+): number {
     const fallback = Number(baseServicePrice || 0);
-    if (!servicePricing || servicePricing.length === 0) return fallback;
+    const validPrices: number[] = [];
 
-    const prices = servicePricing.map(g => {
-        const basePrice = Number(g.price || 0);
-        const occ = g.occupancy_pricing;
-        
-        if (occ && typeof occ === 'object') {
-            // For hotels, strictly prioritize Double (2) as the lead price
-            if (serviceType?.toLowerCase() === 'hotel' || serviceType?.toLowerCase() === 'stays') {
-                const dbl = occ['2'] ?? occ[2];
-                if (dbl !== undefined && dbl !== null) {
-                    return typeof dbl === 'object' ? Number(dbl.price || dbl.adult || 0) : Number(dbl);
+    if (fallback > 0) {
+        validPrices.push(fallback);
+    }
+
+    // 1. Extract pricing from room_types (JSONB or array)
+    if (roomTypes && Array.isArray(roomTypes) && roomTypes.length > 0) {
+        roomTypes.forEach(room => {
+            if (!room) return;
+            const p = Number(room.price || room.weekday_price || room.weekend_price || 0);
+            if (p > 0) validPrices.push(p);
+
+            if (room.prices && typeof room.prices === 'object') {
+                Object.values(room.prices).forEach(val => {
+                    const parsed = typeof val === 'string' ? parseFloat(val) : Number(val || 0);
+                    if (!isNaN(parsed) && parsed > 0) validPrices.push(parsed);
+                });
+            }
+        });
+    }
+
+    // 2. Extract pricing from service_pricing rows
+    if (servicePricing && Array.isArray(servicePricing) && servicePricing.length > 0) {
+        servicePricing.forEach(g => {
+            const basePrice = Number(g.price || 0);
+            if (basePrice > 0) validPrices.push(basePrice);
+
+            const occ = g.occupancy_pricing;
+            if (occ && typeof occ === 'object') {
+                if (serviceType?.toLowerCase() === 'hotel' || serviceType?.toLowerCase() === 'stays') {
+                    const dbl = occ['2'] ?? occ[2];
+                    if (dbl !== undefined && dbl !== null) {
+                        const dblVal = typeof dbl === 'object' ? Number(dbl.price || dbl.adult || 0) : Number(dbl);
+                        if (dblVal > 0) validPrices.push(dblVal);
+                    }
                 }
-            }
 
-            // For activities/others, prioritize Single (1) or the lowest adult tier
-            const sgl = occ['1'] ?? occ[1];
-            if (sgl !== undefined && sgl !== null) {
-                return typeof sgl === 'object' ? Number(sgl.price || sgl.adult || 0) : Number(sgl);
-            }
+                const sgl = occ['1'] ?? occ[1];
+                if (sgl !== undefined && sgl !== null) {
+                    const sglVal = typeof sgl === 'object' ? Number(sgl.price || sgl.adult || 0) : Number(sgl);
+                    if (sglVal > 0) validPrices.push(sglVal);
+                }
 
-            const adultPrices = Object.values(occ)
-                .map(o => (typeof o === 'object' && o !== null ? Number((o as any).price || (o as any).adult || 0) : Number(o)))
-                .filter(p => p > 0);
-            
-            if (adultPrices.length > 0) {
-                const minAdult = Math.min(...adultPrices);
-                // Return the lower of the base price (if set) and the cheapest adult tier
-                return basePrice > 0 ? Math.min(basePrice, minAdult) : minAdult;
+                Object.values(occ).forEach(o => {
+                    const val = typeof o === 'object' && o !== null ? Number((o as any).price || (o as any).adult || 0) : Number(o);
+                    if (!isNaN(val) && val > 0) validPrices.push(val);
+                });
             }
-        }
-        
-        return basePrice;
-    }).filter(p => !isNaN(p) && p > 0);
+        });
+    }
 
-    const calculated = prices.length > 0 ? Math.min(...prices) : 0;
-    return calculated > 0 ? calculated : fallback;
+    const positivePrices = validPrices.filter(p => !isNaN(p) && p > 0);
+    return positivePrices.length > 0 ? Math.min(...positivePrices) : fallback;
 }
-

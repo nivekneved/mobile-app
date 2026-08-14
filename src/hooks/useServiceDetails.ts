@@ -30,7 +30,7 @@ export const useServiceDetails = (id: string | string[] | undefined) => {
           // Extract category name from the join if available
           const categoryName = data.service_categories?.[0]?.categories?.name || data.service_type || 'Experience';
           const pricing = data.service_pricing || [];
-          const lowestPrice = calculateLeadPrice(pricing, data.service_type);
+          const lowestPrice = calculateLeadPrice(pricing, data.service_type, data.price, data.room_types);
           const primaryPricing = pricing.find((p: any) => !p.variant_id);
 
           setService({
