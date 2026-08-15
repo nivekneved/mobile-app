@@ -1,58 +1,87 @@
-# Travel Lounge: Elite Mobile Application
+# Travel Lounge — Mobile Application
 
-A High-Engagement Concierge Interface for the Travel Lounge ecosystem, built with Expo and React Native.
-
----
-
-## 📖 Standardized Documentation
-
-| # | Doc | Purpose |
-|---|---|---|
-| 01 | [Overview & Ecosystem](./docs/01_overview.md) | Vision and the "Elite" tech stack |
-| 02 | [Architecture & Flow](./docs/02_architecture.md) | Repository structure and screen routes |
-| 03 | [Database & Data Model](./docs/03_database.md) | Supabase tables, RPCs, and mobile usage |
-| 04 | [Development Guide](./docs/04_development.md) | Local setup, EAS build, and troubleshooting |
-| 05 | [Development Progress Log](./docs/05_history.md) | Historical milestones and audit trail |
-| 06 | [Features & Manuals](./docs/06_features_and_manuals.md) | Feature catalog & admin best practices |
-| 07 | [Security & RLS](./docs/07_security_and_rls.md) | RLS policies and remediation guide |
-| 08 | [Pricing & Inventory](./docs/08_pricing_and_inventory.md) | Pricing engine overview |
-| 09 | [Sales Kit](./docs/09_sales_kit.md) | Mobile value propositions for stakeholders |
-| 10 | [Brand & UI/UX](./docs/10_brand_and_uiux.md) | Brand identity and design standards |
-| 11 | [Mobile Roadmap](./docs/11_mobile_roadmap.md) | Mobile parity audit & future roadmap |
-| 11b | [Mobile Parity Audit](./docs/11_mobile_parity_audit.md) | Comprehensive parity analysis (96%) |
+> **Native iOS & Android mobile concierge application** for Travel Lounge Mauritius, built with React Native and Expo SDK 52.
 
 ---
 
-## 🚀 Quick Start
-1. **Dependencies**: `npm install`
-2. **Launch**: `npx expo start`
-3. **Build APK**: `npx eas build --profile preview --platform android`
+## 🌟 Key Features
 
-**Environment** — create `.env` in root:
-```env
-EXPO_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-EXPO_PUBLIC_API_URL=https://<web-app>.vercel.app
-```
+- **Cross-Platform Native Experience**: Built on **Expo SDK 52** and **React Native Paper** with fluid navigation and responsive layouts.
+- **Flight & Tourism Discovery**: Native browsing of curated flights, hotels in Mauritius & Rodrigues, catamaran excursions, and local activities.
+- **Native AI Concierge (`AIConcierge.tsx`)**: In-app AI travel assistant modal for fast flight lookup and direct WhatsApp consultation.
+- **Direct WhatsApp & Phone Integration**: Instant escalation to the Travel Lounge ticketing desk (`+230 5940 7701`).
 
 ---
 
-## 💾 Database Backup & Restoration
+## 📱 App Store & Configuration Metadata
 
-Database schema and data backups (SQL & JSON), as well as restore scripts, are located in `admin-app`:
+- **iOS Bundle ID**: `com.travellounge.mu`
+- **Apple Developer Team ID**: `383G9QQ5CP` (Travellounge / Medic Assistance International Ltd)
+- **Apple App ID**: `6794678454`
+- **Apple ID**: `devenpawaray@gmail.com`
+- **Android Package**: `com.travellounge.mu`
 
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ or 20+
+- Expo CLI (`npm install -g expo-cli` or `npx expo`)
+- EAS CLI (`npm install -g eas-cli`)
+
+### Installation & Local Development
 ```bash
-# Navigate to admin-app and restore
-cd ../admin-app
-node scripts/restore_final_backup_2026_07_26.cjs --mode=sql
+cd mobile-app
+npm install
+npx expo start
+```
+Scan the QR code with Expo Go (Android) or the Camera app (iOS).
+
+### Type Checking & Build Verification
+```bash
+npx tsc --noEmit
 ```
 
-See [Admin Backup & Restore Guide](../admin-app/docs/backup_restore_2026-07-26.md) for complete instructions.
+### Production EAS Builds
+```bash
+# Android APK / AAB
+npx eas build --profile preview --platform android
+npx eas build --profile production --platform android
+
+# iOS App Store Build
+npx eas build --profile production --platform ios
+```
 
 ---
 
-## 💎 Elite Alignment
-For ecosystem-wide context, refer to:
-- [Web Application](../web-app/README.md)
-- [Admin Portal](../admin-app/README.md)
+## 🔑 Environment Configuration (`.env`)
 
+```env
+EXPO_PUBLIC_SUPABASE_URL=https://<your-project>.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
+EXPO_PUBLIC_API_URL=https://www.travellounge.mu
+```
+
+---
+
+## 📂 Key Directory Layout
+
+```
+mobile-app/
+├── src/
+│   ├── screens/              # Screen components (Home, Flights, Hotels, Bookings)
+│   ├── components/           # UI components, cards & AIConcierge
+│   ├── navigation/           # React Navigation stack & tab navigators
+│   ├── services/             # Supabase client & API integration
+│   └── theme/                # Color palettes, typography & styles
+├── app.json                  # Expo app manifest & configuration
+└── eas.json                  # EAS build profiles (preview, production)
+```
+
+---
+
+## 📚 Ecosystem Documentation
+- Master Rules: [`.agents/AGENTS.md`](../.agents/AGENTS.md)
+- Root Overview: [`README.md`](../README.md)
+- Database Reference: [`DATABASE_AND_BACKUPS.md`](../DATABASE_AND_BACKUPS.md)
