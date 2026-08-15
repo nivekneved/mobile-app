@@ -21,11 +21,12 @@ export default function FlightsScreen() {
 
   const handleSupport = (method: 'whatsapp' | 'email' | 'call', context: string = 'flight arrangements') => {
     const contact = {
-      phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5509 7701',
+      phone: mobileConfig?.supportPhone || generalConfig?.whatsappNumber1 || '15556767954',
       email: generalConfig?.contactEmail || 'devenpawaray@gmail.com'
     };
     if (method === 'whatsapp') {
-      Linking.openURL(`https://wa.me/${contact.phone.replace(/\+/g, '').replace(/\s+/g, '')}?text=${encodeURIComponent(`I am requesting elite VIP assistance regarding ${context}.`)}`);
+      const cleanPhone = contact.phone.replace(/\+/g, '').replace(/\s+/g, '');
+      Linking.openURL(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hi! I want to search flights for ${context}.`)}`);
     }
     if (method === 'email') {
       Linking.openURL(`mailto:${contact.email}?subject=${encodeURIComponent(`Elite Inquiry: ${context}`)}`);

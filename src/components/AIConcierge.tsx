@@ -88,9 +88,9 @@ export const AIConcierge = () => {
   };
 
   const handleWhatsAppRedirect = () => {
-    const phone = mobileConfig?.supportPhone || generalConfig?.contactPhone || '23055097701';
+    const phone = mobileConfig?.supportPhone || generalConfig?.whatsappNumber1 || '15556767954';
     const transcript = messages.map(m => `${m.sender === 'user' ? 'Client' : 'Concierge'}: ${m.text}`).join('\n\n');
-    const intro = "Hello, I am requesting concierge assistance regarding my inquiry:\n\n";
+    const intro = "Hi! I want to search flights using WhatsApp AI Assistant:\n\n";
     const encodedMessage = encodeURIComponent(intro + transcript);
     const whatsappUrl = `https://wa.me/${phone.replace(/\s+/g, '').replace('+', '')}?text=${encodedMessage}`;
     Linking.openURL(whatsappUrl);
