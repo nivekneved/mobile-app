@@ -39,6 +39,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 *.tmp
+*.csv
+*_testers_export.csv
+
+# Screenshot Drafts & Temporary Marketing Assets
+screen*.png
+screenshots/
+universal_app_qr.png
+universal_app_qr.svg
 
 # Environment Files
 .env
