@@ -65,11 +65,14 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
   };
 
   const handlePress = () => {
-    if (!item.cta_link) return;
+    if (!item.cta_link) {
+      router.push('/explore');
+      return;
+    }
     
     // Handle external links
     if (item.cta_link.startsWith('http')) {
-      Linking.openURL(item.cta_link!);
+      Linking.openURL(item.cta_link);
       return;
     }
 
@@ -83,19 +86,14 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
 
   return (
     <View style={[styles.slide, { width }]}>
-      <TouchableOpacity 
-        style={styles.imageContainer} 
-        activeOpacity={0.85}
-        delayPressIn={0}
-        onPress={handlePress}
-      >
+      <View style={styles.imageContainer} pointerEvents="none">
         <Animated.Image 
           source={resolveImageUrl(item.image_url)} 
           style={[styles.image, animatedImageStyle]} 
         />
-      </TouchableOpacity>
+      </View>
       <View style={styles.overlay} pointerEvents="none" />
-      <Animated.View style={[styles.content, animatedContentStyle]}>
+      <Animated.View style={[styles.content, animatedContentStyle]} pointerEvents="box-none">
         <Text variant="labelMedium" style={[styles.tag, item.badge_color ? { backgroundColor: item.badge_color + '33', borderColor: item.badge_color + '66' } : null]}>
           {item.badge_text || labels.hero_default_tag || 'Exclusive Collection'}
         </Text>
@@ -110,17 +108,15 @@ const HeroSlideItem = ({ item, index, scrollX, width }: HeroSlideItemProps) => {
           </View>
         )}
 
-        <View style={styles.buttonRow}>
-          {item.cta_text && (
-            <TouchableOpacity 
-              style={styles.cta} 
-              activeOpacity={0.85}
-              delayPressIn={0}
-              onPress={handlePress}
-            >
-              <Text variant="labelLarge" style={styles.ctaText}>{item.cta_text || labels.hero_default_cta || 'EXPLORE'}</Text>
-            </TouchableOpacity>
-          )}
+        <View style={styles.buttonRow} pointerEvents="auto">
+          <TouchableOpacity 
+            style={styles.cta} 
+            activeOpacity={0.85}
+            delayPressIn={0}
+            onPress={handlePress}
+          >
+            <Text variant="labelLarge" style={styles.ctaText}>{item.cta_text || labels.hero_default_cta || 'EXPLORE'}</Text>
+          </TouchableOpacity>
           
           <TouchableOpacity 
             style={styles.secondaryCta} 
@@ -186,6 +182,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 32,
     marginTop: 60,
+    zIndex: 20,
+    elevation: 5,
   },
   tag: {
     color: Colors.white,
@@ -221,6 +219,8 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     gap: 12,
+    zIndex: 30,
+    elevation: 6,
   },
   cta: {
     backgroundColor: Colors.primary,
@@ -234,6 +234,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
+    zIndex: 40,
   },
   ctaText: {
     color: Colors.white,
@@ -251,6 +252,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
+    zIndex: 40,
+    elevation: 6,
   },
   secondaryCtaText: {
     color: Colors.white,

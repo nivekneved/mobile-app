@@ -72,6 +72,9 @@ export function PremiumCarousel<T>({
         snapToInterval={itemWidth + gap}
         decelerationRate="fast"
         showsHorizontalScrollIndicator={false}
+        nestedScrollEnabled={true}
+        keyboardShouldPersistTaps="handled"
+        removeClippedSubviews={false}
         contentContainerStyle={{ paddingHorizontal: (width - itemWidth) / 2 }}
         onScroll={onScroll}
         scrollEventThrottle={16}

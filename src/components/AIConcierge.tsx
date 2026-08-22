@@ -112,7 +112,7 @@ export const AIConcierge = () => {
   return (
     <>
       {/* Floating Action Button */}
-      <View style={[styles.fabContainer, { bottom: fabBottomOffset }]}>
+      <View style={[styles.fabContainer, { bottom: fabBottomOffset }]} pointerEvents="box-none">
         <TouchableOpacity 
           style={[styles.fab, isOpen && styles.fabOpen]} 
           onPress={() => setIsOpen(!isOpen)}
@@ -127,12 +127,13 @@ export const AIConcierge = () => {
         </TouchableOpacity>
       </View>
 
-      <Portal>
-        <Modal 
-          visible={isOpen} 
-          onDismiss={() => setIsOpen(false)}
-          contentContainerStyle={styles.modalContent}
-        >
+      {isOpen && (
+        <Portal>
+          <Modal 
+            visible={isOpen} 
+            onDismiss={() => setIsOpen(false)}
+            contentContainerStyle={styles.modalContent}
+          >
           <Animated.View style={[
             styles.chatContainer,
             { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
@@ -223,6 +224,7 @@ export const AIConcierge = () => {
           </Animated.View>
         </Modal>
       </Portal>
+      )}
     </>
   );
 };

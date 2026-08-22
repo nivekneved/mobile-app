@@ -89,7 +89,13 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.container} 
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled={true}
+        removeClippedSubviews={false}
+      >
         
         {/* Dynamic Hero Carousel Restoration (CRITICAL PARITY) */}
         <HeroCarousel data={heroSlides} />
@@ -139,7 +145,13 @@ export default function HomeScreen() {
 
         {/* Premium Quick Filters (Restored with Better UI) */}
         <View style={styles.quickFiltersContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.quickFiltersScroll}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps="handled" 
+            contentContainerStyle={styles.quickFiltersScroll}
+          >
             <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#FEF2F2' }]} onPress={() => router.push('/explore?benefits=all-inclusive')} activeOpacity={0.85} delayPressIn={0}>
               <View style={[styles.quickFilterIcon, { backgroundColor: Colors.primary }]}>
                 <Sparkles size={18} color={Colors.white} />
@@ -189,7 +201,13 @@ export default function HomeScreen() {
                 </Text>
             </TouchableOpacity>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuredList}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={styles.featuredList}
+          >
             {featuredServices && featuredServices.length > 0 ? (
               /* PRESERVED ORIGINAL EVENING PACKAGE FILTER COMMENTED OUT PER USER RULES:
               featuredServices

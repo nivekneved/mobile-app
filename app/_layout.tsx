@@ -177,6 +177,9 @@ function RootLayoutNav() {
           }}
         >
           <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+          <Stack.Screen name="tailormade" options={{ headerShown: false }} />
+          <Stack.Screen name="local-deals" options={{ headerShown: false }} />
+          <Stack.Screen name="services/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="faq" 
             options={{ 
               headerShown: true,

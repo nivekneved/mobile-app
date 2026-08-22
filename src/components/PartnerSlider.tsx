@@ -25,16 +25,23 @@ export const PartnerSlider = () => {
   const contentWidth = useRef(0);
 
   useEffect(() => {
-    const scroll = () => {
-      scrollX.current += 1;
-      if (contentWidth.current > 0 && scrollX.current >= contentWidth.current / 3) {
-        scrollX.current = 0;
-      }
-      scrollViewRef.current?.scrollTo({ x: scrollX.current, animated: false });
-    };
+    let interval: NodeJS.Timeout | null = null;
+    const startDelay = setTimeout(() => {
+      const scroll = () => {
+        scrollX.current += 1;
+        if (contentWidth.current > 0 && scrollX.current >= contentWidth.current / 3) {
+          scrollX.current = 0;
+        }
+        scrollViewRef.current?.scrollTo({ x: scrollX.current, animated: false });
+      };
 
-    const interval = setInterval(scroll, 30);
-    return () => clearInterval(interval);
+      interval = setInterval(scroll, 35);
+    }, 600);
+
+    return () => {
+      clearTimeout(startDelay);
+      if (interval) clearInterval(interval);
+    };
   }, []);
 
   return (
