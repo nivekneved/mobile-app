@@ -31,12 +31,18 @@ android/.gradle/
 .gradle/
 *.xcarchive
 
-# Packaged Application Binaries & Bundles
+# Packaged Application Binaries, Bundles & Archives
 *.ipa
 *.aab
 *.apk
+*.app/
+*.zip
+*.tar.gz
 application-*.ipa
 application-*.aab
+Travellounge_*.ipa
+Travellounge_*.zip
+Travellounge_*.tar.gz
 
 # Signing Credentials & Certificates
 *.jks
