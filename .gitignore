@@ -1,5 +1,13 @@
-# Expo & React Native Build Outputs
+# ==============================================================================
+# Travel Lounge Mauritius — Mobile App .gitignore
+# ==============================================================================
+
+# Dependencies
 node_modules/
+.pnp/
+.pnp.js
+
+# Expo & React Native Build Outputs
 .expo/
 dist/
 build/
@@ -22,16 +30,26 @@ android/build/
 android/.gradle/
 .gradle/
 *.xcarchive
+
+# Packaged Application Binaries & Bundles
 *.ipa
-*.apk
 *.aab
+*.apk
+application-*.ipa
+application-*.aab
+
+# Signing Credentials & Certificates
 *.jks
 *.keystore
 *.p8
 *.p12
 *.key
+*.pem
+*.der
+*.cert
 *.mobileprovision
 *.com.apple.InterfaceBuilder.v3.plist
+internal_cert.der
 
 # IDE & Editor Files
 .vscode/
@@ -43,37 +61,46 @@ android/.gradle/
 *.swo
 .eslintcache
 
-# System Files & Logs
+# System Files & Metadata
 .DS_Store
 Thumbs.db
 ehthumbs.db
 desktop.ini
-*.pem
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-*.tmp
-*.temp
-*.csv
-*_testers_export.csv
 
-# Environment Files
+# Environment Files & Secrets
 .env
+.env*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 .env*.local
+docs/credentials.json
 
-# TypeScript
+# TypeScript Build Info
 *.tsbuildinfo
 
-# Debug, Coverage & Metro
+# Debug, Logs & Crash Reports
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.tmp
+*.temp
+eas-build-err.txt
+.metro-health-check*
 coverage/
 .nyc_output/
-.metro-health-check*
-eas-build-err.txt
+
+# Temporary / Scratch Test Images & Scripts
+_test_*.png
+screen1.png
+App Download Mockup.png
+scripts/find_*.js
+scripts/inspect_*.js
+scripts/scratch_*.js
+scratch/
 
 # Database Backups & Temporary Staging
 supabase/backups/
@@ -82,12 +109,10 @@ backups/
 *.sql.gz
 *.tar.gz
 *.bak
+*.csv
+*_testers_export.csv
 
-# Runtime-generated / Agent & Scratch Files
+# Agent & Dev Cache
 .agent/
-scratch/
 __pycache__/
 *.pyc
-
-# Ecosystem credentials
-docs/credentials.json
