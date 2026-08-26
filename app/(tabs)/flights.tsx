@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, View, ScrollView, Image, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { StyleSheet, View, ScrollView, Image, TouchableOpacity, ActivityIndicator, Platform, useWindowDimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Text, Surface, IconButton } from 'react-native-paper';
 import { Colors } from '../../src/theme/colors';
@@ -10,8 +10,10 @@ import { StatusBar } from 'expo-status-bar';
 const HERO_HEIGHT = 260;
 
 export default function FlightsScreen() {
+  const { height: screenHeight } = useWindowDimensions();
   const [isLoading, setIsLoading] = useState(true);
-  const [webViewHeight, setWebViewHeight] = useState(850);
+  const [webViewHeight, setWebViewHeight] = useState(Math.max(900, screenHeight - 120));
+  const [webViewError, setWebViewError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'commercial' | 'charter'>('commercial');
   const { mobileConfig, generalConfig } = useSettings();
 
@@ -40,7 +42,8 @@ export default function FlightsScreen() {
     try {
       const data = JSON.parse(event.nativeEvent.data);
       if (data.type === 'height' && data.height > 200) {
-        setWebViewHeight(Math.min(data.height, 1400)); // Cap max height for stability
+        // Dynamic adaptive height without cutting off checkout forms
+        setWebViewHeight(Math.max(data.height + 40, screenHeight - 120));
       }
     } catch (e) {
       // Ignored
@@ -65,22 +68,12 @@ export default function FlightsScreen() {
     }
   };
 
-  /* PREVIOUS injectedJS PRESERVED AS COMMENT PER USER RULES:
   const injectedJS = `
-    const sendHeight = () => {
-      const height = document.body.scrollHeight || document.documentElement.scrollHeight;
-      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'height', height: height }));
-    };
-    window.onload = sendHeight;
-    setTimeout(sendHeight, 1500);
-    setInterval(sendHeight, 2000);
-    true;
-  `;
-  */
-  const injectedJS = `
-    // Override window.open to prevent external popup spawns and keep navigation local
+    // Override window.open to keep booking in-frame
     window.open = function(url) {
-      window.location.href = url;
+      if (url) {
+        window.location.href = url;
+      }
       return null;
     };
 
@@ -93,20 +86,35 @@ export default function FlightsScreen() {
         el.target = '_self';
       });
     };
-    fixLinkAndFormTargets();
-    setInterval(fixLinkAndFormTargets, 1000);
 
     const sendHeight = () => {
-      const height = document.body.scrollHeight || document.documentElement.scrollHeight;
-      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'height', height: height }));
+      try {
+        const body = document.body;
+        const html = document.documentElement;
+        const h = Math.max(
+          body ? body.scrollHeight : 0,
+          body ? body.offsetHeight : 0,
+          html ? html.clientHeight : 0,
+          html ? html.scrollHeight : 0,
+          html ? html.offsetHeight : 0
+        );
+        if (h > 100) {
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'height', height: h }));
+        }
+      } catch(e) {}
     };
-    
-    window.onload = () => {
+
+    window.addEventListener('load', () => {
       sendHeight();
       fixLinkAndFormTargets();
-    };
-    setTimeout(sendHeight, 1500);
-    setInterval(sendHeight, 2000);
+    });
+    window.addEventListener('resize', sendHeight);
+
+    setTimeout(sendHeight, 1000);
+    setTimeout(sendHeight, 2500);
+    setTimeout(sendHeight, 5000);
+    setInterval(sendHeight, 3000);
+    setInterval(fixLinkAndFormTargets, 2000);
     true;
   `;
 
@@ -186,116 +194,95 @@ export default function FlightsScreen() {
                     icon="refresh" 
                     size={20} 
                     iconColor={Colors.charcoal}
-                    onPress={() => webViewRef.current?.reload()} 
+                    onPress={() => {
+                      setWebViewError(null);
+                      setIsLoading(true);
+                      webViewRef.current?.reload();
+                    }} 
                   />
                 </View>
                 <Text style={styles.webHeaderTitle}>Flight Portal</Text>
               </View>
               
-              <View style={{ height: webViewHeight, overflow: 'hidden', position: 'relative' }}>
+              <View style={{ minHeight: webViewHeight, overflow: 'hidden', position: 'relative' }}>
                 {isLoading && (
                   <View style={styles.loaderContainer}>
                     <ActivityIndicator size="large" color={Colors.primary} />
                     <Text style={styles.loadingText}>Establishing Secure GOL Gateway...</Text>
                   </View>
                 )}
-                {/* PREVIOUS WebView PRESERVED AS COMMENT PER USER RULES:
-                <WebView 
-                  source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_blank&embedded=true' }} 
-                  style={styles.webview}
-                  onLoadEnd={() => setIsLoading(false)}
-                  scrollEnabled={false}
-                  javaScriptEnabled={true}
-                  domStorageEnabled={true}
-                  onMessage={onMessage}
-                  injectedJavaScript={injectedJS}
-                />
-                */}
-                {/* PREVIOUS WebView PRESERVED AS COMMENT:
-                <WebView 
-                  source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_self&embedded=true' }} 
-                  style={styles.webview}
-                  onLoadEnd={() => setIsLoading(false)}
-                  scrollEnabled={false}
-                  javaScriptEnabled={true}
-                  domStorageEnabled={true}
-                  onMessage={onMessage}
-                  injectedJavaScript={injectedJS}
-                  setSupportMultipleWindows={false}
-                  onNavigationStateChange={(navState) => {
-                    if (navState.url) {
-                      trackFlightSearch(navState.url);
-                    }
-                  }}
-                  onOpenWindow={(syntheticEvent) => {
-                    const { nativeEvent } = syntheticEvent;
-                    const { targetUrl } = nativeEvent;
-                    if (__DEV__) console.log('[Flight WebView] Intercepted new window request for URL:', targetUrl);
-                  }}
-                />
-                */}
-                {/* PREVIOUS WebView IMPLEMENTATION PRESERVED AS COMMENT PER PROJECT RULES:
-                <WebView 
-                  ref={Platform.OS === 'web' ? undefined : (webViewRef as any)}
-                  source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_self&embedded=true' }} 
-                  style={styles.webview}
-                  onLoadEnd={() => setIsLoading(false)}
-                  scrollEnabled={false}
-                  javaScriptEnabled={true}
-                  domStorageEnabled={true}
-                  onMessage={onMessage}
-                  injectedJavaScript={injectedJS}
-                  setSupportMultipleWindows={false}
-                  onNavigationStateChange={(navState) => {
-                    setCanGoBack(navState.canGoBack);
-                    setCanGoForward(navState.canGoForward);
-                    if (navState.url) {
-                      trackFlightSearch(navState.url);
-                    }
-                  }}
-                  onOpenWindow={(syntheticEvent) => {
-                    const { nativeEvent } = syntheticEvent;
-                    const { targetUrl } = nativeEvent;
-                    if (__DEV__) console.log('[Flight WebView] Intercepted new window request for URL:', targetUrl);
-                  }}
-                />
-                */}
-                <WebView 
-                  ref={Platform.OS === 'web' ? undefined : (webViewRef as any)}
-                  source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_self&embedded=true' }} 
-                  style={styles.webview}
-                  onLoadEnd={() => setIsLoading(false)}
-                  scrollEnabled={true}
-                  javaScriptEnabled={true}
-                  domStorageEnabled={true}
-                  allowsInlineMediaPlayback={true}
-                  mixedContentMode="always"
-                  onMessage={onMessage}
-                  injectedJavaScript={injectedJS}
-                  setSupportMultipleWindows={true}
-                  onNavigationStateChange={(navState) => {
-                    setCanGoBack(navState.canGoBack);
-                    setCanGoForward(navState.canGoForward);
-                    if (navState.url) {
-                      trackFlightSearch(navState.url);
-                    }
-                  }}
-                  onShouldStartLoadWithRequest={(request) => {
-                    // Open external non-golibe links in system browser
-                    if (request.url && !request.url.includes('golibe.com') && !request.url.includes('about:blank')) {
-                      Linking.openURL(request.url).catch(console.error);
-                      return false;
-                    }
-                    return true;
-                  }}
-                  onOpenWindow={(syntheticEvent) => {
-                    const { nativeEvent } = syntheticEvent;
-                    const { targetUrl } = nativeEvent;
-                    if (targetUrl) {
-                      Linking.openURL(targetUrl).catch(console.error);
-                    }
-                  }}
-                />
+                {webViewError ? (
+                  <View style={[styles.loaderContainer, { padding: 30 }]}>
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: Colors.charcoal, marginBottom: 8, textAlign: 'center' }}>
+                      Connection Interrupted
+                    </Text>
+                    <Text style={{ fontSize: 13, color: Colors.slate[500], textAlign: 'center', marginBottom: 16 }}>
+                      {webViewError}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setWebViewError(null);
+                        setIsLoading(true);
+                        webViewRef.current?.reload();
+                      }}
+                      style={{ backgroundColor: Colors.primary, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 12 }}
+                    >
+                      <Text style={{ color: '#fff', fontWeight: '800' }}>Retry Connection</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <WebView 
+                    ref={Platform.OS === 'web' ? undefined : (webViewRef as any)}
+                    source={{ uri: 'https://travellounge.golibe.com/iframe?iframe=1&target=_self&embedded=true' }} 
+                    style={styles.webview}
+                    onLoadEnd={() => setIsLoading(false)}
+                    onError={(syntheticEvent) => {
+                      const { nativeEvent } = syntheticEvent;
+                      console.warn('Flight WebView Error:', nativeEvent);
+                      setIsLoading(false);
+                    }}
+                    scrollEnabled={true}
+                    nestedScrollEnabled={true}
+                    javaScriptEnabled={true}
+                    domStorageEnabled={true}
+                    allowsInlineMediaPlayback={true}
+                    mixedContentMode="always"
+                    onMessage={onMessage}
+                    injectedJavaScript={injectedJS}
+                    setSupportMultipleWindows={false}
+                    onNavigationStateChange={(navState) => {
+                      setCanGoBack(navState.canGoBack);
+                      setCanGoForward(navState.canGoForward);
+                      if (navState.url) {
+                        trackFlightSearch(navState.url);
+                      }
+                    }}
+                    onShouldStartLoadWithRequest={(request) => {
+                      const url = request.url || '';
+                      if (url === 'about:blank' || url.startsWith('about:')) return true;
+                      // Whitelist booking, airlines, payment, and reservation hosts
+                      if (
+                        url.includes('golibe.com') ||
+                        url.includes('travellounge') ||
+                        url.includes('checkout') ||
+                        url.includes('payment') ||
+                        url.includes('secure') ||
+                        url.includes('3dsecure') ||
+                        url.includes('stripe') ||
+                        url.includes('mcb') ||
+                        url.includes('sbm') ||
+                        url.includes('booking')
+                      ) {
+                        return true;
+                      }
+                      if (url.startsWith('http://') || url.startsWith('https://')) {
+                        Linking.openURL(url).catch(console.error);
+                        return false;
+                      }
+                      return true;
+                    }}
+                  />
+                )}
               </View>
             </Surface>
           </View>

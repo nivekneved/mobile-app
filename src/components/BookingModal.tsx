@@ -222,7 +222,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
           { label: 'Children', key: 'paxChildren', min: 0 },
           { label: 'Infants', key: 'paxInfants', min: 0 }
         ].map(item => (
-          <View key={item.key} style={[styles.occupancyItem, { width: (width - 60) / 2 }]}>
+          <View key={item.key} style={[styles.occupancyItem, { width: (Math.min(width, 640) - 64) / 2 }]}>
             <Text style={styles.occLabel}>{item.label}</Text>
             <View style={styles.counterRow}>
               <IconButton 
@@ -469,6 +469,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     flex: 1,
+    width: '100%',
+    maxWidth: 640,
+    alignSelf: 'center',
   },
   content: {
     flex: 1,

@@ -22,6 +22,8 @@ export default function LocalDealsScreen() {
   const [services, setServices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [activeFilter, setActiveFilter] = useState('ALL DEALS');
+
   useEffect(() => {
     fetchLocalDeals();
   }, []);
@@ -29,30 +31,83 @@ export default function LocalDealsScreen() {
   const fetchLocalDeals = async () => {
     setIsLoading(true);
     try {
-      // Local Deals logic: Filters for resident-specific or Mauritian locations
-      // In the web-app, it filters by specific service types and a 'local-deals' slug
-      const { data, error } = await supabase
+      // PRESERVED ORIGINAL QUERY AS COMMENT:
+      // const { data, error } = await supabase
+      //   .from('services')
+      //   .select('*')
+      //   .eq('status', 'active')
+      //   .or('location.ilike.*mauritius*,location.ilike.*resident*,location.is.null')
+      //   .in('category', ['hotel', 'day_package', 'activity', 'land_activity', 'sea_activity'])
+      //   .order('is_seasonal', { ascending: false });
+
+      const { data: servicesRaw, error: servicesError } = await supabase
         .from('services')
         .select('*')
         .eq('status', 'active')
-        // ORIGINAL: .or('location.ilike.%mauritius%,location.ilike.%resident%')
-        .or('location.ilike.*mauritius*,location.ilike.*resident*,location.is.null')
-        .in('category', ['hotel', 'day_package', 'activity', 'land_activity', 'sea_activity'])
-        .order('is_seasonal', { ascending: false });
+        .order('priority', { ascending: false })
+        .limit(30);
 
-      if (error) throw error;
-      setServices(data || []);
+      if (servicesError) throw servicesError;
+
+      if (servicesRaw && servicesRaw.length > 0) {
+        const serviceIds = servicesRaw.map((s: any) => s.id);
+        const [pricingRes, categoriesRes, roomTypesRes] = await Promise.all([
+          Promise.all(serviceIds.map(id =>
+            supabase.from('service_pricing').select('service_id, price, occupancy_pricing').eq('service_id', id).limit(5)
+          )),
+          supabase.from('service_categories').select('service_id, categories(name)').in('service_id', serviceIds),
+          Promise.all(serviceIds.map(id =>
+            supabase.from('room_types').select('service_id, price, weekday_price, weekend_price').eq('service_id', id).limit(5)
+          ))
+        ]);
+
+        const categoriesRel = categoriesRes.data || [];
+        const mapped = servicesRaw.map((s: any, idx: number) => {
+          const sPricing = pricingRes[idx]?.data || [];
+          const sCats = categoriesRel.filter((c: any) => c.service_id === s.id);
+          const sRooms = roomTypesRes[idx]?.data || [];
+          const categoryObj = sCats?.[0]?.categories as any;
+          const categoryName = (Array.isArray(categoryObj) ? categoryObj[0]?.name : categoryObj?.name) || s.service_type || 'Hotel & Stay';
+          
+          let minPrice = s.service_fee || 0;
+          if (sPricing.length > 0) {
+            const validPrices = sPricing.map((p: any) => Number(p.price)).filter((p: number) => p > 0);
+            if (validPrices.length > 0) minPrice = Math.min(...validPrices);
+          } else if (sRooms.length > 0) {
+            const roomPrices = sRooms.map((r: any) => Number(r.weekday_price || r.price)).filter((p: number) => p > 0);
+            if (roomPrices.length > 0) minPrice = Math.min(...roomPrices);
+          }
+
+          return {
+            ...s,
+            price: minPrice > 0 ? minPrice : (s.price || 3500),
+            category: categoryName,
+            deal_note: s.deal_note || 'RESIDENT EXCLUSIVE'
+          };
+        });
+
+        setServices(mapped);
+      } else {
+        setServices([]);
+      }
     } catch (err) {
       console.error('Error fetching local deals:', err);
+      setServices([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filteredServices = services.filter(s => 
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.location?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredServices = services.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (s.location && s.location.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    if (!matchesSearch) return false;
+    if (activeFilter === 'HOTELS') return (s.service_type || '').toLowerCase().includes('hotel') || (s.category || '').toLowerCase().includes('hotel');
+    if (activeFilter === 'DAY PACKAGES') return (s.service_type || '').toLowerCase().includes('day') || (s.category || '').toLowerCase().includes('package');
+    if (activeFilter === 'ACTIVITIES') return (s.service_type || '').toLowerCase().includes('activity') || (s.category || '').toLowerCase().includes('tour');
+    return true;
+  });
 
   return (
     <View style={styles.root}>
@@ -110,18 +165,15 @@ export default function LocalDealsScreen() {
         {/* Quick Filter Chips */}
         <View style={styles.quickFilters}>
            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
-              <TouchableOpacity style={[styles.filterChip, styles.filterChipActive]}>
-                 <Text style={[styles.filterChipText, styles.filterChipTextActive]}>ALL DEALS</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.filterChip}>
-                 <Text style={styles.filterChipText}>HOTELS</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.filterChip}>
-                 <Text style={styles.filterChipText}>DAY PACKAGES</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.filterChip}>
-                 <Text style={styles.filterChipText}>ACTIVITIES</Text>
-              </TouchableOpacity>
+              {['ALL DEALS', 'HOTELS', 'DAY PACKAGES', 'ACTIVITIES'].map((chip) => (
+                <TouchableOpacity 
+                  key={chip} 
+                  style={[styles.filterChip, activeFilter === chip && styles.filterChipActive]}
+                  onPress={() => setActiveFilter(chip)}
+                >
+                   <Text style={[styles.filterChipText, activeFilter === chip && styles.filterChipTextActive]}>{chip}</Text>
+                </TouchableOpacity>
+              ))}
            </ScrollView>
         </View>
 
