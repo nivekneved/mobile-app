@@ -17,7 +17,7 @@
 
 ## 📱 App Store & Configuration Metadata
 
-- **App Version / Build**: `1.3.1` (iOS Build `3`, Android VersionCode `19`)
+- **App Version / Build**: `1.3.2` (iOS Build `3`, Android VersionCode `19`)
 - **iOS Bundle ID**: `com.travel-lounge.mu`
 - **Apple Developer Team ID**: `383G9QQ5CP` (Travellounge / Medic Assistance International Ltd)
 - **Apple App ID**: `6794678454`
