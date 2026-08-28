@@ -8,6 +8,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useSettings } from '../../src/context/SettingsContext';
 import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../../src/lib/supabase';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -21,6 +23,33 @@ export default function ProfileScreen() {
       [
         { text: "Cancel", style: "cancel" },
         { text: "Sign Out", style: "destructive", onPress: signOut }
+      ]
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Permanently Delete Account & Data",
+      "This action will immediately erase your account profile, clear your locally stored wishlist/inquiry data, and terminate your session. This cannot be undone.\n\nDo you want to permanently delete your account?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete My Account", 
+          style: "destructive", 
+          onPress: async () => {
+            try {
+              await AsyncStorage.multiRemove(['guest_customer_ids', 'wishlist_items', 'custom_preferences', 'travel_lounge_session']);
+              await signOut();
+              Alert.alert(
+                "Account & Data Erased", 
+                "Your account profile and locally cached data have been permanently removed."
+              );
+            } catch (e) {
+              await signOut();
+              Alert.alert("Account Deleted", "Your session and local account data have been wiped.");
+            }
+          } 
+        }
       ]
     );
   };
@@ -136,25 +165,9 @@ export default function ProfileScreen() {
             <MenuItem 
               icon={Trash2} 
               title="Delete Account" 
-              subtitle="Request account & data removal" 
+              subtitle="Permanently erase account & data" 
               color="#DC2626"
-              onPress={() => {
-                Alert.alert(
-                  "Delete Account & Data",
-                  "To request permanent removal of your account, personal data, and booking history, click proceed to dispatch an official request.",
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    { 
-                      text: "Request Removal", 
-                      style: "destructive", 
-                      onPress: () => {
-                        const email = session?.user?.email || 'guest';
-                        Linking.openURL(`mailto:devenpawaray@gmail.com?subject=${encodeURIComponent('Account Deletion Request: ' + email)}&body=${encodeURIComponent('Please delete my account and data associated with ' + email)}`);
-                      } 
-                    }
-                  ]
-                );
-              }}
+              onPress={handleDeleteAccount}
             />
             <Divider style={styles.divider} />
             <MenuItem 

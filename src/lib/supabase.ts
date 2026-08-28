@@ -1,12 +1,11 @@
 import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://tbyudagfjspedeqtlgjv.supabase.co';
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_R0eiOHYXN90Jq6NuYBeTQA_hRpJ42UL';
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 
-// Let the client know if environment variables are missing
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('CRITICAL: Supabase environment variables are missing! Check your .env setup.');
+  console.warn('[Supabase] Environment variables EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY are required.');
 }
 
 // Initializing the Supabase client with auth minimized as per user request

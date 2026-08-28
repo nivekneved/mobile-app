@@ -70,8 +70,6 @@ const AVAILABLE_ADDONS = [
 export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialData }: BookingModalProps) => {
   const { width } = useWindowDimensions();
   const [currentStep, setCurrentStep] = useState(1);
-  const [showCheckInPicker, setShowCheckInPicker] = useState(false);
-  const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedReport, setSubmittedReport] = useState<any>(null);

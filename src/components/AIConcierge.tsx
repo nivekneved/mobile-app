@@ -97,14 +97,11 @@ export const AIConcierge = () => {
     setIsOpen(false);
   };
 
-  const toggleVoice = () => {
-    setIsListening(!isListening);
-    if (!isListening) {
-      setTimeout(() => {
-        setIsListening(false);
-        setMessage("I want to book a luxury getaway in Mauritius...");
-      }, 2000);
-    }
+  const handleVoiceDesk = () => {
+    const phone = mobileConfig?.supportPhone || generalConfig?.whatsappNumber1 || '15556767954';
+    const cleanPhone = phone.replace(/\s+/g, '').replace('+', '');
+    const voiceMsg = encodeURIComponent("Hi Travel Lounge! I would like to speak with the AI Voice Concierge to plan my trip.");
+    Linking.openURL(`https://wa.me/${cleanPhone}?text=${voiceMsg}`);
   };
 
   const fabBottomOffset = (insets.bottom || 16) + 72;
@@ -199,10 +196,12 @@ export const AIConcierge = () => {
                   onChangeText={setMessage}
                 />
                 <TouchableOpacity 
-                  style={[styles.micBtn, isListening && styles.micBtnActive]} 
-                  onPress={toggleVoice}
+                  style={styles.micBtn} 
+                  onPress={handleVoiceDesk}
+                  accessibilityLabel="Voice Concierge"
+                  activeOpacity={0.7}
                 >
-                  {isListening ? <Volume2 size={20} color="#fff" /> : <Mic size={20} color={Colors.slate[400]} />}
+                  <Mic size={20} color={Colors.primary} />
                 </TouchableOpacity>
                 <TouchableOpacity 
                   style={[styles.sendIconBtn, !message.trim() && styles.sendIconBtnDisabled]}
