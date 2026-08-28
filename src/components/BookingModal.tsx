@@ -155,12 +155,50 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
     return base + mealPlanTotal + addonTotal;
   };
 
+  const [tempDate, setTempDate] = useState<Date>(new Date());
+  const [activePickerType, setActivePickerType] = useState<'checkIn' | 'checkOut' | null>(null);
+
+  const openDatePicker = (type: 'checkIn' | 'checkOut') => {
+    const currentDateStr = type === 'checkIn' ? watchAllFields.checkIn : watchAllFields.checkOut;
+    const parsedDate = currentDateStr ? new Date(currentDateStr) : new Date();
+    setTempDate(isNaN(parsedDate.getTime()) ? new Date() : parsedDate);
+    setActivePickerType(type);
+  };
+
+  const confirmIOSDate = () => {
+    if (activePickerType) {
+      const formatted = tempDate.toISOString().split('T')[0];
+      setValue(activePickerType, formatted, { shouldValidate: true });
+    }
+    setActivePickerType(null);
+  };
+
   const handleNext = () => {
+    if (!watchAllFields.checkIn || !watchAllFields.checkOut) {
+      Alert.alert('Missing Dates', 'Please ensure departure and return dates are selected.', [{ text: 'OK' }]);
+      return;
+    }
     if (currentStep < 2) setCurrentStep(currentStep + 1);
   };
 
   const handleBack = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const onInvalid = (fieldErrors: any) => {
+    const missing: string[] = [];
+    if (fieldErrors.firstName) missing.push('First Name (at least 2 characters)');
+    if (fieldErrors.lastName) missing.push('Last Name (at least 2 characters)');
+    if (fieldErrors.email) missing.push('Valid Email Address');
+    if (fieldErrors.phone) missing.push('Phone / WhatsApp Number (min 8 digits)');
+    if (fieldErrors.checkIn) missing.push('Departure Date');
+    if (fieldErrors.checkOut) missing.push('Return Date');
+
+    const message = missing.length > 0
+      ? `Please complete the following required fields:\n\n• ${missing.join('\n• ')}`
+      : 'Please ensure all booking fields are filled in correctly.';
+
+    Alert.alert('Incomplete Details', message, [{ text: 'Review Form' }]);
   };
 
   const onConfirm = async (data: any) => {
@@ -172,7 +210,7 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
       setSubmittedReport({ ...formData, totalAmount: total });
       setIsSuccess(true);
     } catch (err) {
-      Alert.alert('Booking Failed', 'Something went wrong. Please try again.');
+      Alert.alert('Booking Notice', 'Unable to complete immediate dispatch. Please try again or reach out to our concierge.');
     } finally {
       setIsSubmitting(false);
     }
@@ -196,19 +234,19 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
 
       <Surface style={styles.card}>
         <View style={styles.dateRow}>
-          <TouchableOpacity onPress={() => setShowCheckInPicker(true)} style={styles.dateField}>
+          <TouchableOpacity onPress={() => openDatePicker('checkIn')} style={styles.dateField} activeOpacity={0.7}>
             <Text style={styles.dateLabel}>DEPARTURE</Text>
             <View style={styles.dateValueContainer}>
               <Calendar size={16} color={Colors.primary} />
-              <Text style={styles.dateValue}>{watchAllFields.checkIn}</Text>
+              <Text style={styles.dateValue}>{watchAllFields.checkIn || 'Select Date'}</Text>
             </View>
           </TouchableOpacity>
           <View style={styles.dateDivider} />
-          <TouchableOpacity onPress={() => setShowCheckOutPicker(true)} style={styles.dateField}>
+          <TouchableOpacity onPress={() => openDatePicker('checkOut')} style={styles.dateField} activeOpacity={0.7}>
             <Text style={styles.dateLabel}>RETURN</Text>
             <View style={styles.dateValueContainer}>
               <Calendar size={16} color={Colors.primary} />
-              <Text style={styles.dateValue}>{watchAllFields.checkOut}</Text>
+              <Text style={styles.dateValue}>{watchAllFields.checkOut || 'Select Date'}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -305,30 +343,38 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
           control={control}
           name="firstName"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput label="First Name" mode="outlined" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.firstName} style={styles.input} activeOutlineColor={Colors.primary} />
+            <TextInput label="First Name *" mode="outlined" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.firstName} style={styles.input} activeOutlineColor={Colors.primary} />
           )}
         />
+        {errors.firstName && <Text style={styles.fieldErrorText}>{errors.firstName.message}</Text>}
+
         <Controller
           control={control}
           name="lastName"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput label="Last Name" mode="outlined" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.lastName} style={styles.input} activeOutlineColor={Colors.primary} />
+            <TextInput label="Last Name *" mode="outlined" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.lastName} style={styles.input} activeOutlineColor={Colors.primary} />
           )}
         />
+        {errors.lastName && <Text style={styles.fieldErrorText}>{errors.lastName.message}</Text>}
+
         <Controller
           control={control}
           name="email"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput label="Email Address" mode="outlined" keyboardType="email-address" autoCapitalize="none" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.email} style={styles.input} activeOutlineColor={Colors.primary} />
+            <TextInput label="Email Address *" mode="outlined" keyboardType="email-address" autoCapitalize="none" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.email} style={styles.input} activeOutlineColor={Colors.primary} />
           )}
         />
+        {errors.email && <Text style={styles.fieldErrorText}>{errors.email.message}</Text>}
+
         <Controller
           control={control}
           name="phone"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput label="WhatsApp Number" mode="outlined" keyboardType="phone-pad" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.phone} style={styles.input} activeOutlineColor={Colors.primary} />
+            <TextInput label="WhatsApp / Phone Number *" mode="outlined" keyboardType="phone-pad" onBlur={onBlur} onChangeText={onChange} value={value} error={!!errors.phone} style={styles.input} activeOutlineColor={Colors.primary} />
           )}
         />
+        {errors.phone && <Text style={styles.fieldErrorText}>{errors.phone.message}</Text>}
+
         <Controller
           control={control}
           name="specialRequirements"
@@ -384,17 +430,22 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
               <View style={styles.header}>
                 <View style={{ flex: 1, marginRight: 16 }}>
                   <Text style={styles.brandBadge}>ELITE CONCIERGE</Text>
-                  <Text style={styles.title} numberOfLines={2}>{service.name}</Text>
+                  <Text style={styles.title} numberOfLines={2}>{service?.name || 'Travel Booking'}</Text>
                 </View>
                 <IconButton icon="close" onPress={onDismiss} />
               </View>
 
-            {renderStepIndicator()}
+              {renderStepIndicator()}
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-              {currentStep === 1 && renderStep1()}
-              {currentStep === 2 && renderStep2()}
-            </ScrollView>
+              <ScrollView 
+                style={styles.scrollContainer}
+                contentContainerStyle={styles.scrollContent} 
+                showsVerticalScrollIndicator={true}
+                keyboardShouldPersistTaps="handled"
+              >
+                {currentStep === 1 && renderStep1()}
+                {currentStep === 2 && renderStep2()}
+              </ScrollView>
 
             <View style={styles.footer}>
               <View style={styles.priceContainer}>
@@ -411,15 +462,17 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
 
               <View style={styles.buttonRow}>
                 {currentStep > 1 && (
-                  <TouchableOpacity onPress={handleBack} style={styles.backBtn}>
+                  <TouchableOpacity onPress={handleBack} style={styles.backBtn} activeOpacity={0.7} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                     <ArrowLeft size={20} color={Colors.charcoal} />
                   </TouchableOpacity>
                 )}
                 
                 <TouchableOpacity 
-                  onPress={currentStep === 2 ? () => (handleSubmit as any)(onConfirm)() : handleNext}
+                  onPress={currentStep === 2 ? () => (handleSubmit as any)(onConfirm, onInvalid)() : handleNext}
                   disabled={isSubmitting || (currentStep === 1 && pricing?.availabilityStatus?.isAvailable === false)}
                   style={[styles.nextBtn, currentStep === 1 ? { flex: 1 } : {}]}
+                  activeOpacity={0.8}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   {isSubmitting ? (
                     <ActivityIndicator color="#fff" />
@@ -435,25 +488,56 @@ export const BookingModal = ({ visible, onDismiss, service, onSubmit, initialDat
           </View>
         )}
 
-        {showCheckInPicker && (
+        {/* Dedicated Android Native Picker */}
+        {Platform.OS === 'android' && activePickerType !== null && (
           <DateTimePicker
-            value={new Date(watchAllFields.checkIn)}
+            value={tempDate}
             mode="date"
+            display="default"
+            minimumDate={activePickerType === 'checkOut' && watchAllFields.checkIn ? new Date(watchAllFields.checkIn) : new Date()}
             onChange={(event, date) => {
-              setShowCheckInPicker(false);
-              if (date) setValue('checkIn', date.toISOString().split('T')[0]);
+              const currentType = activePickerType;
+              setActivePickerType(null);
+              if (event.type === 'set' && date && currentType) {
+                setValue(currentType, date.toISOString().split('T')[0], { shouldValidate: true });
+              }
             }}
           />
         )}
-        {showCheckOutPicker && (
-          <DateTimePicker
-            value={new Date(watchAllFields.checkOut)}
-            mode="date"
-            onChange={(event, date) => {
-              setShowCheckOutPicker(false);
-              if (date) setValue('checkOut', date.toISOString().split('T')[0]);
-            }}
-          />
+
+        {/* Dedicated iOS / iPadOS Overlay Modal Sheet */}
+        {Platform.OS === 'ios' && activePickerType !== null && (
+          <Modal
+            visible={true}
+            onDismiss={() => setActivePickerType(null)}
+            contentContainerStyle={styles.iosPickerModalContainer}
+          >
+            <View style={styles.iosPickerHeader}>
+              <TouchableOpacity onPress={() => setActivePickerType(null)} style={styles.pickerHeaderBtn}>
+                <Text style={styles.pickerCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <Text style={styles.pickerHeaderTitle}>
+                {activePickerType === 'checkIn' ? 'Select Departure Date' : 'Select Return Date'}
+              </Text>
+              <TouchableOpacity onPress={confirmIOSDate} style={styles.pickerHeaderBtn}>
+                <Text style={styles.pickerConfirmText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.iosPickerBody}>
+              <DateTimePicker
+                value={tempDate}
+                mode="date"
+                display="spinner"
+                themeVariant="light"
+                textColor="#000000"
+                minimumDate={activePickerType === 'checkOut' && watchAllFields.checkIn ? new Date(watchAllFields.checkIn) : new Date()}
+                onChange={(_, date) => {
+                  if (date) setTempDate(date);
+                }}
+                style={{ height: 216, width: '100%' }}
+              />
+            </View>
+          </Modal>
         )}
         </KeyboardAvoidingView>
       </Modal>
@@ -465,16 +549,23 @@ const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: '#fff',
     margin: 0,
-    marginTop: 40,
+    marginTop: Platform.OS === 'ios' ? 44 : 20,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     flex: 1,
+    height: '92%',
     width: '100%',
     maxWidth: 640,
     alignSelf: 'center',
+    overflow: 'hidden',
   },
   content: {
     flex: 1,
+    height: '100%',
+  },
+  scrollContainer: {
+    flex: 1,
+    width: '100%',
   },
   header: {
     padding: 24,
@@ -525,9 +616,10 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 24,
     paddingBottom: 40,
+    flexGrow: 1,
   },
   stepContainer: {
-    flex: 1,
+    width: '100%',
   },
   stepTitle: {
     fontSize: 22,
@@ -862,5 +954,62 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
+  },
+  fieldErrorText: {
+    color: '#DC2626',
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: -4,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  iosPickerModalContainer: {
+    backgroundColor: '#FFFFFF',
+    margin: 20,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 8,
+    maxWidth: 420,
+    alignSelf: 'center',
+    width: '90%',
+  },
+  iosPickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    backgroundColor: '#F8FAFC',
+  },
+  pickerHeaderBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  pickerHeaderTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.charcoal,
+  },
+  pickerCancelText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.slate[500],
+  },
+  pickerConfirmText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.primary,
+  },
+  iosPickerBody: {
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
   },
 });

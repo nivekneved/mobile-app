@@ -84,7 +84,15 @@ function RootLayoutNav() {
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
-      await SplashScreen.hideAsync();
+      try {
+        await SplashScreen.hideAsync();
+      } catch (e) {}
+    }
+  }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
 

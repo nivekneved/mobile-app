@@ -87,6 +87,24 @@ export default function FlightsScreen() {
       });
     };
 
+    // Ensure all touch targets, datepickers and inputs respond immediately on iOS/iPadOS WebKit
+    const fixDateAndInputs = () => {
+      try {
+        document.querySelectorAll('input, select, textarea, button, a, [role="button"]').forEach(el => {
+          el.style.touchAction = 'manipulation';
+          el.style.webkitUserSelect = 'auto';
+        });
+
+        // Ensure datepicker modals and popup calendars are above all overlays
+        if (!document.getElementById('tl-popup-fix-style')) {
+          const style = document.createElement('style');
+          style.id = 'tl-popup-fix-style';
+          style.textContent = '.ui-datepicker, .datepicker, .flatpickr-calendar, .pika-single, [class*="datepicker"], [class*="calendar"], [class*="picker"], [class*="dropdown-menu"], [class*="popover"] { z-index: 2147483647 !important; visibility: visible !important; opacity: 1 !important; }';
+          document.head.appendChild(style);
+        }
+      } catch(e) {}
+    };
+
     const sendHeight = () => {
       try {
         const body = document.body;
@@ -107,6 +125,7 @@ export default function FlightsScreen() {
     window.addEventListener('load', () => {
       sendHeight();
       fixLinkAndFormTargets();
+      fixDateAndInputs();
     });
     window.addEventListener('resize', sendHeight);
 
@@ -115,6 +134,7 @@ export default function FlightsScreen() {
     setTimeout(sendHeight, 5000);
     setInterval(sendHeight, 3000);
     setInterval(fixLinkAndFormTargets, 2000);
+    setInterval(fixDateAndInputs, 2000);
     true;
   `;
 
@@ -204,7 +224,7 @@ export default function FlightsScreen() {
                 <Text style={styles.webHeaderTitle}>Flight Portal</Text>
               </View>
               
-              <View style={{ minHeight: webViewHeight, overflow: 'hidden', position: 'relative' }}>
+              <View style={{ minHeight: webViewHeight, position: 'relative' }}>
                 {isLoading && (
                   <View style={styles.loaderContainer}>
                     <ActivityIndicator size="large" color={Colors.primary} />

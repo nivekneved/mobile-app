@@ -67,9 +67,23 @@ export const FilterModal = ({
     });
   };
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
-    if (selectedDate) {
+  const [tempFilterDate, setTempFilterDate] = useState<Date>(new Date());
+
+  const openFilterDatePicker = () => {
+    const current = localFilters.date ? new Date(localFilters.date) : new Date();
+    setTempFilterDate(isNaN(current.getTime()) ? new Date() : current);
+    setShowDatePicker(true);
+  };
+
+  const confirmFilterIOSDate = () => {
+    const isoStr = tempFilterDate.toISOString().split('T')[0];
+    updateFilter('date', isoStr);
+    setShowDatePicker(false);
+  };
+
+  const handleAndroidDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (event.type === 'set' && selectedDate) {
       const isoStr = selectedDate.toISOString().split('T')[0];
       updateFilter('date', isoStr);
     }
@@ -191,7 +205,8 @@ export const FilterModal = ({
 
                 <TouchableOpacity 
                   style={styles.dateSelectorBtn}
-                  onPress={() => setShowDatePicker(true)}
+                  onPress={openFilterDatePicker}
+                  activeOpacity={0.7}
                 >
                   <CalendarIcon size={18} color={Colors.primary} />
                   <Text style={styles.dateSelectorText}>{formattedDateString}</Text>
@@ -230,14 +245,53 @@ export const FilterModal = ({
                   </TouchableOpacity>
                 </View>
 
-                {showDatePicker && (
+                {/* Android Native Picker */}
+                {Platform.OS === 'android' && showDatePicker && (
                   <DateTimePicker
-                    value={localFilters.date ? new Date(localFilters.date) : new Date()}
+                    value={tempFilterDate}
                     mode="date"
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    onChange={handleDateChange}
+                    display="default"
+                    onChange={handleAndroidDateChange}
                     minimumDate={new Date()}
                   />
+                )}
+
+                {/* iOS Modal Sheet Picker */}
+                {Platform.OS === 'ios' && showDatePicker && (
+                  <Modal
+                    visible={true}
+                    transparent={true}
+                    animationType="fade"
+                    onRequestClose={() => setShowDatePicker(false)}
+                  >
+                    <View style={styles.iosFilterPickerOverlay}>
+                      <View style={styles.iosFilterPickerModal}>
+                        <View style={styles.iosFilterPickerHeader}>
+                          <TouchableOpacity onPress={() => setShowDatePicker(false)} style={styles.pickerHeaderBtn}>
+                            <Text style={styles.pickerCancelText}>Cancel</Text>
+                          </TouchableOpacity>
+                          <Text style={styles.pickerHeaderTitle}>Select Travel Date</Text>
+                          <TouchableOpacity onPress={confirmFilterIOSDate} style={styles.pickerHeaderBtn}>
+                            <Text style={styles.pickerConfirmText}>Done</Text>
+                          </TouchableOpacity>
+                        </View>
+                        <View style={styles.iosFilterPickerBody}>
+                          <DateTimePicker
+                            value={tempFilterDate}
+                            mode="date"
+                            display="spinner"
+                            themeVariant="light"
+                            textColor="#000000"
+                            minimumDate={new Date()}
+                            onChange={(_, date) => {
+                              if (date) setTempFilterDate(date);
+                            }}
+                            style={{ height: 216, width: '100%' }}
+                          />
+                        </View>
+                      </View>
+                    </View>
+                  </Modal>
                 )}
               </View>
 
@@ -511,5 +565,60 @@ const styles = StyleSheet.create({
   applyBtn: { flex: 1, marginLeft: 24, borderRadius: 20, backgroundColor: Colors.primary },
   applyBtnContent: { height: 54 },
   applyBtnLabel: { fontFamily: 'Outfit_900Black', fontSize: 15, letterSpacing: 0.5 },
+  iosFilterPickerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iosFilterPickerModal: {
+    backgroundColor: '#FFFFFF',
+    margin: 20,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 8,
+    maxWidth: 420,
+    alignSelf: 'center',
+    width: '90%',
+  },
+  iosFilterPickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    backgroundColor: '#F8FAFC',
+  },
+  pickerHeaderBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  pickerHeaderTitle: {
+    fontFamily: 'Outfit_800ExtraBold',
+    fontSize: 14,
+    color: Colors.charcoal,
+  },
+  pickerCancelText: {
+    fontFamily: 'Outfit_600SemiBold',
+    fontSize: 14,
+    color: Colors.slate[500],
+  },
+  pickerConfirmText: {
+    fontFamily: 'Outfit_800ExtraBold',
+    fontSize: 14,
+    color: Colors.primary,
+  },
+  iosFilterPickerBody: {
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
 });
 export default FilterModal;

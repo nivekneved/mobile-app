@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Alert, TextInput as NativeTextInput } from 'react-native';
+import { View, StyleSheet, ScrollView, Image, TouchableOpacity, Alert, TextInput as NativeTextInput, Platform, Modal as RNModal } from 'react-native';
 import { Text, TextInput, Button, Checkbox, Surface, ActivityIndicator, IconButton } from 'react-native-paper';
 import { useRouter, Stack } from 'expo-router';
 import { safeGoBack } from '../src/utils/navigation';
 import { Colors } from '../src/theme/colors';
-import { CheckCircle, Plus, Minus, ArrowLeft, Send } from 'lucide-react-native';
+import { CheckCircle, Plus, Minus, ArrowLeft, Send, Calendar } from 'lucide-react-native';
 import { supabase } from '../src/lib/supabase';
 import { useSettings } from '../src/context/SettingsContext';
 import { resolveImageUrl } from '../src/utils/imageUtils';
 import { StatusBar } from 'expo-status-bar';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function TailorMadeScreen() {
   const router = useRouter();
   const { generalConfig } = useSettings();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tempDate, setTempDate] = useState<Date>(new Date());
 
   // Form State
   const [formData, setFormData] = useState({
@@ -236,13 +239,21 @@ Marketing Opt-in: ${formData.marketingOptIn ? 'Yes' : 'No'}
 
           <View style={styles.row}>
             <View style={styles.col}>
-               <Text style={styles.inputLabel}>Star Date</Text>
-               <NativeTextInput 
-                placeholder="DD/MM/YYYY" 
-                style={styles.nativeInput}
-                value={formData.departureDate}
-                onChangeText={(t) => setFormData({...formData, departureDate: t})}
-              />
+               <Text style={styles.inputLabel}>Start Date</Text>
+               <TouchableOpacity 
+                 style={styles.datePickerBtn}
+                 onPress={() => {
+                   const cur = formData.departureDate ? new Date(formData.departureDate) : new Date();
+                   setTempDate(isNaN(cur.getTime()) ? new Date() : cur);
+                   setShowDatePicker(true);
+                 }}
+                 activeOpacity={0.7}
+               >
+                 <Calendar size={16} color={Colors.primary} />
+                 <Text style={styles.datePickerBtnText}>
+                   {formData.departureDate || 'Select Date'}
+                 </Text>
+               </TouchableOpacity>
             </View>
             <View style={styles.col}>
                <Text style={styles.inputLabel}>Nights</Text>
@@ -256,6 +267,66 @@ Marketing Opt-in: ${formData.marketingOptIn ? 'Yes' : 'No'}
             </View>
           </View>
         </Surface>
+
+        {/* Android Date Picker */}
+        {Platform.OS === 'android' && showDatePicker && (
+          <DateTimePicker
+            value={tempDate}
+            mode="date"
+            display="default"
+            minimumDate={new Date()}
+            onChange={(event, date) => {
+              setShowDatePicker(false);
+              if (event.type === 'set' && date) {
+                setFormData({ ...formData, departureDate: date.toISOString().split('T')[0] });
+              }
+            }}
+          />
+        )}
+
+        {/* iOS Date Picker Modal */}
+        {Platform.OS === 'ios' && showDatePicker && (
+          <RNModal
+            visible={true}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setShowDatePicker(false)}
+          >
+            <View style={styles.iosPickerOverlay}>
+              <View style={styles.iosPickerModal}>
+                <View style={styles.iosPickerHeader}>
+                  <TouchableOpacity onPress={() => setShowDatePicker(false)} style={styles.pickerHeaderBtn}>
+                    <Text style={styles.pickerCancelText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.pickerHeaderTitle}>Select Start Date</Text>
+                  <TouchableOpacity 
+                    onPress={() => {
+                      setFormData({ ...formData, departureDate: tempDate.toISOString().split('T')[0] });
+                      setShowDatePicker(false);
+                    }} 
+                    style={styles.pickerHeaderBtn}
+                  >
+                    <Text style={styles.pickerConfirmText}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.iosPickerBody}>
+                  <DateTimePicker
+                    value={tempDate}
+                    mode="date"
+                    display="spinner"
+                    themeVariant="light"
+                    textColor="#000000"
+                    minimumDate={new Date()}
+                    onChange={(_, date) => {
+                      if (date) setTempDate(date);
+                    }}
+                    style={{ height: 216, width: '100%' }}
+                  />
+                </View>
+              </View>
+            </View>
+          </RNModal>
+        )}
 
         {/* Step 3: Guests */}
         <Surface style={styles.card} elevation={0}>
@@ -413,6 +484,75 @@ const styles = StyleSheet.create({
   submitBtn: { borderRadius: 16, backgroundColor: Colors.charcoal },
   submitBtnContent: { height: 64 },
   submitBtnLabel: { fontFamily: 'Outfit_900Black', fontSize: 14, letterSpacing: 2 },
+  datePickerBtn: {
+    backgroundColor: '#F1F5F9',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  datePickerBtnText: {
+    fontFamily: 'Outfit_600SemiBold',
+    fontSize: 14,
+    color: Colors.charcoal,
+  },
+  iosPickerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iosPickerModal: {
+    backgroundColor: '#FFFFFF',
+    margin: 20,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 8,
+    maxWidth: 420,
+    alignSelf: 'center',
+    width: '90%',
+  },
+  iosPickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    backgroundColor: '#F8FAFC',
+  },
+  pickerHeaderBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  pickerHeaderTitle: {
+    fontFamily: 'Outfit_800ExtraBold',
+    fontSize: 14,
+    color: Colors.charcoal,
+  },
+  pickerCancelText: {
+    fontFamily: 'Outfit_600SemiBold',
+    fontSize: 14,
+    color: Colors.slate[500],
+  },
+  pickerConfirmText: {
+    fontFamily: 'Outfit_800ExtraBold',
+    fontSize: 14,
+    color: Colors.primary,
+  },
+  iosPickerBody: {
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
   successRoot: { flex: 1, backgroundColor: Colors.white, justifyContent: 'center', alignItems: 'center', padding: 40 },
   successTitle: { fontFamily: 'Outfit_900Black', fontSize: 28, color: Colors.charcoal, marginTop: 24, marginBottom: 12 },
   successText: { fontFamily: 'Outfit_500Medium', fontSize: 16, color: Colors.slate[400], textAlign: 'center', lineHeight: 24, marginBottom: 40 },
