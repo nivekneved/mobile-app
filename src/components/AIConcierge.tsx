@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, TouchableOpacity, Dimensions, Animated, TextInput, KeyboardAvoidingView, Platform, Image, ScrollView } from 'react-native';
 import { Text, Surface, Portal, Modal, ActivityIndicator } from 'react-native-paper';
-import { MessageSquare, X, Mic, Send, Volume2, Sparkles, Headphones } from 'lucide-react-native';
+import { MessageSquare, X, Send, Sparkles } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 import * as Linking from 'expo-linking';
 import { useSettings } from '../context/SettingsContext';
@@ -20,7 +20,6 @@ export const AIConcierge = () => {
   const insets = useSafeAreaInsets();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [isListening, setIsListening] = useState(false);
   const { mobileConfig, generalConfig } = useSettings();
   const fadeAnim = useState(new Animated.Value(0))[0];
   const slideAnim = useState(new Animated.Value(20))[0];
@@ -95,13 +94,6 @@ export const AIConcierge = () => {
     const whatsappUrl = `https://wa.me/${phone.replace(/\s+/g, '').replace('+', '')}?text=${encodedMessage}`;
     Linking.openURL(whatsappUrl);
     setIsOpen(false);
-  };
-
-  const handleVoiceDesk = () => {
-    const phone = mobileConfig?.supportPhone || generalConfig?.whatsappNumber1 || '15556767954';
-    const cleanPhone = phone.replace(/\s+/g, '').replace('+', '');
-    const voiceMsg = encodeURIComponent("Hi Travel Lounge! I would like to speak with the AI Voice Concierge to plan my trip.");
-    Linking.openURL(`https://wa.me/${cleanPhone}?text=${voiceMsg}`);
   };
 
   const fabBottomOffset = (insets.bottom || 16) + 72;
@@ -194,15 +186,9 @@ export const AIConcierge = () => {
                   style={styles.inputField}
                   value={message}
                   onChangeText={setMessage}
+                  onSubmitEditing={handleSend}
+                  returnKeyType="send"
                 />
-                <TouchableOpacity 
-                  style={styles.micBtn} 
-                  onPress={handleVoiceDesk}
-                  accessibilityLabel="Voice Concierge"
-                  activeOpacity={0.7}
-                >
-                  <Mic size={20} color={Colors.primary} />
-                </TouchableOpacity>
                 <TouchableOpacity 
                   style={[styles.sendIconBtn, !message.trim() && styles.sendIconBtnDisabled]}
                   onPress={handleSend}
@@ -420,20 +406,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     flex: 1,
     fontFamily: 'Outfit_500Medium',
-  },
-  micBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  micBtnActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
   },
   sendIconBtn: {
     width: 44,

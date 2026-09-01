@@ -131,7 +131,7 @@ export default function ProfileScreen() {
               icon={Shield} 
               title="Privacy & Security" 
               subtitle="Passwords and data preferences" 
-              onPress={() => Linking.openURL('https://eco-travellounge.mu/privacy-policy')}
+              onPress={() => Linking.openURL('https://travellounge.mu/privacy-policy')}
             />
           </Surface>
 
