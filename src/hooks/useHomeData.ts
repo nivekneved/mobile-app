@@ -127,7 +127,7 @@ export const useHomeData = () => {
         ] = await Promise.all([
           supabase.from('hero_slides').select('*').order('order_index', { ascending: true }),
           supabase.from('categories').select('*').eq('is_active', true).order('display_order', { ascending: true, nullsFirst: false }),
-          supabase.from('services').select('*').order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(10),
+          supabase.from('services').select('*').eq('is_seasonal_deal', true).eq('is_active', true).order('rating', { ascending: false }).limit(10),
           supabase.from('services').select('region').not('region', 'is', null)
         ]);
 
@@ -158,7 +158,7 @@ export const useHomeData = () => {
             const categoryObj = sCats?.[0]?.categories as any;
             const categoryName = (Array.isArray(categoryObj) ? categoryObj[0]?.name : categoryObj?.name) || s.service_type || 'Experience';
             const lowestPrice = calculateLeadPrice(sPricing, s.service_type, s.price, allRooms);
-            return { ...s, price: lowestPrice, lowestPrice, category: categoryName };
+            return { ...s, price: lowestPrice, lowestPrice, category: categoryName, is_seasonal: Boolean(s.is_seasonal_deal ?? s.is_seasonal) };
           });
         }
 
