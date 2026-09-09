@@ -74,6 +74,10 @@ ehthumbs.db
 desktop.ini
 
 # Environment Files & Secrets
+access
+access.*
+access.md
+*access*
 .env
 .env*
 .env.local

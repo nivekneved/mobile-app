@@ -20,14 +20,12 @@
 ---
 
 ## 📱 App Store & Configuration Metadata
-
 - **App Version / Build**: `1.3.2` (iOS Build `5`, Android VersionCode `19`)
-- **iOS Device Family**: iPhone (`supportsTablet: false` - standard 1x/2x iPad emulation)
+- **iOS Device Family**: iPhone (`supportsTablet: false` - standard iPad emulation)
 - **iOS Bundle ID**: `com.travellounge.mu`
-- **Apple Developer Team ID**: `383G9QQ5CP` (Travellounge / Medic Assistance International Ltd)
 - **Apple App ID**: `6794678454`
-- **Apple ID**: `devenpawaray@gmail.com`
 - **Android Package**: `com.travellounge.mu`
+- **Apple Developer Account Details**: See `access`
 - **Privacy Policy URL**: `https://travellounge.mu/privacy`
 - **Support URL**: `https://travellounge.mu`
 
