@@ -52,20 +52,33 @@ export default function LocalDealsScreen() {
       if (servicesRaw && servicesRaw.length > 0) {
         const serviceIds = servicesRaw.map((s: any) => s.id);
         const [pricingRes, categoriesRes, roomTypesRes] = await Promise.all([
-          Promise.all(serviceIds.map(id =>
-            supabase.from('service_pricing').select('service_id, price, occupancy_pricing').eq('service_id', id).limit(5)
-          )),
+          supabase.from('service_pricing').select('service_id, price, occupancy_pricing').in('service_id', serviceIds).limit(100),
           supabase.from('service_categories').select('service_id, categories(name)').in('service_id', serviceIds),
-          Promise.all(serviceIds.map(id =>
-            supabase.from('room_types').select('service_id, price, weekday_price, weekend_price').eq('service_id', id).limit(5)
-          ))
+          supabase.from('room_types').select('service_id, price, weekday_price, weekend_price').in('service_id', serviceIds)
         ]);
 
+        const pricingList = pricingRes.data || [];
         const categoriesRel = categoriesRes.data || [];
-        const mapped = servicesRaw.map((s: any, idx: number) => {
-          const sPricing = pricingRes[idx]?.data || [];
+        const roomTypesList = roomTypesRes.data || [];
+
+        const pricingMap = new Map<string, any[]>();
+        for (const p of pricingList) {
+          const arr = pricingMap.get(p.service_id) || [];
+          arr.push(p);
+          pricingMap.set(p.service_id, arr);
+        }
+
+        const roomsMap = new Map<string, any[]>();
+        for (const r of roomTypesList) {
+          const arr = roomsMap.get(r.service_id) || [];
+          arr.push(r);
+          roomsMap.set(r.service_id, arr);
+        }
+
+        const mapped = servicesRaw.map((s: any) => {
+          const sPricing = pricingMap.get(s.id) || [];
           const sCats = categoriesRel.filter((c: any) => c.service_id === s.id);
-          const sRooms = roomTypesRes[idx]?.data || [];
+          const sRooms = roomsMap.get(s.id) || [];
           const categoryObj = sCats?.[0]?.categories as any;
           const categoryName = (Array.isArray(categoryObj) ? categoryObj[0]?.name : categoryObj?.name) || s.service_type || 'Hotel & Stay';
           

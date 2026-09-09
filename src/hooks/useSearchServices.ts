@@ -154,21 +154,34 @@ export const useSearchServices = () => {
       if (pagedRaw && pagedRaw.length > 0) {
         const serviceIds = pagedRaw.map((s: any) => s.id);
         const [
-          pricingResults,
-          roomTypesResults
+          pricingRes,
+          roomTypesRes
         ] = await Promise.all([
-          Promise.all(serviceIds.map(id => 
-            supabase.from('service_pricing').select('service_id, price, occupancy_pricing').eq('service_id', id).limit(10)
-          )),
-          Promise.all(serviceIds.map(id => 
-            supabase.from('room_types').select('service_id, price, weekday_price, weekend_price, prices').eq('service_id', id)
-          ))
+          supabase.from('service_pricing').select('service_id, price, occupancy_pricing').in('service_id', serviceIds).limit(100),
+          supabase.from('room_types').select('service_id, price, weekday_price, weekend_price, prices').in('service_id', serviceIds)
         ]);
 
-        mappedServices = pagedRaw.map((s: any, idx: number) => {
+        const pricingList = pricingRes.data || [];
+        const roomTypesList = roomTypesRes.data || [];
+
+        const pricingMap = new Map<string, any[]>();
+        for (const p of pricingList) {
+          const arr = pricingMap.get(p.service_id) || [];
+          arr.push(p);
+          pricingMap.set(p.service_id, arr);
+        }
+
+        const roomsMap = new Map<string, any[]>();
+        for (const r of roomTypesList) {
+          const arr = roomsMap.get(r.service_id) || [];
+          arr.push(r);
+          roomsMap.set(r.service_id, arr);
+        }
+
+        mappedServices = pagedRaw.map((s: any) => {
           const categoryName = s.service_categories?.[0]?.categories?.name || s.service_type || 'Experience';
-          const sPricing = pricingResults[idx]?.data || [];
-          const sRooms = roomTypesResults[idx]?.data || [];
+          const sPricing = pricingMap.get(s.id) || [];
+          const sRooms = roomsMap.get(s.id) || [];
           const allRooms = [...(Array.isArray(s.room_types) ? s.room_types : []), ...sRooms];
           const lowestPrice = calculateLeadPrice(sPricing, s.service_type, s.price, allRooms);
 
