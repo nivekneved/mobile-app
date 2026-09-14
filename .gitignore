@@ -86,6 +86,13 @@ access.md
 .env.production.local
 .env*.local
 docs/credentials.json
+*recovery*.txt
+*recovery*
+*secret*.txt
+*token*.txt
+*twilio*
+*2FA*
+*credential*
 
 # TypeScript Build Info
 *.tsbuildinfo

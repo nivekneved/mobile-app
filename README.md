@@ -36,7 +36,10 @@
 1. **No Online Payments**: The app operates purely as a discovery, concierge, and inquiry dispatch engine. No direct in-app payment transactions or credit card gateways are executed inside the mobile app.
 2. **No In-App Purchases (IAP)**: 100% free app without digital subscriptions, locked features, or paid consumables (exempt from Apple IAP).
 3. **No Advertisements (No Ads)**: Zero third-party advertising SDKs, ad banners, popups, or user-tracking frameworks (IDFA / ATT not required).
-4. **Apple Privacy Manifest**: Declares `NSPrivacyTracking: false`, collected lead contact data (Name, Email, Phone) linked strictly for App Functionality, and `NSPrivacyAccessedAPICategoryUserDefaults` (`CA92.1`).
+4. **App Store Compliance Hardening**:
+   - Redundant microphone button removed from search header per App Store review guidelines (voice transcription handled cleanly via standard system keyboard dictation and WhatsApp audio).
+   - Credential hygiene: fallback hardcoded Supabase project URLs completely eradicated from `imageUtils.ts`.
+5. **Apple Privacy Manifest**: Declares `NSPrivacyTracking: false`, collected lead contact data (Name, Email, Phone) linked strictly for App Functionality, and `NSPrivacyAccessedAPICategoryUserDefaults` (`CA92.1`).
 
 ---
 
@@ -97,7 +100,7 @@ mobile-app/
 │   ├── hooks/                # useHomeData & useSearchServices (batched queries)
 │   ├── lib/                  # Supabase client & i18n
 │   ├── theme/                # Color palettes & typography tokens
-│   └── utils/                # Navigation & image resolution helpers
+│   └── utils/                # Navigation & image resolution helpers (zero hardcoded URLs)
 ├── app.json                  # Expo app manifest & Apple Privacy Manifest
 └── eas.json                  # EAS build profiles (preview, production)
 ```
@@ -107,4 +110,5 @@ mobile-app/
 ## 📚 Ecosystem Documentation
 - Master Rules: [`.agents/AGENTS.md`](../.agents/AGENTS.md)
 - Operations Runbook: [`ECOSYSTEM_RUNBOOK.md`](../ECOSYSTEM_RUNBOOK.md)
+- Addons Catalog: [`addons/README.md`](../addons/README.md)
 - Database Reference: [`DATABASE_AND_BACKUPS.md`](../DATABASE_AND_BACKUPS.md)
