@@ -17,6 +17,7 @@ web-build/
 expo-env.d.ts
 .turbo/
 .cache/
+SaaS licensing/
 
 # Native Mobile Builds, Caches & Archives
 /ios/build/
