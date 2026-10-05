@@ -35,6 +35,11 @@ All production secrets and private API keys live in the gitignored `access` file
 * **Flight AI Concierge & Primary Ticketing Desk**: `+230 5256 9840` (`23052569840`)
 * **Live Autonomous Cloud Gateway (Render 24/7)**: [https://whatsapp-flight-addon.onrender.com](https://whatsapp-flight-addon.onrender.com)
 * **Keep-Alive Ping Endpoint (UptimeRobot)**: `https://whatsapp-flight-addon.onrender.com/ping`
+* **Live System Diagnostics Dashboard**: [https://whatsapp-flight-addon.onrender.com/diagnose](https://whatsapp-flight-addon.onrender.com/diagnose)
+* **Live JSON Diagnostics API**: `https://whatsapp-flight-addon.onrender.com/diagnostics`
+* **CLI Diagnostics Runner (Root)**: `node scripts/diagnose_ecosystem.js`
+* **CLI Diagnostics Runner (Addon)**: `node whatsapp-flight-addon/diagnose.js`
+* **Subsystems Monitored**: OnRender container keep-alive, UptimeRobot HTTP 200, Baileys pairing & auth files, GolIBE live GDS flights, Supabase REST CRM, OpenAI/Gemini AI models.
 * **Gateway Technology**: Self-Hosted Baileys Multi-Device Web Gateway (Zero-Quota, Unlimited Messaging, Instant Live GolIBE GDS Fares)
 * **Session Lifecycle**: Strict auto-reset on new search requests; zero stale data reuse across prior inquiries
 * **Leisure & Tours Desk**: `+230 5256 9838` (`23052569838`)
