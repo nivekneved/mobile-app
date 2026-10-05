@@ -31,8 +31,12 @@ All production secrets and private API keys live in the gitignored `access` file
 
 ---
 
-### 💬 Meta WhatsApp & Flight Addon
+### 💬 WhatsApp AI Flight Concierge & Autonomous Gateway
 * **Flight AI Concierge & Primary Ticketing Desk**: `+230 5256 9840` (`23052569840`)
+* **Live Autonomous Cloud Gateway (Render 24/7)**: [https://whatsapp-flight-addon.onrender.com](https://whatsapp-flight-addon.onrender.com)
+* **Keep-Alive Ping Endpoint (UptimeRobot)**: `https://whatsapp-flight-addon.onrender.com/ping`
+* **Gateway Technology**: Self-Hosted Baileys Multi-Device Web Gateway (Zero-Quota, Unlimited Messaging, Instant Live GolIBE GDS Fares)
+* **Session Lifecycle**: Strict auto-reset on new search requests; zero stale data reuse across prior inquiries
 * **Leisure & Tours Desk**: `+230 5256 9838` (`23052569838`)
 * **Head Office Telephone**: `+230 212 4070`
 * **Head Office Email**: `reservation@travellounge.mu` / `inquiry@travellounge.mu`
