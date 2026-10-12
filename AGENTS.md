@@ -45,9 +45,13 @@ All production secrets and private API keys live in the gitignored `access` file
 * **Leisure & Tours Desk**: `+230 5256 9838` (`23052569838`)
 * **Head Office Telephone**: `+230 212 4070`
 * **Head Office Email**: `reservation@travellounge.mu` / `inquiry@travellounge.mu`
+* **Vercel Webhook Endpoint**: `https://whatsapp-flight-addon.vercel.app/api/webhook`
+* **Vercel Project Dashboard**: [https://vercel.com/travellounges-projects-de948577/whatsapp-flight-addon](https://vercel.com/travellounges-projects-de948577/whatsapp-flight-addon)
+* **Desk Setup & Pairing Guide**: See [`ECOSYSTEM_RUNBOOK.md`](../ECOSYSTEM_RUNBOOK.md#5-whatsapp-flight-addon--ai-concierge-engine) & [`whatsapp-flight-addon/DEPLOYMENT.md`](../whatsapp-flight-addon/DEPLOYMENT.md)
 * **Meta WABA ID, Phone ID & Verify Token**: See `access`
 
 ---
+
 
 ### 📞 Twilio WhatsApp Fallback Gateway
 * **Twilio SID & Auth**: See `access`

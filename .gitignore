@@ -15,6 +15,7 @@ bin/
 out/
 web-build/
 expo-env.d.ts
+auth_info_baileys/
 .turbo/
 .cache/
 SaaS licensing/
