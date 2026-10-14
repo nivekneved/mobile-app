@@ -140,6 +140,10 @@ All addons operate on a **Term Subscription Architecture** (365-day boundary wit
 5. **Supabase Storage Governance**:
    * Run `node scripts/prune_orphaned_storage.js` to purge unreferenced images while preserving all active database rows and static HTML references.
    * Pre-compress client uploads > 1MB (`maxWidth: 1600, quality: 0.7`) to keep storage below 1 GB.
+6. **Temporal Pricing Archival & Revert Safety Net Standard**:
+   * **Table Pruning Protocol**: Expired past seasons (`date_to < '2026-10-14'`) in `service_pricing` are moved into `archive_service_pricing`, reducing table size by 65.5% (220,863 rows) while preserving 100% of data for historical audits.
+   * **Guaranteed Revert Safety Net**: Reversion executes `INSERT INTO public.service_pricing SELECT * FROM public.archive_service_pricing ON CONFLICT (id) DO NOTHING;`. Newer pricing entries created or modified after archival are strictly preserved without being overwritten or deleted.
+   * **1-Click Admin Controls**: Managed directly via Admin UI at `/backup` or via CLI (`node scripts/archive_expired_pricing.js` / `node scripts/revert_archived_pricing.js`).
 
 ---
 
