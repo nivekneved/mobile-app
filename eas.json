@@ -13,6 +13,8 @@
         "simulator": true
       },
       "env": {
+        "EXPO_PUBLIC_WEB_URL": "https://travellounge.mu",
+        "EXPO_PUBLIC_NEON_STORAGE_URL": "https://br-restless-bird-b523vgvb.storage.c-7.us-east-2.aws.neon.tech/bucket",
         "EXPO_PUBLIC_SUPABASE_URL": "https://tbyudagfjspedeqtlgjv.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_R0eiOHYXN90Jq6NuYBeTQA_hRpJ42UL"
       }
@@ -23,6 +25,8 @@
         "buildType": "apk"
       },
       "env": {
+        "EXPO_PUBLIC_WEB_URL": "https://travellounge.mu",
+        "EXPO_PUBLIC_NEON_STORAGE_URL": "https://br-restless-bird-b523vgvb.storage.c-7.us-east-2.aws.neon.tech/bucket",
         "EXPO_PUBLIC_SUPABASE_URL": "https://tbyudagfjspedeqtlgjv.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_R0eiOHYXN90Jq6NuYBeTQA_hRpJ42UL",
         "EXPO_PUBLIC_API_URL": "http://10.0.2.2:5000/api"
@@ -33,6 +37,8 @@
         "image": "latest"
       },
       "env": {
+        "EXPO_PUBLIC_WEB_URL": "https://travellounge.mu",
+        "EXPO_PUBLIC_NEON_STORAGE_URL": "https://br-restless-bird-b523vgvb.storage.c-7.us-east-2.aws.neon.tech/bucket",
         "EXPO_PUBLIC_SUPABASE_URL": "https://tbyudagfjspedeqtlgjv.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_R0eiOHYXN90Jq6NuYBeTQA_hRpJ42UL"
       }
