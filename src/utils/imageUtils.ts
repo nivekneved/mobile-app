@@ -54,50 +54,30 @@ export const resolveImageUrl = (
     return require('../../assets/icon.png');
   }
 
+  const neonStorageUrl = process.env.EXPO_PUBLIC_NEON_STORAGE_URL || 'https://br-restless-bird-b523vgvb.storage.c-7.us-east-2.aws.neon.tech/bucket';
+
   // 2. Handle Absolute URLs (external or already resolved)
   if (typeof url === 'string' && url.startsWith('http')) {
     let finalUrl = url;
-    // PRESERVED ORIGINAL TRANSFORM URL LOGIC AS COMMENT PER USER RULES:
-    /*
-    if (url.includes('supabase.co/storage/v1/render/image/public') || url.includes('supabase.co/storage/v1/object/public')) {
-      const separator = url.includes('?') ? '&' : '?';
-      if (width) finalUrl += `${separator}width=${width}`;
-      if (height) finalUrl += `${finalUrl.includes('?') ? '&' : '?'}height=${height}`;
-      if (width || height) finalUrl += `&quality=80&resize=contain`;
-    }
-    */
-    // Clean URL resolution without broken render params:
-    if (url.includes('supabase.co/storage/v1/render/image/public')) {
-      finalUrl = url.replace('/storage/v1/render/image/public/', '/storage/v1/object/public/').split('?')[0];
+    // Automatically route legacy Supabase bucket URLs to Neon Object Storage
+    if (url.includes('supabase.co/storage/v1/')) {
+      const bucketMatch = url.match(/\/(?:object|render\/image)\/public\/bucket\/([^?]+)/);
+      if (bucketMatch && bucketMatch[1]) {
+        return { uri: `${neonStorageUrl.replace(/\/+$/, '')}/${bucketMatch[1]}` };
+      }
     }
     return { uri: finalUrl };
   }
 
-  // 3. Handle Relative Supabase Paths
-  const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
-  if (!supabaseUrl || typeof url !== 'string') return { uri: url || '' };
+  // 3. Handle Relative Storage Paths -> Neon Object Storage
+  if (typeof url !== 'string') return { uri: '' };
 
-  let filePath = url;
-  let finalBucket = 'bucket';
-
-  if (url.startsWith('bucket/')) {
-    filePath = url.replace('bucket/', '');
+  let filePath = url.replace(/^\/+/, '');
+  if (filePath.startsWith('bucket/')) {
+    filePath = filePath.replace(/^bucket\//, '');
   }
 
-  const baseUrl = `${supabaseUrl}/storage/v1/object/public/${finalBucket}/${filePath}`;
-  
-  // PRESERVED ORIGINAL RENDER TRANSFORMATION CODE COMMENTED OUT PER USER RULES:
-  /*
-  if (width || height) {
-    const renderUrl = `${supabaseUrl}/storage/v1/render/image/public/${finalBucket}/${filePath}`;
-    let transform = '?';
-    if (width) transform += `width=${width}`;
-    if (height) transform += `${transform.length > 1 ? '&' : ''}height=${height}`;
-    return { uri: `${renderUrl}${transform}&quality=80&resize=cover` };
-  }
-  */
-
-  // Return reliable 200 OK object storage URL natively supported by Supabase
+  const baseUrl = `${neonStorageUrl.replace(/\/+$/, '')}/${filePath}`;
   return { uri: baseUrl };
 };
 
