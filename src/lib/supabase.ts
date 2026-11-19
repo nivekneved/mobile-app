@@ -1,18 +1,22 @@
 import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
+import { MobileNeonQueryBuilder } from './neonFailover';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('[Supabase] Environment variables EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY are required.');
-}
-
-// Initializing the Supabase client with auth minimized as per user request
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+const rawSupabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: false,
     autoRefreshToken: false,
     detectSessionInUrl: false,
   },
 });
+
+// Route all database queries to our live Neon Lakebase Postgres via https://travellounge.mu/api/db/query
+const neonClient: any = Object.create(rawSupabase);
+neonClient.from = (table: string) => new MobileNeonQueryBuilder(table);
+neonClient.auth = rawSupabase.auth;
+neonClient.storage = rawSupabase.storage;
+
+export const supabase = neonClient;

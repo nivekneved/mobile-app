@@ -40,10 +40,11 @@ export default function LocalDealsScreen() {
       //   .in('category', ['hotel', 'day_package', 'activity', 'land_activity', 'sea_activity'])
       //   .order('is_seasonal', { ascending: false });
 
+      const today = new Date().toISOString().split('T')[0];
       const { data: servicesRaw, error: servicesError } = await supabase
         .from('services')
-        .select('*')
-        .eq('status', 'active')
+        .select('*, service_categories(categories(name, slug))')
+        .eq('is_active', true)
         .order('priority', { ascending: false })
         .limit(30);
 
@@ -51,14 +52,13 @@ export default function LocalDealsScreen() {
 
       if (servicesRaw && servicesRaw.length > 0) {
         const serviceIds = servicesRaw.map((s: any) => s.id);
-        const [pricingRes, categoriesRes, roomTypesRes] = await Promise.all([
-          supabase.from('service_pricing').select('service_id, price, occupancy_pricing').in('service_id', serviceIds).limit(100),
-          supabase.from('service_categories').select('service_id, categories(name)').in('service_id', serviceIds),
-          supabase.from('room_types').select('service_id, price, weekday_price, weekend_price').in('service_id', serviceIds)
+        const [pricingRes, roomTypesRes] = await Promise.all([
+          supabase.from('service_pricing').select('service_id, variant_id, price, occupancy_pricing, is_stop_sell').in('service_id', serviceIds).lte('date_from', today).gte('date_to', today).limit(10000),
+          supabase.from('room_types').select('id, service_id, price, weekday_price, weekend_price').in('service_id', serviceIds)
         ]);
 
-        const pricingList = pricingRes.data || [];
-        const categoriesRel = categoriesRes.data || [];
+        const pricingList = (pricingRes.data || []).filter((p: any) => !p.is_stop_sell);
+        const categoriesRel: any[] = [];
         const roomTypesList = roomTypesRes.data || [];
 
         const pricingMap = new Map<string, any[]>();

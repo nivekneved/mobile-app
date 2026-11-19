@@ -37,6 +37,8 @@ export const resolveImageUrl = (
 
   // 1. Handle bundle assets (if starting with /assets/ or relative path we recognize)
   if (typeof url === 'string' && (url.startsWith('assets/') || url.includes('/assets/'))) {
+    if (url.includes('logo.png') || url.includes('tlounge-logo')) return require('../../assets/logo.png');
+    if (url.includes('logo-white')) return require('../../assets/logo-white.png');
     if (url.includes('activities')) return require('../../assets/categories/activities.jpg');
     if (url.includes('day-packages')) return require('../../assets/categories/day-packages.jpg');
     if (url.includes('cruises')) return require('../../assets/categories/cruises.jpg');

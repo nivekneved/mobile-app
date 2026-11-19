@@ -49,7 +49,7 @@ export const AIConcierge = () => {
     }
   }, [isOpen]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!message.trim()) return;
 
     const userMsg: ChatMessage = {
@@ -59,31 +59,47 @@ export const AIConcierge = () => {
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
     const currentInput = message;
     setMessage('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      setIsTyping(false);
-      let replyText = "I've noted your request. To coordinate your bespoke arrangements, click 'Connect to WhatsApp' below to dispatch your inquiry and full transcript directly to our concierge desk.";
-      
-      const lower = currentInput.toLowerCase();
-      if (lower.includes('hotel') || lower.includes('resort') || lower.includes('stay') || lower.includes('room')) {
-        replyText = "I can highly recommend our premier properties like Anelia Resort & Spa or Tamassa Resorts. Would you like to explore our hotels and room availability?";
-      } else if (lower.includes('transfer') || lower.includes('airport') || lower.includes('car') || lower.includes('pickup')) {
-        replyText = "We offer private VIP airport pickups and flight booking assistance. You can book airport transfers directly inside the booking modal add-ons selection!";
-      } else if (lower.includes('deal') || lower.includes('promo') || lower.includes('offer')) {
-        replyText = "We have active seasonal deals for Mauritian stays! You can discover them on the Explore page or by tapping the help widgets.";
-      }
+    try {
+      const apiBase = (process.env.EXPO_PUBLIC_WEB_URL || 'https://travellounge.mu').replace(/\/+$/, '');
+      const res = await fetch(`${apiBase}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: nextMessages.slice(-8).map(m => ({
+            role: m.sender === 'user' ? 'user' : 'assistant',
+            content: m.text,
+          })),
+        }),
+      });
+      const json = await res.json().catch(() => null);
+      const replyText =
+        json?.reply ||
+        json?.message ||
+        json?.content ||
+        "I've noted your request. Tap 'Connect to WhatsApp' below to chat directly with our Travel Lounge concierge desk (+230 5256 9840).";
 
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
-        text: replyText,
+        text: String(replyText),
         sender: 'bot',
         timestamp: new Date(),
       }]);
-    }, 1000);
+    } catch {
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 1).toString(),
+        text: "I've noted your request. Tap 'Connect to WhatsApp' below to speak directly with our live Travel Lounge concierge desk (+230 5256 9840).",
+        sender: 'bot',
+        timestamp: new Date(),
+      }]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleWhatsAppRedirect = () => {

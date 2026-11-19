@@ -141,10 +141,10 @@ export default function ServiceDetailScreen() {
   const [bookingVisible, setBookingVisible] = React.useState(false);
 
   const handleInquiry = (method: 'whatsapp' | 'email') => {
+    const isLeisureService = ['tour', 'activity', 'day_package', 'evening_package', 'cruise'].includes(String(service?.service_type || '').toLowerCase());
     const contact = {
-      // PRESERVED: phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5940 7701',
-      phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5509 7701',
-      email: generalConfig?.contactEmail || 'devenpawaray@gmail.com'
+      phone: isLeisureService ? '+230 5256 9838' : (mobileConfig?.supportPhone || generalConfig?.whatsappNumber1 || '+230 5940 7701'),
+      email: generalConfig?.contactEmail || 'reservation@travellounge.mu'
     };
     const message = `Inquiry for: ${service?.name} (ID: ${id})`;
     if (method === 'whatsapp') Linking.openURL(`https://wa.me/${contact.phone.replace(/\+/g, '')}?text=${encodeURIComponent(message)}`);
@@ -201,7 +201,7 @@ export default function ServiceDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false} style={styles.container} stickyHeaderIndices={[1]}>
         {/* Elite Image Header / Gallery */}
         <View style={styles.imageContainer}>
-          {(service.gallery_images && service.gallery_images.length > 0) ? (
+          {(Array.isArray(service.gallery_images) && service.gallery_images.length > 0) ? (
             <PremiumCarousel
               data={service.gallery_images.map(img => ({ image: img }))}
               itemWidth={width}
@@ -272,7 +272,9 @@ export default function ServiceDetailScreen() {
           <View style={styles.valuationHeader}>
             <View>
               <Text style={styles.valuationLabel}>EXECUTIVE PRICE</Text>
-              <Text style={styles.valuationValue}>Rs {(service.price ?? 0).toLocaleString()}</Text>
+              <Text style={styles.valuationValue}>
+                {service.price && Number(service.price) > 0 ? `Rs ${Number(service.price).toLocaleString()}` : 'On Request'}
+              </Text>
             </View>
             <View style={styles.benefitBadge}>
                <Sparkles size={14} color="#D97706" />
@@ -336,7 +338,7 @@ export default function ServiceDetailScreen() {
           </View>
 
           {/* Multi-Image Experience Gallery */}
-          {service.gallery_images && service.gallery_images.length > 0 && (
+          {Array.isArray(service.gallery_images) && service.gallery_images.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Multi-Image Experience</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.galleryContent}>
@@ -637,7 +639,9 @@ export default function ServiceDetailScreen() {
       <Surface style={[styles.footerBar, { height: 68 + insets.bottom, paddingBottom: insets.bottom > 0 ? insets.bottom : 8 }]} elevation={5}>
           <View style={styles.footerInfo}>
               <Text style={styles.footerPriceLabel}>AS FROM</Text>
-              <Text style={styles.footerPriceVal}>Rs {service?.price?.toLocaleString() || '0'}</Text>
+              <Text style={styles.footerPriceVal}>
+                {service?.price && Number(service.price) > 0 ? `Rs ${Number(service.price).toLocaleString()}` : 'On Request'}
+              </Text>
           </View>
          <TouchableOpacity style={styles.footerCta} onPress={() => setBookingVisible(true)} activeOpacity={0.85}>
              <Text style={styles.footerCtaText}>CONTINUE BOOKING</Text>

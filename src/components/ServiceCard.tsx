@@ -87,14 +87,16 @@ export const ServiceCard = ({
           )}
 
           <View style={styles.priceTag}>
-            <Text style={styles.priceLabel}>{labels.as_from || 'AS FROM'}</Text>
-            {Boolean(strikethrough_price && Number(strikethrough_price) > Number(price)) && (
+            <Text style={styles.priceLabel}>
+              {price && Number(price) > 0 ? (labels.as_from || 'AS FROM') : 'RATE'}
+            </Text>
+            {Boolean(price && Number(price) > 0 && strikethrough_price && Number(strikethrough_price) > Number(price)) && (
               <Text style={styles.strikethroughPrice}>
                 Rs {Number(strikethrough_price).toLocaleString()}
               </Text>
             )}
             <Text style={styles.priceValue}>
-              Rs {price?.toLocaleString() || '0'}
+              {price && Number(price) > 0 ? `Rs ${Number(price).toLocaleString()}` : 'On Request'}
             </Text>
           </View>
         </View>

@@ -53,8 +53,11 @@ const Footer = () => {
   }, [fetchSettings]);
 
   const handleSubscribe = async () => {
-    const sanitizedEmail = email.trim();
-    if (!sanitizedEmail || sanitizedEmail.length < 5) return;
+    const sanitizedEmail = email.trim().toLowerCase();
+    const emailRegex = /^[A-Za-z0-9._+%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!emailRegex.test(sanitizedEmail) || sanitizedEmail.includes('...') || /(\w)\1{4,}/.test(sanitizedEmail)) {
+      return;
+    }
 
     setSubmitting(true);
     setSuccess(false);
@@ -77,13 +80,11 @@ const Footer = () => {
     }
   };
 
-  // PRESERVED: const contactPhone = settings?.contactPhone || '+230 5940 7701';
-  const contactPhone = settings?.contactPhone || '+230 5509 7701';
+  const contactPhone = settings?.contactPhone || '+230 212 4070';
   const facebookUrl = settings?.facebookUrl || 'https://www.facebook.com/travellounge.mu';
   const instagramUrl = settings?.instagramUrl || 'https://www.instagram.com/travellounge_ltd';
-  const tiktokUrl = settings?.tiktokUrl || '';
-  // PRESERVED: const whatsappNumber = settings?.whatsappNumber1 || '23059407701';
-  const whatsappNumber = settings?.whatsappNumber1 || '23055097701';
+  const tiktokUrl = settings?.tiktokUrl || 'https://www.tiktok.com/@travel.lounge.mu';
+  const whatsappNumber = settings?.whatsappNumber1 || '+230 5940 7701';
   const labels = settings?.ui_labels || {};
 
   const handlePress = (url: string) => {

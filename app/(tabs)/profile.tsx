@@ -56,8 +56,8 @@ export default function ProfileScreen() {
 
   const handleSupport = (method: 'whatsapp' | 'email') => {
     const contact = {
-      phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5509 7701',
-      email: generalConfig?.contactEmail || 'devenpawaray@gmail.com'
+      phone: mobileConfig?.supportPhone || generalConfig?.whatsappNumber1 || '+230 5940 7701',
+      email: generalConfig?.contactEmail || 'reservation@travellounge.mu'
     };
     if (method === 'whatsapp') Linking.openURL(`https://wa.me/${contact.phone.replace(/\+/g, '')}`);
     if (method === 'email') Linking.openURL(`mailto:${contact.email}`);

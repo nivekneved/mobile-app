@@ -155,7 +155,7 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
         for (let d = new Date(start); d < loopEnd; d.setDate(d.getDate() + 1)) {
           const currentDateStr = d.toISOString().split('T')[0];
           
-          const activePricing = overrides?.find(o => 
+          const activePricing = overrides?.find((o: any) => 
             currentDateStr >= o.date_from && currentDateStr <= o.date_to && isConfiguredOverride(o)
           );
 
@@ -247,13 +247,13 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
         const computedMealOptions: MealOption[] = [];
 
         // Additive supplements
-        const supplementLabels = Array.from(new Set(supplements.map(r => r.label).filter(Boolean)));
+        const supplementLabels = Array.from(new Set(supplements.map((r: any) => r.label).filter(Boolean)));
         supplementLabels.forEach(label => {
           let mealTotal = 0;
           const dailyDetails: any[] = [];
           for (let d = new Date(start); d < loopEnd; d.setDate(d.getDate() + 1)) {
             const currentDateStr = d.toISOString().split('T')[0];
-            const active = supplements.find(r => r.label === label && r.date_from <= currentDateStr && r.date_to >= currentDateStr);
+            const active = supplements.find((r: any) => r.label === label && r.date_from <= currentDateStr && r.date_to >= currentDateStr);
             const rRates = {
               adult: active ? Number(active.price || 0) : 0,
               teen: active ? Number(active.price_teen || 0) : 0,
@@ -267,7 +267,7 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
         });
 
         // Absolute records delta calculation
-        const absoluteIds = Array.from(new Set(absoluteRecords.map(r => r.meal_plan_id).filter(Boolean)));
+        const absoluteIds = Array.from(new Set(absoluteRecords.map((r: any) => r.meal_plan_id).filter(Boolean)));
         let basePricingRecords: any[] = [];
         if (absoluteIds.length > 0) {
           const { data: bpData } = await supabase
@@ -289,7 +289,7 @@ export const useServicePricing = (req: ServicePricingRequest | null) => {
 
           for (let d = new Date(start); d < loopEnd; d.setDate(d.getDate() + 1)) {
             const currentDateStr = d.toISOString().split('T')[0];
-            const activeAbs = absoluteRecords.find(r => r.meal_plan_id === mpId && r.date_from <= currentDateStr && r.date_to >= currentDateStr);
+            const activeAbs = absoluteRecords.find((r: any) => r.meal_plan_id === mpId && r.date_from <= currentDateStr && r.date_to >= currentDateStr);
             const activeBase = basePricingRecords.find(r => r.date_from <= currentDateStr && r.date_to >= currentDateStr);
 
             const getTierPrice = (pricingRec: any) => {

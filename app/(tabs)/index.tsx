@@ -53,9 +53,8 @@ export default function HomeScreen() {
 
   const handleInquiry = (method: 'whatsapp' | 'email' | 'call') => {
     const contact = {
-      // PRESERVED: phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5940 7701',
-      phone: mobileConfig?.supportPhone || generalConfig?.contactPhone || '+230 5509 7701',
-      email: generalConfig?.contactEmail || 'devenpawaray@gmail.com'
+      phone: mobileConfig?.supportPhone || generalConfig?.whatsappNumber1 || generalConfig?.contactPhone || '+230 5940 7701',
+      email: generalConfig?.contactEmail || 'reservation@travellounge.mu'
     };
     if (method === 'whatsapp') Linking.openURL(`https://wa.me/${contact.phone.replace(/\+/g, '')}`);
     if (method === 'email') Linking.openURL(`mailto:${contact.email}`);
@@ -178,13 +177,34 @@ export default function HomeScreen() {
               </View>
               <View>
                 <Text style={styles.quickFilterLabel}>FLIGHTS</Text>
-                <Text style={styles.quickFilterSublabel}>Global Routes</Text>
+                <Text style={styles.quickFilterSublabel}>Live GDS Fares</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#F0F9FF' }]} onPress={() => router.push('/explore?category=cruises')} activeOpacity={0.85} delayPressIn={0}>
+              <View style={[styles.quickFilterIcon, { backgroundColor: '#0284C7' }]}>
+                <Sparkles size={18} color={Colors.white} />
+              </View>
+              <View>
+                <Text style={styles.quickFilterLabel}>CRUISES</Text>
+                <Text style={styles.quickFilterSublabel}>Ocean Voyages</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.quickFilterCard, { backgroundColor: '#FFFBEB' }]} onPress={() => router.push('/explore?category=rodrigues')} activeOpacity={0.85} delayPressIn={0}>
+              <View style={[styles.quickFilterIcon, { backgroundColor: '#D97706' }]}>
+                <MapPin size={18} color={Colors.white} />
+              </View>
+              <View>
+                <Text style={styles.quickFilterLabel}>RODRIGUES</Text>
+                <Text style={styles.quickFilterSublabel}>Island Escapes</Text>
               </View>
             </TouchableOpacity>
           </ScrollView>
         </View>
 
-        {/* Exclusive Deals with Benefit Visibility */}
+        {/* Exclusive Deals with Benefit Visibility (Zero-Fallback Standard: hide if 0 active deals) */}
+        {(isLoading || (featuredServices && featuredServices.length > 0)) && (
         <View style={[styles.section, styles.featuredSection]}>
           <View style={styles.sectionHeader}>
             <View>
@@ -242,6 +262,7 @@ export default function HomeScreen() {
             )}
           </ScrollView>
         </View>
+        )}
 
         {/* Core Logic 2: Book / WhatsApp / Contact */}
         <View style={styles.conversionCta}>

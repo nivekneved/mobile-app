@@ -108,6 +108,13 @@ export default function ExploreScreen() {
       result = result.filter(s => (s.price ?? 0) <= filters.priceRange[1]);
     }
 
+    // Web-App Parity: Always display priced services first (low to high), pushing 0 / On Request to the bottom
+    result.sort((a, b) => {
+      const pa = Number(a.price || 0);
+      const pb = Number(b.price || 0);
+      return (pa > 0 ? pa : Number.MAX_SAFE_INTEGER) - (pb > 0 ? pb : Number.MAX_SAFE_INTEGER);
+    });
+
     return result;
   }, [services, filters, selectedRegion]);
 

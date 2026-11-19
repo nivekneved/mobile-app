@@ -118,6 +118,8 @@ export const useHomeData = () => {
         });
         */
 
+        const today = new Date().toISOString().split('T')[0];
+
         // OPTIMIZED SPLIT QUERY:
         const [
           { data: slides, error: slidesError },
@@ -127,7 +129,7 @@ export const useHomeData = () => {
         ] = await Promise.all([
           supabase.from('hero_slides').select('*').order('order_index', { ascending: true }),
           supabase.from('categories').select('*').eq('is_active', true).order('display_order', { ascending: true, nullsFirst: false }),
-          supabase.from('services').select('*').eq('is_seasonal_deal', true).eq('is_active', true).order('rating', { ascending: false }).limit(10),
+          supabase.from('services').select('*, service_categories(categories(name, slug))').eq('is_seasonal_deal', true).eq('is_active', true).order('rating', { ascending: false }).limit(10),
           supabase.from('services').select('region').not('region', 'is', null)
         ]);
 
@@ -136,16 +138,13 @@ export const useHomeData = () => {
           const serviceIds = servicesRaw.map((s: any) => s.id);
           const [
             pricingRes,
-            categoriesRes,
             roomTypesRes
           ] = await Promise.all([
-            supabase.from('service_pricing').select('service_id, price, occupancy_pricing').in('service_id', serviceIds).limit(100),
-            supabase.from('service_categories').select('service_id, categories(name)').in('service_id', serviceIds),
-            supabase.from('room_types').select('service_id, price, weekday_price, weekend_price, prices').in('service_id', serviceIds)
+            supabase.from('service_pricing').select('service_id, variant_id, price, occupancy_pricing, is_stop_sell').in('service_id', serviceIds).lte('date_from', today).gte('date_to', today).limit(10000),
+            supabase.from('room_types').select('id, service_id, price, weekday_price, weekend_price, prices').in('service_id', serviceIds)
           ]);
 
-          const pricingList = pricingRes.data || [];
-          const categoriesRel = categoriesRes.data || [];
+          const pricingList = (pricingRes.data || []).filter((p: any) => !p.is_stop_sell);
           const roomTypesList = roomTypesRes.data || [];
 
           // Group by service_id for exact O(1) matching with zero regression
@@ -165,10 +164,9 @@ export const useHomeData = () => {
 
           mappedServices = servicesRaw.map((s: any) => {
             const sPricing = pricingMap.get(s.id) || [];
-            const sCats = categoriesRel.filter((c: any) => c.service_id === s.id);
             const sRooms = roomsMap.get(s.id) || [];
             const allRooms = [...(Array.isArray(s.room_types) ? s.room_types : []), ...sRooms];
-            const categoryObj = sCats?.[0]?.categories as any;
+            const categoryObj = s.service_categories?.[0]?.categories as any;
             const categoryName = (Array.isArray(categoryObj) ? categoryObj[0]?.name : categoryObj?.name) || s.service_type || 'Experience';
             const lowestPrice = calculateLeadPrice(sPricing, s.service_type, s.price, allRooms);
             return { ...s, price: lowestPrice, lowestPrice, category: categoryName, is_seasonal: Boolean(s.is_seasonal_deal ?? s.is_seasonal) };

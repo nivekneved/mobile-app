@@ -157,11 +157,11 @@ export const useSearchServices = () => {
           pricingRes,
           roomTypesRes
         ] = await Promise.all([
-          supabase.from('service_pricing').select('service_id, price, occupancy_pricing').in('service_id', serviceIds).limit(100),
-          supabase.from('room_types').select('service_id, price, weekday_price, weekend_price, prices').in('service_id', serviceIds)
+          supabase.from('service_pricing').select('service_id, variant_id, price, occupancy_pricing, is_stop_sell').in('service_id', serviceIds).lte('date_from', today).gte('date_to', today).limit(10000),
+          supabase.from('room_types').select('id, service_id, price, weekday_price, weekend_price, prices').in('service_id', serviceIds)
         ]);
 
-        const pricingList = pricingRes.data || [];
+        const pricingList = (pricingRes.data || []).filter((p: any) => !p.is_stop_sell);
         const roomTypesList = roomTypesRes.data || [];
 
         const pricingMap = new Map<string, any[]>();

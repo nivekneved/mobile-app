@@ -6,8 +6,10 @@ import { supabase } from '../lib/supabase';
 import { X, ExternalLink } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { resolveImageUrl } from '../utils/imageUtils';
+import { useRouter } from 'expo-router';
 
 export const PopupManager = () => {
+  const router = useRouter();
   const [activeAd, setActiveAd] = useState<any>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -68,13 +70,19 @@ export const PopupManager = () => {
   };
 
   const handleCTA = () => {
-    if (activeAd?.cta_link) {
-      if (activeAd.cta_link.startsWith('http')) {
-        Linking.openURL(activeAd.cta_link);
+    const link = activeAd?.cta_link;
+    if (link) {
+      // Navigate natively inside the app when the link targets a service detail page
+      const uuidMatch = link.match(/\/(?:hotels|tours|cruises|packages|travel-packages|day-packages|evening-packages|activities|services)\/([0-9a-f-]{36})/i);
+      if (uuidMatch && uuidMatch[1]) {
+        handleClose();
+        router.push(`/services/${uuidMatch[1]}` as any);
+        return;
+      }
+      if (link.startsWith('http')) {
+        Linking.openURL(link);
       } else {
-        // Handle internal linking or just open as web if it's a slug
-        // For now, let's assume it's external if it doesn't start with /
-        Linking.openURL(`https://travel-lounge.com${activeAd.cta_link}`);
+        Linking.openURL(`https://travellounge.mu${link.startsWith('/') ? link : `/${link}`}`);
       }
     }
     handleClose();
@@ -106,7 +114,9 @@ export const PopupManager = () => {
           <View style={styles.content}>
             <Text style={styles.title}>{activeAd.title}</Text>
             {activeAd.content && (
-              <Text style={styles.message}>{activeAd.content}</Text>
+              <Text style={styles.message}>
+                {String(activeAd.content).replace(/<[^>]*>?/gm, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim()}
+              </Text>
             )}
             
             <TouchableOpacity style={styles.cta} onPress={handleCTA}>

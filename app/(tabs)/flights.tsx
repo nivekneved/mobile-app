@@ -23,8 +23,8 @@ export default function FlightsScreen() {
 
   const handleSupport = (method: 'whatsapp' | 'email' | 'call', context: string = 'flight arrangements') => {
     const contact = {
-      phone: mobileConfig?.supportPhone || generalConfig?.whatsappNumber1 || '15556767954',
-      email: generalConfig?.contactEmail || 'devenpawaray@gmail.com'
+      phone: '+230 5256 9840',
+      email: generalConfig?.contactEmail || 'reservation@travellounge.mu'
     };
     if (method === 'whatsapp') {
       const cleanPhone = contact.phone.replace(/\+/g, '').replace(/\s+/g, '');
