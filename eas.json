@@ -33,9 +33,6 @@
       }
     },
     "production": {
-      "ios": {
-        "image": "latest"
-      },
       "env": {
         "EXPO_PUBLIC_WEB_URL": "https://travellounge.mu",
         "EXPO_PUBLIC_NEON_STORAGE_URL": "https://br-restless-bird-b523vgvb.storage.c-7.us-east-2.aws.neon.tech/bucket",

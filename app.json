@@ -82,6 +82,9 @@
       [
         "expo-build-properties",
         {
+          "ios": {
+            "deploymentTarget": "15.1"
+          },
           "android": {
             "targetSdkVersion": 36,
             "compileSdkVersion": 36,

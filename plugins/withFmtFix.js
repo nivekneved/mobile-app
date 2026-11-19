@@ -32,6 +32,10 @@ const withFmtFix = (config) => {
 
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
+        # Enforce minimum iOS 15.1 deployment target across all Pods for modern Xcode compatibility
+        if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.1
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        end
         # Ensure the specific 'fmt' pod target uses C++17
         if target.name == 'fmt'
           config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
