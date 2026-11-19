@@ -6,6 +6,27 @@
 
 const WEB_API_URL = (process.env.EXPO_PUBLIC_WEB_URL || 'https://travellounge.mu').replace(/\/+$/, '');
 
+const NUMERIC_FIELDS = new Set([
+  'rating', 'price', 'strikethrough_price', 'service_fee',
+  'weekday_price', 'weekend_price', 'price_teen', 'price_child', 'price_infant',
+  'priority', 'max_adults', 'max_children', 'max_teens', 'max_infants',
+  'duration_days', 'duration_hours', 'max_occupancy', 'min_stay_days', 'child_age_limit',
+  'display_order', 'order_index'
+]);
+
+function normalizeRowNumbers(item: any): any {
+  if (!item || typeof item !== 'object') return item;
+  if (Array.isArray(item)) return item.map(normalizeRowNumbers);
+  for (const key of Object.keys(item)) {
+    const val = item[key];
+    if (NUMERIC_FIELDS.has(key) && typeof val === 'string' && val.trim() !== '') {
+      const parsed = Number(val);
+      if (Number.isFinite(parsed)) item[key] = parsed;
+    }
+  }
+  return item;
+}
+
 export interface ConditionItem {
   type: 'eq' | 'neq' | 'is' | 'gt' | 'gte' | 'lt' | 'lte' | 'ilike' | 'like' | 'in' | 'contains' | 'or';
   col: string;
@@ -182,7 +203,7 @@ export class MobileNeonQueryBuilder {
       if (!response.ok || json.error) {
         return { data: null, error: json.error || new Error(`HTTP ${response.status}`) };
       }
-      return { data: json.data, error: null, count: json.count };
+      return { data: normalizeRowNumbers(json.data), error: null, count: json.count };
     } catch (err) {
       console.error(`[MobileNeon] Query failed on ${this.table}:`, err);
       return { data: null, error: err };

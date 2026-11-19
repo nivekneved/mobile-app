@@ -121,8 +121,8 @@ export const ServiceCard = ({
           <View style={styles.metaRow}>
             {/* PRESERVED: <StarRating rating={rating || 0} size={12} /> */}
             <View style={styles.ratingContainer}>
-              <StarRating rating={rating || 0} size={12} />
-              {rating ? <Text style={styles.ratingText}>{rating.toFixed(1)}</Text> : null}
+              <StarRating rating={Number(rating) || 0} size={12} />
+              {Number(rating) > 0 ? <Text style={styles.ratingText}>{Number(rating).toFixed(1)}</Text> : null}
             </View>
             {duration && (
               <View style={styles.durationRow}>
