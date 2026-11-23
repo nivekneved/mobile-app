@@ -20,12 +20,12 @@ const PARTNERS = [
 ];
 
 export const PartnerSlider = () => {
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const scrollX = useRef(0);
   const contentWidth = useRef(0);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
     const startDelay = setTimeout(() => {
       const scroll = () => {
         scrollX.current += 1;

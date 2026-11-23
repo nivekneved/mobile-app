@@ -19,7 +19,7 @@ interface TextInputWithDefaultProps extends RNTextInput {
 // POLYFILL: Hermes in some environments (SDK 52) may lack WeakRef
 // L-05 FIX: Use WeakRef with proper GC behavior via FinalizationRegistry if available
 if (typeof WeakRef === 'undefined') {
-  (global as any).WeakRef = class WeakRef<T extends object> {
+  (globalThis as any).WeakRef = class WeakRef<T extends object> {
     private ref: T | undefined;
     constructor(target: T) {
       this.ref = target;

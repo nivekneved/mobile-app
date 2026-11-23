@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   glow: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(59, 130, 246, 0.05)',
     borderRadius: 200,
   },

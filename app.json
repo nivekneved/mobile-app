@@ -60,9 +60,10 @@
       }
     },
     "android": {
-      "versionCode": 20,
+      "versionCode": 21,
       "package": "com.travellounge.mu",
       "softwareKeyboardLayoutMode": "resize",
+      "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "backgroundColor": "#DC2626",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -73,7 +74,6 @@
     "primaryColor": "#DC2626",
     "scheme": "travellounge",
     "plugins": [
-      "./plugins/withFmtFix",
       "expo-router",
       "expo-font",
       "expo-secure-store",
@@ -83,7 +83,7 @@
         "expo-build-properties",
         {
           "ios": {
-            "deploymentTarget": "15.1"
+            "deploymentTarget": "16.4"
           },
           "android": {
             "targetSdkVersion": 36,

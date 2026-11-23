@@ -24,7 +24,7 @@ export const AIConcierge = () => {
   const fadeAnim = useState(new Animated.Value(0))[0];
   const slideAnim = useState(new Animated.Value(20))[0];
 
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.charcoal,
   },
   headerBg: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(220, 38, 38, 0.1)',
   },
   headerContent: {

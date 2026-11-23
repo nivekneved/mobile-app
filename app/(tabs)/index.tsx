@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   destCardWrapper: { height: 260 },
   destCard: { width: '100%', height: '100%', borderRadius: 40, overflow: 'hidden', borderWidth: 1, borderColor: Colors.border },
   destImage: { width: '100%', height: '100%' },
-  destOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.15)', justifyContent: 'flex-end', padding: 24 },
+  destOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.15)', justifyContent: 'flex-end', padding: 24 },
   destLabelWrapper: { backgroundColor: 'rgba(255,255,255,0.95)', padding: 16, borderRadius: 24 },
   destType: { fontFamily: 'Outfit_900Black', fontSize: 10, letterSpacing: 2, color: Colors.primary },
   destName: { fontFamily: 'Outfit_900Black', fontSize: 22, color: Colors.charcoal, letterSpacing: -0.5 },

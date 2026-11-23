@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(15, 23, 42, 0.45)',
   },
   heroContent: {
@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   loaderContainer: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
@@ -606,7 +606,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   charterOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(15, 23, 42, 0.75)',
   },
   charterContent: {

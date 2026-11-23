@@ -261,14 +261,14 @@ export default function ExploreScreen() {
                   <Text style={styles.clearCategoryText}>CLEAR</Text>
                 </TouchableOpacity>
               </View>
-            ) : null
+            ) : undefined
           }
           ListFooterComponent={
             isLoadingMore ? (
               <View style={{ paddingVertical: 16, alignItems: 'center' }}>
                 <ActivityIndicator color={Colors.primary} size="small" />
               </View>
-            ) : null
+            ) : undefined
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
