@@ -38,11 +38,20 @@ export default function ProfileScreen() {
           style: "destructive", 
           onPress: async () => {
             try {
+              const userEmail = session?.user?.email;
+              if (userEmail) {
+                const webBase = process.env.EXPO_PUBLIC_WEB_URL || 'https://travellounge.mu';
+                await fetch(`${webBase}/api/account/delete`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: userEmail, source: 'mobile-app' }),
+                }).catch(() => {});
+              }
               await AsyncStorage.multiRemove(['guest_customer_ids', 'wishlist_items', 'custom_preferences', 'travel_lounge_session']);
               await signOut();
               Alert.alert(
                 "Account & Data Erased", 
-                "Your account profile and locally cached data have been permanently removed."
+                "Your account profile and associated data have been permanently removed."
               );
             } catch (e) {
               await signOut();
@@ -59,8 +68,17 @@ export default function ProfileScreen() {
       phone: mobileConfig?.supportPhone || generalConfig?.whatsappNumber1 || '+230 5940 7701',
       email: generalConfig?.contactEmail || 'reservation@travellounge.mu'
     };
-    if (method === 'whatsapp') Linking.openURL(`https://wa.me/${contact.phone.replace(/\+/g, '')}`);
-    if (method === 'email') Linking.openURL(`mailto:${contact.email}`);
+    if (method === 'whatsapp') {
+      const cleanDigits = contact.phone.replace(/\D/g, '');
+      Linking.openURL(`https://wa.me/${cleanDigits}`).catch(() => {
+        Alert.alert('WhatsApp Unavailable', `Contact us on WhatsApp at ${contact.phone}`);
+      });
+    }
+    if (method === 'email') {
+      Linking.openURL(`mailto:${contact.email}`).catch(() => {
+        Alert.alert('Email Unavailable', `Email us at ${contact.email}`);
+      });
+    }
   };
 
   const MenuItem = ({ icon: Icon, title, subtitle, onPress, color = Colors.charcoal }: any) => (

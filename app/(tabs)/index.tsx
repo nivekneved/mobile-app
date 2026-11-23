@@ -56,7 +56,7 @@ export default function HomeScreen() {
       phone: mobileConfig?.supportPhone || generalConfig?.whatsappNumber1 || generalConfig?.contactPhone || '+230 5940 7701',
       email: generalConfig?.contactEmail || 'reservation@travellounge.mu'
     };
-    if (method === 'whatsapp') Linking.openURL(`https://wa.me/${contact.phone.replace(/\+/g, '')}`);
+    if (method === 'whatsapp') Linking.openURL(`https://wa.me/${contact.phone.replace(/\D/g, '')}`).catch(() => {});
     if (method === 'email') Linking.openURL(`mailto:${contact.email}`);
     if (method === 'call') Linking.openURL(`tel:${contact.phone}`);
   };

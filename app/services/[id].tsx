@@ -147,7 +147,7 @@ export default function ServiceDetailScreen() {
       email: generalConfig?.contactEmail || 'reservation@travellounge.mu'
     };
     const message = `Inquiry for: ${service?.name} (ID: ${id})`;
-    if (method === 'whatsapp') Linking.openURL(`https://wa.me/${contact.phone.replace(/\+/g, '')}?text=${encodeURIComponent(message)}`);
+    if (method === 'whatsapp') Linking.openURL(`https://wa.me/${contact.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`).catch(() => {});
     if (method === 'email') Linking.openURL(`mailto:${contact.email}?subject=${encodeURIComponent(message)}`);
   };
 
