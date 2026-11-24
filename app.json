@@ -86,9 +86,7 @@
             "deploymentTarget": "16.4"
           },
           "android": {
-            "targetSdkVersion": 36,
-            "compileSdkVersion": 36,
-            "buildToolsVersion": "36.0.0"
+            "targetSdkVersion": 36
           }
         }
       ]
